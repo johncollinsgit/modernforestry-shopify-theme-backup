@@ -68,6 +68,17 @@ git commit -m "Backup: live theme snapshot YYYY-MM-DD"
 git push
 ```
 
+### One-Command Backup (Recommended)
+From repo root:
+```bash
+./backup-live-theme.sh
+```
+
+Optional overrides:
+```bash
+SHOPIFY_STORE=modernforestry.myshopify.com SHOPIFY_THEME_ID=136487764227 ./backup-live-theme.sh
+```
+
 ## Branch Strategy (Simple)
 - `main` = production backup history (published theme tracking)
 - Optional short-lived feature branches only for bigger edits
