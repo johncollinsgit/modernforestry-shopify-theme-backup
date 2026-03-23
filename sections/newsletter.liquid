@@ -86,21 +86,6 @@
   #section-{{ section.id }} .Heading {
     color: {{ section.settings.text_color }};
   }
-
-  #section-{{ section.id }} .Form__Submit {
-    border-color: {{ section.settings.text_color }};
-    color: {{ section.settings.button_color }};
-  }
-
-  #section-{{ section.id }} .Form__Submit::before {
-    background-color: {{ section.settings.text_color }};
-  }
-
-  @media (-moz-touch-enabled: 0), (hover: hover) {
-    #section-{{ section.id }} .Form__Submit:hover {
-      color: {{ section.settings.text_color }};
-    }
-  }
 </style>
 
 {% schema %}

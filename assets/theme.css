@@ -1456,19 +1456,19 @@ input.spr-button-primary,
 .spr-pagination-next > a {
   position: relative;
   display: inline-block;
-  padding: 14px 28px;
+  padding: 14px 24px;
   line-height: normal;
   border: 1px solid transparent;
-  border-radius: 0;
+  border-radius: 6px;
   text-transform: uppercase;
   font-size: calc(var(--base-text-font-size) - (var(--default-text-font-size) - 12px));
   text-align: center;
   letter-spacing: 0.2em;
   font-family: var(--heading-font-family);
-  font-weight: var(--heading-font-weight);
+  font-weight: 600;
   font-style: var(--heading-font-style);
   background-color: transparent;
-  transition: color 0.45s cubic-bezier(0.785, 0.135, 0.15, 0.86), border 0.45s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   z-index: 1;
   -webkit-tap-highlight-color: initial;
 }
@@ -1502,7 +1502,7 @@ input.spr-button-primary::before,
   .features--show-button-transition .spr-button-primary:not(input):not([disabled])::before,
   .features--show-button-transition .spr-pagination-prev > a:not([disabled])::before,
   .features--show-button-transition .spr-pagination-next > a:not([disabled])::before {
-    transition: transform 0.45s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+    transition: transform 0.2s ease, background-color 0.2s ease;
   }
 
   .features--show-button-transition .Button:not([disabled]):hover::before,
@@ -1533,6 +1533,7 @@ input.spr-button-primary[disabled],
 .spr-button-primary:not(input) {
   color: var(--button-text-color);
   border-color: var(--button-background);
+  background-color: var(--button-background);
 }
 
 .Button--primary::before,
@@ -1542,13 +1543,32 @@ input.spr-button-primary[disabled],
   background-color: var(--button-background);
 }
 
+.Button--primary:not([disabled]):hover,
+.shopify-payment-button__button--unbranded:not([disabled]):hover,
+.spr-summary-actions-newreview:not([disabled]):hover,
+.spr-button-primary:not(input):not([disabled]):hover {
+  color: var(--button-text-color);
+  border-color: var(--button-background-hover, #A96522);
+  background-color: var(--button-background-hover, #A96522);
+}
+
 @media (-moz-touch-enabled: 0), (hover: hover) {
   .features--show-button-transition .Button--primary:not([disabled]):hover,
   .features--show-button-transition .shopify-payment-button__button--unbranded:not([disabled]):hover,
   .features--show-button-transition .spr-summary-actions-newreview:not([disabled]):hover,
   .features--show-button-transition .spr-button-primary:not(input):not([disabled]):hover {
-    color: var(--button-background);
-    background-color: transparent;
+    color: var(--button-text-color);
+    border-color: var(--button-background-hover, #A96522);
+    background-color: var(--button-background-hover, #A96522);
+  }
+
+  .features--show-button-transition .Button--primary:not([disabled]):hover::before,
+  .features--show-button-transition .shopify-payment-button__button--unbranded:not([disabled]):hover::before,
+  .features--show-button-transition .spr-summary-actions-newreview:not([disabled]):hover::before,
+  .features--show-button-transition .spr-button-primary:not(input):not([disabled]):hover::before {
+    transform-origin: left center;
+    transform: scale(1, 1);
+    background-color: var(--button-background-hover, #A96522);
   }
 }
 
@@ -6597,15 +6617,15 @@ body:not(.features--show-image-zooming) .Image--lazyLoaded.Image--zoomOut {
   margin-top: 18px;
   min-height: 58px;
   overflow: hidden;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #f0ca5f, #ddb14f);
-  border-color: rgba(143, 103, 24, 0.18);
-  box-shadow: 0 18px 34px rgba(166, 126, 33, 0.18);
+  border-radius: 6px;
+  background: var(--button-background);
+  border-color: var(--button-background);
+  box-shadow: 0 12px 24px rgba(var(--button-background-rgb), 0.2);
 }
 
 .Cart__Checkout::before {
   border-radius: inherit;
-  background: linear-gradient(135deg, #f0ca5f, #ddb14f);
+  background: var(--button-background);
 }
 
 .Cart__OffscreenNoteContainer {

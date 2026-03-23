@@ -105,23 +105,6 @@
   #section-{{ section.id }} .ImageHero .Heading {
     color: #ffffff;
   }
-
-  #section-{{ section.id }} .ImageHero .Button {
-    color: #1c1c1c;
-    border-color: #ffffff;
-  }
-
-  #section-{{ section.id }} .ImageHero .Button::before {
-    background-color: #ffffff;
-  }
-
-  {%- if settings.show_button_transition -%}
-    @media (-moz-touch-enabled: 0), (hover: hover) {
-      #section-{{ section.id }} .ImageHero .Button:hover {
-        color: #ffffff;
-      }
-    }
-  {%- endif -%}
 </style>
 
 {% schema %}

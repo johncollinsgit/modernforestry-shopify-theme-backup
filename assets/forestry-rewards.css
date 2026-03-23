@@ -10,15 +10,15 @@
   --cc-text: #2b2623;
   --cc-text-rgb: 43, 38, 35;
   --cc-text-soft: #6a625c;
-  --cc-accent: #c46a2d;
-  --cc-accent-rgb: 196, 106, 45;
-  --cc-accent-hover: #ad5d27;
+  --cc-accent: #C67A2D;
+  --cc-accent-rgb: 198, 122, 45;
+  --cc-accent-hover: #A96522;
   --cc-badge: #efe5d7;
   --cc-success-soft: #ece7de;
   --cc-success-soft-rgb: 236, 231, 222;
-  --cc-accent-text: #16120f;
+  --cc-accent-text: #ffffff;
   --forestry-rewards-cta-shadow: 0 16px 34px rgba(117, 69, 35, 0.16);
-  --forestry-rewards-cta-focus-ring: rgba(196, 106, 45, 0.22);
+  --forestry-rewards-cta-focus-ring: rgba(198, 122, 45, 0.22);
   --heading-color: var(--cc-text);
   --text-color-rgb: var(--cc-text-rgb);
   --background-rgb: var(--cc-surface-rgb);
@@ -39,15 +39,15 @@
   --cc-text: #f5f1ea;
   --cc-text-rgb: 245, 241, 234;
   --cc-text-soft: #c7beb2;
-  --cc-accent: #c88a3d;
-  --cc-accent-rgb: 200, 138, 61;
-  --cc-accent-hover: #b37830;
+  --cc-accent: #C67A2D;
+  --cc-accent-rgb: 198, 122, 45;
+  --cc-accent-hover: #A96522;
   --cc-badge: rgba(200, 138, 61, 0.14);
   --cc-success-soft: rgba(255, 255, 255, 0.05);
   --cc-success-soft-rgb: 255, 255, 255;
-  --cc-accent-text: #140f0a;
+  --cc-accent-text: #ffffff;
   --forestry-rewards-cta-shadow: 0 20px 40px rgba(0, 0, 0, 0.22);
-  --forestry-rewards-cta-focus-ring: rgba(200, 138, 61, 0.24);
+  --forestry-rewards-cta-focus-ring: rgba(198, 122, 45, 0.24);
 }
 
 .ForestryRewardsRoot[data-theme="evergreen-club"] {
@@ -60,15 +60,15 @@
   --cc-text: #273226;
   --cc-text-rgb: 39, 50, 38;
   --cc-text-soft: #667164;
-  --cc-accent: #7a5c3a;
-  --cc-accent-rgb: 122, 92, 58;
-  --cc-accent-hover: #654a2d;
+  --cc-accent: #C67A2D;
+  --cc-accent-rgb: 198, 122, 45;
+  --cc-accent-hover: #A96522;
   --cc-badge: #e7ece3;
   --cc-success-soft: #edf1eb;
   --cc-success-soft-rgb: 237, 241, 235;
-  --cc-accent-text: #120f0c;
+  --cc-accent-text: #ffffff;
   --forestry-rewards-cta-shadow: 0 18px 34px rgba(74, 57, 37, 0.16);
-  --forestry-rewards-cta-focus-ring: rgba(122, 92, 58, 0.2);
+  --forestry-rewards-cta-focus-ring: rgba(198, 122, 45, 0.2);
 }
 
 .ForestryRewardsRoot .Heading,
@@ -148,9 +148,9 @@
 .ForestryRewardsRoot .Button--primary,
 .ForestryRewardsRoot .Button--secondary {
   min-height: 56px;
-  padding: 0.95rem 1.8rem;
+  padding: 14px 24px;
   overflow: hidden;
-  border-radius: 999px;
+  border-radius: 6px;
   color: var(--cc-accent-text);
   border-color: var(--cc-accent);
   box-shadow: var(--forestry-rewards-cta-shadow);
@@ -193,6 +193,7 @@
   .features--show-button-transition .ForestryRewardsRoot .Button--secondary:not([disabled]):hover {
     color: var(--cc-accent-text);
     border-color: var(--cc-accent-hover);
+    background-color: var(--cc-accent-hover);
     box-shadow: 0 18px 34px rgba(var(--cc-accent-rgb), 0.24);
   }
 
@@ -1879,13 +1880,13 @@
   align-items: center;
   --cinematic-ink: #f6f1ea;
   --cinematic-ink-muted: rgba(246, 241, 234, 0.72);
-  --cinematic-accent: #c88a3d;
-  --cinematic-accent-strong: #d49a4b;
+  --cinematic-accent: #C67A2D;
+  --cinematic-accent-strong: #A96522;
   --cinematic-border: rgba(255, 255, 255, 0.12);
   --cinematic-panel: rgba(12, 10, 9, 0.72);
   --cinematic-panel-strong: rgba(12, 10, 9, 0.9);
   --button-background: var(--cinematic-accent);
-  --button-text-color: #1a1108;
+  --button-text-color: #ffffff;
   --text-color-light: var(--cinematic-ink);
   --text-color-light-rgb: 246, 241, 234;
   --candle-cash-pointer-x: 50%;
@@ -2576,7 +2577,7 @@
   min-height: 54px;
   min-width: 11.5rem;
   padding: 0.95rem 1.9rem;
-  border-radius: 999px;
+  border-radius: 6px;
   overflow: hidden;
   text-align: center;
   text-decoration: none;
@@ -2584,13 +2585,14 @@
   font-size: 0.78rem;
   line-height: 1;
   box-shadow: 0 18px 34px rgba(0, 0, 0, 0.28);
-  transition: transform 0.32s ease, box-shadow 0.32s ease, border-color 0.32s ease, color 0.32s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
 }
 
 .CandleCashCinematic .Button--primary {
-  color: #1a1108;
-  border-color: rgba(221, 167, 92, 0.92);
-  box-shadow: 0 22px 42px rgba(131, 84, 31, 0.26);
+  color: #ffffff;
+  border-color: var(--cinematic-accent);
+  background: var(--cinematic-accent);
+  box-shadow: 0 22px 42px rgba(131, 84, 31, 0.24);
 }
 
 .CandleCashCinematic .Button--secondary {
@@ -2605,7 +2607,7 @@
 }
 
 .CandleCashCinematic .Button--primary::before {
-  background: linear-gradient(135deg, #c88a3d 0%, #d69d4f 100%);
+  background: var(--cinematic-accent);
 }
 
 .CandleCashCinematic .Button--secondary::before {
@@ -2621,7 +2623,14 @@
 
 .CandleCashCinematic .Button--primary:hover,
 .CandleCashCinematic .Button--primary:focus-visible {
-  box-shadow: 0 24px 46px rgba(131, 84, 31, 0.34);
+  border-color: var(--cinematic-accent-strong);
+  background: var(--cinematic-accent-strong);
+  box-shadow: 0 20px 38px rgba(131, 84, 31, 0.32);
+}
+
+.CandleCashCinematic .Button--primary:hover::before,
+.CandleCashCinematic .Button--primary:focus-visible::before {
+  background: var(--cinematic-accent-strong);
 }
 
 .CandleCashCinematic .Button--secondary:hover,
@@ -3426,6 +3435,22 @@
   padding: clamp(34px, 6vh, 62px) 0;
 }
 
+.template-login .CandleCashAuth .Container,
+.template-register .CandleCashAuth .Container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px;
+}
+
+.template-login .CandleCashAuth__shell,
+.template-register .CandleCashAuth__shell {
+  width: 100%;
+}
+
 .CandleCashAuth::before,
 .CandleCashAuth::after {
   content: "";
@@ -3706,8 +3731,8 @@
 }
 
 .CandleCashAuth .Form__Input:focus {
-  border-color: rgba(212, 154, 75, 0.74);
-  box-shadow: 0 0 0 4px rgba(212, 154, 75, 0.12);
+  border-color: rgba(198, 122, 45, 0.74);
+  box-shadow: 0 0 0 4px rgba(198, 122, 45, 0.12);
   background: rgba(255, 255, 255, 0.06);
 }
 
@@ -3813,7 +3838,7 @@
   margin-top: 0.2rem;
   width: 1rem;
   height: 1rem;
-  accent-color: #d49a4b;
+  accent-color: #C67A2D;
 }
 
 .CandleCashAuth__consent strong,
@@ -3860,7 +3885,8 @@
 
 .CandleCashAuth .Button--primary {
   min-height: 58px;
-  border-radius: 999px;
+  padding: 14px 24px;
+  border-radius: 6px;
   letter-spacing: 0.13em;
   font-size: 0.78rem;
 }
@@ -3879,11 +3905,17 @@
 .CandleCashAuth .Form__ItemHelp:focus-visible,
 .CandleCashAuth__bonus-toggle:focus-visible,
 .CandleCashAuth__consent input:focus-visible {
-  outline: 2px solid rgba(212, 154, 75, 0.8);
+  outline: 2px solid rgba(198, 122, 45, 0.8);
   outline-offset: 4px;
 }
 
 @media screen and (max-width: 990px) {
+  .template-login .CandleCashAuth .Container,
+  .template-register .CandleCashAuth .Container {
+    min-height: auto;
+    padding: 24px;
+  }
+
   .CandleCashAuth__shell {
     grid-template-columns: 1fr;
     gap: 2rem;

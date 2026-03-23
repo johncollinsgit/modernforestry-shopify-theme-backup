@@ -156,23 +156,6 @@
    #section-{{ section.id }} .flickity-page-dots {
     color: {{ section.settings.text_color }};
   }
-
-  #section-{{ section.id }} .Button {
-    color: {{ section.settings.button_color }};
-    border-color: {{ section.settings.button_background }};
-  }
-
-  #section-{{ section.id }} .Button::before {
-    background-color: {{ section.settings.button_background }};
-  }
-
-  {%- if settings.show_button_transition -%}
-    @media (-moz-touch-enabled: 0), (hover: hover) {
-      #section-{{ section.id }} .Button:hover {
-        color: {{ section.settings.button_background }};
-      }
-    }
-  {%- endif -%}
 </style>
 
 {% schema %}
