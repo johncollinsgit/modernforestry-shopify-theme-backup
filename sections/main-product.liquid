@@ -360,7 +360,11 @@
 
                 {%- when 'product_meta' -%}
                   {%- render 'product-meta', form: form, block: block, product: product -%}
-                  {%- render 'forestry-product-review-summary', product: product, customer: customer -%}
+                  {%- if settings.native_reviews_enabled -%}
+                    {%- render 'forestry-product-review-summary', product: product, customer: customer -%}
+                  {%- elsif settings.growave_reviews_enabled and block.settings.show_product_rating == false -%}
+                    {%- render 'ssw-widget-avg-rate-listing', product: product -%}
+                  {%- endif -%}
 
                 {%- when 'description' -%}
                   {%- if product.description != blank -%}

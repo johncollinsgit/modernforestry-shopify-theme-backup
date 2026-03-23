@@ -30,9 +30,22 @@
 
     <link rel="stylesheet" href="{{ 'theme.css' | asset_url }}">
     <link rel="stylesheet" href="{{ 'forestry-rewards.css' | asset_url }}">
-    {%- if request.page_type == 'product' -%}
+    {%- if settings.native_reviews_enabled and request.page_type == 'product' -%}
       <link rel="stylesheet" href="{{ 'forestry-product-reviews.css' | asset_url }}">
     {%- endif -%}
+    {%- unless settings.growave_reviews_enabled -%}
+      <style>
+        #ssw-widget-review-bar,
+        #ssw-review-widget-content,
+        .ssw-reviews-widget,
+        .ssw-review-side-backdrop,
+        .ssw-widget-avg-rate-listing,
+        [data-name="reviewsPopup"] {
+          display: none !important;
+          visibility: hidden !important;
+        }
+      </style>
+    {%- endunless -%}
 
     <script>
       {%- if request.page_type == 'policy' -%}
@@ -114,7 +127,9 @@
     <script src="{{ 'theme.js' | asset_url }}" defer></script>
     <script src="{{ 'custom.js' | asset_url }}" defer></script>
     <script src="{{ 'forestry-rewards.js' | asset_url }}" defer></script>
-    <script src="{{ 'forestry-product-reviews.js' | asset_url }}" defer></script>
+    {%- if settings.native_reviews_enabled -%}
+      <script src="{{ 'forestry-product-reviews.js' | asset_url }}" defer></script>
+    {%- endif -%}
 
     <script>
       (function () {

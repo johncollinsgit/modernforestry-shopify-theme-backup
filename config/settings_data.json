@@ -37,6 +37,8 @@
     "base_text_font_size": 14,
     "show_page_transition": false,
     "show_element_staggering": false,
+    "native_reviews_enabled": true,
+    "growave_reviews_enabled": false,
     "search_mode": "product",
     "product_show_price_on_hover": false,
     "product_show_secondary_image": true,

@@ -1,3 +1,8 @@
+{%- assign forestry_reviews_tab_rendered = false -%}
+{%- assign forestry_non_review_tab_rendered = false -%}
+{%- assign forestry_native_reviews_enabled = settings.native_reviews_enabled -%}
+{%- assign forestry_reviews_tab_enabled = forestry_native_reviews_enabled -%}
+
 {%- capture product_tabs -%}
   {%- for block in section.blocks -%}
     {%- case block.type -%}
@@ -11,6 +16,7 @@
         {%- endif -%}
 
         {%- if title != blank and content != blank -%}
+          {%- assign forestry_non_review_tab_rendered = true -%}
           <div class="Collapsible Collapsible--large" {{ block.shopify_attributes }}>
             <button class="Collapsible__Button Heading u-h6" data-action="toggle-collapsible" aria-expanded="false">
               {{- title -}} <span class="Collapsible__Plus"></span>
@@ -27,20 +33,48 @@
         {%- endif -%}
 
       {%- when 'reviews' -%}
-        <div class="Collapsible Collapsible--large" {{ block.shopify_attributes }}>
-          <button class="Collapsible__Button Heading u-h6" data-action="toggle-collapsible" aria-expanded="false">
-            <span>{{ 'product.tabs.reviews' | t }} <span class="text--light">(<span data-forestry-product-review-count data-forestry-product-review-key="{{ product.id }}">0</span>)</span></span>
-            <span class="Collapsible__Plus"></span>
-          </button>
+        {%- if forestry_reviews_tab_enabled -%}
+          {%- assign forestry_reviews_tab_rendered = true -%}
+          <div class="Collapsible Collapsible--large" {{ block.shopify_attributes }}>
+            <button class="Collapsible__Button Heading u-h6" data-action="toggle-collapsible" aria-expanded="false">
+              <span>
+                {{ 'product.tabs.reviews' | t }}
+                {%- if forestry_native_reviews_enabled -%}
+                  <span class="text--light">(<span data-forestry-product-review-count data-forestry-product-review-key="{{ product.id }}">0</span>)</span>
+                {%- endif -%}
+              </span>
+              <span class="Collapsible__Plus"></span>
+            </button>
 
-          <div class="Collapsible__Inner">
-            <div class="Collapsible__Content">
-              {% render 'forestry-product-reviews-root', product: product, customer: customer %}
+            <div class="Collapsible__Inner">
+              <div class="Collapsible__Content">
+                {% render 'forestry-product-reviews-root', product: product, customer: customer %}
+              </div>
             </div>
           </div>
-        </div>
+        {%- endif -%}
     {%- endcase -%}
   {%- endfor -%}
+
+  {%- if forestry_reviews_tab_rendered == false and forestry_non_review_tab_rendered == false and forestry_reviews_tab_enabled -%}
+    <div class="Collapsible Collapsible--large">
+      <button class="Collapsible__Button Heading u-h6" data-action="toggle-collapsible" aria-expanded="false">
+        <span>
+          {{ 'product.tabs.reviews' | t }}
+          {%- if forestry_native_reviews_enabled -%}
+            <span class="text--light">(<span data-forestry-product-review-count data-forestry-product-review-key="{{ product.id }}">0</span>)</span>
+          {%- endif -%}
+        </span>
+        <span class="Collapsible__Plus"></span>
+      </button>
+
+      <div class="Collapsible__Inner">
+        <div class="Collapsible__Content">
+          {% render 'forestry-product-reviews-root', product: product, customer: customer %}
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
 {%- endcapture -%}
 
 {%- if product_tabs != blank -%}

@@ -336,12 +336,54 @@
     return '<div class="ForestryProductReviews__notice ForestryProductReviews__notice--' + escapeHtml(tone || 'neutral') + '">' + escapeHtml(message) + '</div>';
   }
 
+  function submissionLockedForViewer(viewer) {
+    const viewerState = clean(viewer && viewer.state);
+    return viewerState === 'reviewed' || viewerState === 'pending';
+  }
+
+  function firstValidationErrorMessage(payload) {
+    const errors = payload && payload.errors && typeof payload.errors === 'object' ? payload.errors : null;
+    if (!errors) return '';
+
+    const fields = Object.keys(errors);
+    for (let index = 0; index < fields.length; index += 1) {
+      const value = errors[fields[index]];
+      if (Array.isArray(value) && value.length > 0) {
+        const first = clean(value[0]);
+        if (first) return first;
+      }
+    }
+
+    return '';
+  }
+
+  function submitFailureMessage(errorCode, errorMessage, payload) {
+    const validation = firstValidationErrorMessage(payload);
+    if (validation) return validation;
+
+    switch (errorCode) {
+      case 'identity_review_required':
+        return 'We could not safely match this review to a customer profile, so no reward was issued.';
+      case 'login_required':
+        return 'Sign in before leaving a product review.';
+      case 'review_too_short':
+        return 'Tell us a little more before you submit your review.';
+      case 'email_required':
+        return 'Please provide an email address so we can save your review.';
+      case 'invalid_rating':
+        return 'Choose a valid star rating before submitting.';
+      default:
+        return clean(errorMessage) || 'We could not save that review right now. Please try again in a moment.';
+    }
+  }
+
   function formMarkup(root, data, state) {
     const viewer = data.viewer || {};
     const settings = data.settings || {};
     const task = data.task || {};
     const review = viewer.review || {};
     const canSubmit = viewer.can_submit === true;
+    const existingState = clean(viewer.state);
     const loginUrl = clean(root.dataset.loginUrl);
 
     if (!canSubmit) {
@@ -352,16 +394,22 @@
         '</div>';
     }
 
-    const existingState = clean(viewer.state);
+    if (submissionLockedForViewer(viewer)) {
+      const lockedCopy = existingState === 'reviewed'
+        ? 'You already reviewed this product. Additional submissions are disabled for this item.'
+        : 'Your review is already pending approval. Additional submissions are disabled until moderation is complete.';
+
+      return '' +
+        '<div class="ForestryProductReviews__formShell">' +
+          '<p class="Text--subdued">' + escapeHtml(lockedCopy) + '</p>' +
+        '</div>';
+    }
+
     const rewardCopy = task && task.reward_amount
       ? '<div class="ForestryProductReviews__reward">Earn ' + escapeHtml(currencyLabel(task.reward_amount) || task.reward_amount) + ' in Candle Cash when your review is saved.</div>'
       : '';
-    const introCopy = existingState === 'reviewed'
-      ? 'You already reviewed this product. Update it anytime and we will keep the latest version here.'
-      : (existingState === 'pending'
-        ? 'Your review is already in the queue. You can update it here if you need to.'
-        : 'Leave a review and we will save it right back into your Forestry account.');
-    const submitLabel = existingState === 'reviewed' || existingState === 'pending' ? 'Update review' : 'Submit review';
+    const introCopy = 'Leave a review and we will save it right back into your Forestry account.';
+    const submitLabel = 'Submit review';
     const showGuestFields = !clean(root.dataset.customerEmail);
     const disabled = state.busy ? ' disabled aria-disabled="true"' : '';
     const selectedRating = Number.parseInt(String(review.rating || 0), 10) || 5;
@@ -411,8 +459,23 @@
     const state = uiState(root);
     const snapshot = summarySnapshot(data);
     const reviews = Array.isArray(data.reviews) ? data.reviews : [];
+    const viewer = data.viewer || {};
+    const viewerState = clean(viewer.state);
+    const submissionLocked = submissionLockedForViewer(viewer);
     const count = snapshot.count;
     const average = snapshot.average;
+    const toggleLabel = submissionLocked
+      ? (viewerState === 'reviewed' ? 'Already reviewed' : 'Review pending')
+      : (state.formOpen ? 'Hide form' : (count > 0 ? 'Write a review' : 'Be the first to review'));
+    const toggleDisabled = submissionLocked ? ' disabled aria-disabled="true"' : '';
+    const lockNotice = submissionLocked && !clean(state.message)
+      ? noticeMarkup(
+        viewerState === 'reviewed'
+          ? 'You already reviewed this product. Submission is disabled.'
+          : 'Your review is pending approval. Submission is disabled until moderation finishes.',
+        'neutral'
+      )
+      : '';
 
     return '' +
       '<div class="spr-container">' +
@@ -424,10 +487,11 @@
               '<span class="spr-summary-caption">' + escapeHtml(count > 0 ? ((average ? average.toFixed(1) : '0.0') + ' from ' + reviewCountLabel(count)) : 'No reviews yet') + '</span>' +
             '</div>' +
           '</div>' +
-          '<div class="spr-summary-actions"><button class="spr-summary-actions-newreview Button Button--secondary" type="button" data-action="toggle-review-form">' + escapeHtml(state.formOpen ? 'Hide form' : (count > 0 ? 'Write a review' : 'Be the first to review')) + '</button></div>' +
+          '<div class="spr-summary-actions"><button class="spr-summary-actions-newreview Button Button--secondary" type="button" data-action="toggle-review-form"' + toggleDisabled + '>' + escapeHtml(toggleLabel) + '</button></div>' +
         '</div>' +
+        lockNotice +
         noticeMarkup(state.message, state.tone) +
-        (state.formOpen ? formMarkup(root, data, state) : '') +
+        (state.formOpen && !submissionLocked ? formMarkup(root, data, state) : '') +
         '<div class="spr-content">' +
           '<div class="spr-reviews">' +
             (reviews.length
@@ -484,6 +548,21 @@
   async function submitReview(root) {
     const endpoint = clean(root.dataset.endpointProductReviewSubmit);
     if (!endpoint) return;
+    const cachedPayload = runtime.payloads.get(cacheKey(root)) || { summary: {}, reviews: [], viewer: {}, task: {}, settings: {} };
+    const cachedViewer = cachedPayload.viewer || {};
+
+    if (submissionLockedForViewer(cachedViewer)) {
+      setUiState(root, {
+        busy: false,
+        formOpen: false,
+        message: clean(cachedViewer.state) === 'reviewed'
+          ? 'You already reviewed this product.'
+          : 'Your review is still pending approval.',
+        tone: 'danger',
+      });
+      renderPanel(root, cachedPayload);
+      return;
+    }
 
     const bodyField = root.querySelector('[data-review-body]');
     const ratingField = root.querySelector('input[name="forestry-product-review-rating-' + escapeSelector(productKey(root)) + '"]:checked');
@@ -495,18 +574,18 @@
 
     if (!ratingField) {
       setUiState(root, { message: 'Choose a star rating first.', tone: 'danger' });
-      renderPanel(root, runtime.payloads.get(cacheKey(root)) || { summary: {}, reviews: [], viewer: {}, task: {}, settings: {} });
+      renderPanel(root, cachedPayload);
       return;
     }
 
     if (reviewBody.length < minimumLength) {
       setUiState(root, { message: 'Tell us a little more before you submit your review.', tone: 'danger' });
-      renderPanel(root, runtime.payloads.get(cacheKey(root)) || { summary: {}, reviews: [], viewer: {}, task: {}, settings: {} });
+      renderPanel(root, cachedPayload);
       return;
     }
 
     setUiState(root, { busy: true, message: '', tone: 'neutral' });
-    renderPanel(root, runtime.payloads.get(cacheKey(root)) || { summary: {}, reviews: [], viewer: {}, task: {}, settings: {} });
+    renderPanel(root, cachedPayload);
 
     const payload = {
       product_id: clean(root.dataset.productId),
@@ -553,22 +632,38 @@
 
     if (!response.ok) {
       const error = response.payload && response.payload.error ? response.payload.error : null;
+      const errorCode = clean(error && error.code);
+
+      if (errorCode === 'duplicate_review') {
+        setUiState(root, {
+          busy: false,
+          formOpen: false,
+          message: 'You already reviewed this product.',
+          tone: 'success',
+        });
+        runtime.promises.delete(cacheKey(root));
+        await hydrate(root, true);
+        return;
+      }
+
       setUiState(root, {
         busy: false,
-        message: error && error.message ? error.message : 'We could not save that review right now.',
+        message: submitFailureMessage(errorCode, error && error.message, response.payload),
         tone: 'danger',
       });
-      renderPanel(root, runtime.payloads.get(cacheKey(root)) || { summary: {}, reviews: [], viewer: {}, task: {}, settings: {} });
+      renderPanel(root, cachedPayload);
       return;
     }
 
     const state = clean(response.payload && response.payload.data && response.payload.data.state);
     setUiState(root, {
       busy: false,
-      formOpen: state === 'review_pending',
+      formOpen: false,
       message: state === 'review_pending'
         ? 'Thanks. Your review is saved and waiting for approval.'
-        : 'Thanks. Your review is live now.',
+        : (state === 'review_updated'
+          ? 'Thanks. Your review has been updated.'
+          : 'Thanks. Your review is live now.'),
       tone: 'success',
     });
 
@@ -612,6 +707,7 @@
     if (toggle) {
       const root = toggle.closest(PANEL_SELECTOR);
       if (!root) return;
+      if (toggle.disabled || toggle.getAttribute('aria-disabled') === 'true') return;
 
       const state = setUiState(root, { formOpen: !uiState(root).formOpen, message: '', tone: 'neutral' });
       renderPanel(root, runtime.payloads.get(cacheKey(root)) || { summary: {}, reviews: [], viewer: {}, task: {}, settings: {} });

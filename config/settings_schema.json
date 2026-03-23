@@ -328,6 +328,25 @@
     ]
   },
   {
+    "name": "Storefront reviews",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "native_reviews_enabled",
+        "label": "Enable Forestry native reviews",
+        "info": "Uses Forestry app proxy review status and submit endpoints on product pages.",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "growave_reviews_enabled",
+        "label": "Enable Growave review surfaces",
+        "info": "Turn this off after native reviews are validated in production.",
+        "default": true
+      }
+    ]
+  },
+  {
     "name": "Products grid",
     "settings": [
       {
