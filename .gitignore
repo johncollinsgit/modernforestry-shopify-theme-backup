@@ -1,0 +1,14 @@
+# OS/editor noise only (keep all real theme files tracked)
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.tmp
+*.log
+
+# Local editor metadata
+.vscode/
+.idea/
+
+# Shopify CLI local metadata/cache
+.shopify/

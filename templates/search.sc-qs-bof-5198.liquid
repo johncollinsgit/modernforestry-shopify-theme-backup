@@ -1,0 +1,42 @@
+{% comment %} Added by SolverCircle for Quick Order App {% endcomment %}
+
+{% layout none %}
+{% paginate search.results by 250 %}
+{% assign resultTotal = search.results_count %}
+{% assign scSearchProducts = search.results | sort:'title' %}
+
+{% capture output %}
+
+{% for item in scSearchProducts %}
+    {% assign product = item %}
+    {% for variant in product.variants %}
+		{
+		"variant_title"  : {% if variant.title == "Default Title" %}{{product.title | json}}{% else %}"{{ product.title }} - {{ variant.title }}"{% endif %},
+        "variant_id"     : {{ variant.id | json }},
+        "sku"            : {{ variant.sku | json }},
+        "price"          : {{ variant.price | json }},
+        "url"            : {{ variant.url | json }},
+		"stock"			 : {{ variant.inventory_quantity | json }},
+		"is_available"	 : {{ variant.available }},
+		"inventory_policy"	 : {{ variant.inventory_policy | json }},
+		"inventory_management"	 : {{ variant.inventory_management | json }},
+		"thumbnail_url"  :
+          {% if variant.image and variant.image.src %}
+            {{ variant.image.src | product_img_url: "thumb" | json }}
+          {% else %}
+            {{ product.featured_image | product_img_url: "thumb" | json }}
+          {% endif %},
+		"variant"		:	{{ variant | json }},
+		"product"		:	{{ product | json }},
+		"collections"	:	{{ product.collections | json }}
+		}
+		{% unless forloop.last %},{% endunless %}
+	{% endfor %}
+	{% unless forloop.last %},{% endunless %}
+{% endfor %}
+
+{% endcapture %}
+{% endpaginate %}
+{
+"items":[{{ output | strip_newlines }}]
+}

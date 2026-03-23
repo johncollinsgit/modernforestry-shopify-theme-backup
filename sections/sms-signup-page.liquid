@@ -1,0 +1,732 @@
+{%- assign terms_url = shop.terms_of_service.url | default: '/policies/terms-of-service' -%}
+{%- assign privacy_url = shop.privacy_policy.url | default: '/policies/privacy-policy' -%}
+{%- assign consent_endpoint = '/apps/forestry/consent/optin' -%}
+{%- assign brand_display = shop.name | remove: 'LLC' | strip -%}
+<section class="SmsSignupPage SmsSignupPage--premium" data-section-id="{{ section.id }}">
+  <div class="Container">
+    <header class="SectionHeader SectionHeader--center SmsSignupPage__Hero SmsSignupPage__Reveal SmsSignupPage__Reveal--1">
+      {%- if section.settings.tagline != blank -%}
+        <p class="SectionHeader__SubHeading u-h7">{{ section.settings.tagline }}</p>
+      {%- endif -%}
+
+      <p class="SmsSignupPage__Brand">{{ brand_display | default: 'Modern Forestry' }}</p>
+
+      <h1 class="SectionHeader__Heading Heading u-h1">
+        {{ section.settings.heading }}
+      </h1>
+
+      {%- if section.settings.subheading != blank -%}
+        <div class="SectionHeader__Description">
+          {{ section.settings.subheading }}
+        </div>
+      {%- endif -%}
+    </header>
+
+    <div class="SmsSignupPage__Grid SmsSignupPage__Grid--premium SmsSignupPage__Reveal SmsSignupPage__Reveal--2">
+      <article class="SmsSignupPage__Card SmsSignupPage__Card--premium">
+        <p class="SmsSignupPage__Label">{{ section.settings.card_label }}</p>
+        <p class="SmsSignupPage__Intro">{{ section.settings.card_intro }}</p>
+
+        <form class="SmsSignupPage__Form" data-sms-signup-form data-endpoint="{{ consent_endpoint }}" novalidate>
+          <div class="SmsSignupPage__FieldRow">
+            <label class="SmsSignupPage__Field">
+              <span>First name</span>
+              <input type="text" name="first_name" class="Form__Input" maxlength="120" autocomplete="given-name" placeholder="First name">
+            </label>
+            <label class="SmsSignupPage__Field">
+              <span>Last name</span>
+              <input type="text" name="last_name" class="Form__Input" maxlength="120" autocomplete="family-name" placeholder="Last name">
+            </label>
+          </div>
+
+          <label class="SmsSignupPage__Field">
+            <span>Email (optional)</span>
+            <input type="email" name="email" class="Form__Input" autocomplete="email" placeholder="{{ section.settings.email_placeholder }}">
+          </label>
+
+          <label class="SmsSignupPage__Field">
+            <span>Phone number <span class="SmsSignupPage__Required">*</span></span>
+            <input type="tel" name="phone" class="Form__Input" autocomplete="tel" placeholder="{{ section.settings.phone_placeholder }}" required>
+          </label>
+
+          <div class="SmsSignupPage__Consents">
+            <label class="SmsConsentBlock__Label SmsConsentBlock__Label--premium">
+              <input type="checkbox" name="consent_sms" value="1">
+              <span class="SmsConsentBlock__Text">
+                By checking this box, I agree to receive recurring automated marketing text messages, promotional offers, and cart reminders from Modern Forestry LLC. Consent is not a condition of purchase. Message frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out and HELP for help. View
+                <a href="{{ terms_url }}" target="_blank">Terms of Service</a> and
+                <a href="{{ privacy_url }}" target="_blank">Privacy Policy</a>.
+              </span>
+            </label>
+
+            <label class="SmsConsentBlock__Label SmsConsentBlock__Label--premium">
+              <input type="checkbox" name="consent_email" value="1">
+              <span class="SmsConsentBlock__Text">
+                I agree to receive marketing emails from Modern Forestry LLC about launches, rewards updates, and occasional offers.
+              </span>
+            </label>
+          </div>
+
+          <div class="SmsSignupPage__FormFooter">
+            <button type="submit" class="Button Button--primary SmsSignupPage__Submit">{{ section.settings.button_label }}</button>
+            <p class="SmsSignupPage__InlineNote">
+              Consent is optional and never required for purchase. Order and shipping notifications are only sent based on your consent selections.
+            </p>
+            <p class="SmsSignupPage__Status" data-sms-signup-status aria-live="polite"></p>
+          </div>
+        </form>
+
+        <p class="SmsSignupPage__Support">
+          Need help? Email <a href="mailto:{{ section.settings.support_email }}">{{ section.settings.support_email }}</a> or contact us at {{ section.settings.business_address }}.
+        </p>
+      </article>
+
+      <aside class="SmsSignupPage__Info SmsSignupPage__Info--premium">
+        <div class="SmsSignupPage__BenefitsWrap">
+          <p class="SmsSignupPage__InfoTitle">Why join?</p>
+          <ul class="SmsSignupPage__Benefits">
+            <li>{{ section.settings.benefit_one }}</li>
+            <li>{{ section.settings.benefit_two }}</li>
+            <li>{{ section.settings.benefit_three }}</li>
+            <li>{{ section.settings.benefit_four }}</li>
+          </ul>
+        </div>
+
+        <div class="SmsSignupPage__FAQ">
+          <div class="SmsSignupPage__FAQItem">
+            <p class="SmsSignupPage__FAQQuestion">What texts will I receive?</p>
+            <p class="SmsSignupPage__FAQAnswer">
+              Messages can include launch updates, occasional offers, cart reminders, and order or shipping updates based on your consent.
+            </p>
+          </div>
+          <div class="SmsSignupPage__FAQItem">
+            <p class="SmsSignupPage__FAQQuestion">How often are messages sent?</p>
+            <p class="SmsSignupPage__FAQAnswer">
+              Message frequency varies based on your activity and selected preferences.
+            </p>
+          </div>
+          <div class="SmsSignupPage__FAQItem">
+            <p class="SmsSignupPage__FAQQuestion">How do I stop messages?</p>
+            <p class="SmsSignupPage__FAQAnswer">
+              Reply STOP to opt out and HELP for help at any time.
+            </p>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <p class="SmsSignupPage__Footer SmsSignupPage__Reveal SmsSignupPage__Reveal--3">
+      Modern Forestry LLC sends messages only to customers who explicitly opt in. Message frequency varies. Msg &amp; data rates may apply.
+      Reply STOP to opt out and HELP for help. See our
+      <a href="{{ terms_url }}" target="_blank">Terms of Service</a>
+      and
+      <a href="{{ privacy_url }}" target="_blank">Privacy Policy</a>.
+    </p>
+  </div>
+</section>
+
+<style>
+  .SmsSignupPage--premium {
+    padding: clamp(3rem, 5vw, 5rem) 0 clamp(3rem, 5vw, 4.8rem);
+    background:
+      radial-gradient(120% 75% at 50% 0%, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0) 62%),
+      linear-gradient(180deg, #f8f6f1 0%, #f4efe6 58%, #f6f4ef 100%);
+  }
+
+  .SmsSignupPage--premium .Container {
+    max-width: 1180px;
+  }
+
+  .SmsSignupPage__Reveal {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+    animation: SmsSignupFadeIn 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  }
+
+  .SmsSignupPage__Reveal--1 {
+    animation-delay: 0.08s;
+  }
+
+  .SmsSignupPage__Reveal--2 {
+    animation-delay: 0.24s;
+  }
+
+  .SmsSignupPage__Reveal--3 {
+    animation-delay: 0.42s;
+  }
+
+  .SmsSignupPage__Brand {
+    margin: 0.2rem 0 0.45rem;
+    font-size: clamp(2rem, 6vw, 4.2rem);
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    line-height: 1;
+    text-transform: uppercase;
+    color: #111;
+    text-wrap: balance;
+  }
+
+  .SmsSignupPage__Hero {
+    margin: 0 auto 1.7rem;
+    max-width: 760px;
+  }
+
+  .SmsSignupPage__Hero .SectionHeader__SubHeading {
+    margin-bottom: 0.45rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(12, 12, 12, 0.55);
+  }
+
+  .SmsSignupPage__Hero .SectionHeader__Description {
+    max-width: 42rem;
+    margin: 0 auto;
+    color: rgba(12, 12, 12, 0.72);
+    line-height: 1.64;
+    text-wrap: balance;
+  }
+
+  .SmsSignupPage__Hero .SectionHeader__Heading {
+    margin: 0;
+    font-size: clamp(0.85rem, 1.4vw, 1.04rem);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(12, 12, 12, 0.72);
+    font-weight: 500;
+  }
+
+  .SmsSignupPage__Grid--premium {
+    grid-template-columns: minmax(0, 760px) minmax(290px, 360px);
+    gap: clamp(1.7rem, 2.4vw, 2.45rem);
+    align-items: start;
+    justify-content: center;
+    margin-top: 0;
+  }
+
+  .SmsSignupPage__Card--premium {
+    padding: clamp(1.45rem, 2.25vw, 2.2rem);
+    border-radius: 1.6rem;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(23, 23, 23, 0.08);
+    box-shadow: 0 22px 58px rgba(25, 20, 13, 0.1);
+    backdrop-filter: blur(8px);
+  }
+
+  .SmsSignupPage__Label {
+    margin-bottom: 0.25rem;
+    letter-spacing: 0.08em;
+    color: rgba(12, 12, 12, 0.54);
+  }
+
+  .SmsSignupPage__Intro {
+    margin-bottom: 1rem;
+    color: rgba(12, 12, 12, 0.8);
+  }
+
+  .SmsSignupPage__FieldRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.7rem;
+  }
+
+  .SmsSignupPage__Field {
+    display: block;
+  }
+
+  .SmsSignupPage__Field .Form__Input {
+    height: 3.15rem;
+    border-radius: 0.82rem;
+    border: 1px solid rgba(8, 8, 8, 0.14);
+    background: #fcfcfc;
+    padding: 0.72rem 0.95rem;
+    font-size: 0.95rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  }
+
+  .SmsSignupPage__Field .Form__Input:focus {
+    border-color: rgba(14, 14, 14, 0.36);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(14, 14, 14, 0.08);
+  }
+
+  .SmsSignupPage__Field .Form__Input::placeholder {
+    color: rgba(32, 32, 32, 0.42);
+  }
+
+  .SmsSignupPage__Field span {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-size: 0.79rem;
+    letter-spacing: 0.05em;
+    color: rgba(0, 0, 0, 0.62);
+    text-transform: none;
+  }
+
+  .SmsSignupPage__Required {
+    color: #a52f2f;
+  }
+
+  .SmsSignupPage__Consents {
+    display: grid;
+    gap: 0.7rem;
+    margin-top: 0.35rem;
+  }
+
+  .SmsConsentBlock__Label--premium {
+    margin-top: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.72rem;
+    width: 100%;
+    padding: 0.72rem 0.85rem;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 0.82rem;
+    background: #fafafa;
+  }
+
+  .SmsConsentBlock__Label--premium input {
+    flex: 0 0 auto;
+    margin-top: 0.22rem;
+    width: 1.02rem;
+    height: 1.02rem;
+  }
+
+  .SmsSignupPage__Consents .SmsConsentBlock__Text {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.46;
+    font-size: 0.8rem;
+    color: rgba(12, 12, 12, 0.76);
+  }
+
+  .SmsSignupPage__Consents .SmsConsentBlock__Text a {
+    color: rgba(12, 12, 12, 0.82);
+    font-weight: 500;
+    text-decoration: underline;
+  }
+
+  .SmsSignupPage__FormFooter {
+    display: grid;
+    gap: 0.62rem;
+    margin-top: 0.2rem;
+  }
+
+  .SmsSignupPage__Submit {
+    width: auto;
+    min-width: 210px;
+    padding: 0.92rem 2.2rem;
+    border-radius: 999px;
+    letter-spacing: 0.09em;
+    font-size: 0.76rem;
+    font-weight: 600;
+    align-self: flex-start;
+    color: #fff;
+    border-color: #121212;
+    background-color: #121212;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  }
+
+  .SmsSignupPage__Submit::before {
+    background-color: #121212;
+    border-radius: 999px;
+  }
+
+  .SmsSignupPage__Submit::after {
+    border-radius: 999px;
+  }
+
+  .SmsSignupPage__Submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.2);
+  }
+
+  .SmsSignupPage__Submit[disabled] {
+    opacity: 0.58;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .SmsSignupPage__InlineNote {
+    margin: 0;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: rgba(0, 0, 0, 0.58);
+  }
+
+  .SmsSignupPage__Status {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: rgba(0, 0, 0, 0.66);
+    min-height: 1.2rem;
+  }
+
+  .SmsSignupPage__Status[data-state='success'] {
+    color: #0a7a4f;
+  }
+
+  .SmsSignupPage__Status[data-state='error'] {
+    color: #a32727;
+  }
+
+  .SmsSignupPage__Info--premium {
+    padding: clamp(1.15rem, 2vw, 1.75rem);
+    border-radius: 1.4rem;
+    background: rgba(255, 255, 255, 0.78);
+    border-color: rgba(0, 0, 0, 0.06);
+    box-shadow: 0 14px 35px rgba(28, 22, 13, 0.08);
+  }
+
+  .SmsSignupPage__InfoTitle {
+    margin: 0 0 0.55rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.5);
+  }
+
+  .SmsSignupPage__BenefitsWrap {
+    margin-bottom: 0.8rem;
+  }
+
+  .SmsSignupPage__Benefits {
+    gap: 0.52rem;
+    margin: 0;
+    padding-left: 1.1rem;
+    list-style: disc;
+  }
+
+  .SmsSignupPage__Benefits li {
+    padding-left: 0;
+    color: rgba(12, 12, 12, 0.82);
+    line-height: 1.52;
+  }
+
+  .SmsSignupPage__Benefits li::before {
+    display: none;
+  }
+
+  .SmsSignupPage__FAQ {
+    margin-top: 0.75rem;
+    gap: 0.55rem;
+  }
+
+  .SmsSignupPage__FAQItem {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .SmsSignupPage__FAQQuestion {
+    font-size: 0.95rem;
+    color: rgba(12, 12, 12, 0.9);
+  }
+
+  .SmsSignupPage__FAQAnswer {
+    margin-top: 0.2rem;
+    color: rgba(12, 12, 12, 0.72);
+  }
+
+  .SmsSignupPage__Support {
+    margin-top: 1.15rem;
+    padding-top: 0.95rem;
+    border-top: 1px solid rgba(12, 12, 12, 0.1);
+    color: rgba(12, 12, 12, 0.84);
+  }
+
+  .SmsSignupPage__Support a {
+    color: inherit;
+    text-decoration: underline;
+  }
+
+  .SmsSignupPage__Footer {
+    max-width: 760px;
+    margin: 1.35rem auto 0;
+    text-align: center;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: rgba(12, 12, 12, 0.56);
+  }
+
+  @keyframes SmsSignupFadeIn {
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .SmsSignupPage__Reveal {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+  }
+
+  @media screen and (max-width: 999px) {
+    .SmsSignupPage__Grid--premium {
+      grid-template-columns: 1fr;
+      gap: 1.45rem;
+    }
+
+    .SmsSignupPage__Submit {
+      width: 100%;
+      min-width: 0;
+      align-self: stretch;
+    }
+  }
+
+  @media screen and (max-width: 640px) {
+    .SmsSignupPage__Brand {
+      letter-spacing: 0.08em;
+    }
+
+    .SmsSignupPage__Card--premium {
+      padding: 1.05rem;
+    }
+
+    .SmsSignupPage__FieldRow {
+      grid-template-columns: 1fr;
+      gap: 0.55rem;
+    }
+
+    .SmsSignupPage__Consents .SmsConsentBlock__Text {
+      font-size: 0.78rem;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    var root = document.querySelector('[data-section-id="{{ section.id }}"]');
+    if (!root) {
+      return;
+    }
+
+    var form = root.querySelector('[data-sms-signup-form]');
+    if (!form || form.getAttribute('data-bound') === '1') {
+      return;
+    }
+    form.setAttribute('data-bound', '1');
+
+    var statusEl = root.querySelector('[data-sms-signup-status]');
+    var submitButton = form.querySelector('button[type="submit"]');
+    var endpoint = form.getAttribute('data-endpoint') || '';
+    var busy = false;
+
+    function setStatus(state, message) {
+      if (!statusEl) {
+        return;
+      }
+
+      statusEl.setAttribute('data-state', state || '');
+      statusEl.textContent = message || '';
+    }
+
+    function parseJsonSafe(response) {
+      return response.text().then(function (text) {
+        if (!text) {
+          return {};
+        }
+        try {
+          return JSON.parse(text);
+        } catch (error) {
+          return {};
+        }
+      });
+    }
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      if (busy) {
+        return;
+      }
+
+      var firstName = (form.querySelector('[name="first_name"]') || {}).value || '';
+      var lastName = (form.querySelector('[name="last_name"]') || {}).value || '';
+      var email = ((form.querySelector('[name="email"]') || {}).value || '').trim();
+      var phone = ((form.querySelector('[name="phone"]') || {}).value || '').trim();
+      var consentSms = !!((form.querySelector('[name="consent_sms"]') || {}).checked);
+      var consentEmail = !!((form.querySelector('[name="consent_email"]') || {}).checked);
+
+      if (!phone) {
+        setStatus('error', 'Add a phone number to continue.');
+        return;
+      }
+
+      if (!consentSms) {
+        setStatus('error', 'Please check the SMS consent box before submitting.');
+        return;
+      }
+
+      if (!endpoint) {
+        setStatus('error', 'Signup endpoint is not configured.');
+        return;
+      }
+
+      busy = true;
+      if (submitButton) {
+        submitButton.disabled = true;
+      }
+      setStatus('', 'Saving your preferences...');
+
+      var payload = {
+        first_name: firstName || null,
+        last_name: lastName || null,
+        phone: phone,
+        consent_sms: true,
+        consent_email: consentEmail,
+        award_bonus: false,
+        flow: 'direct'
+      };
+
+      if (email) {
+        payload.email = email;
+      }
+
+      fetch(endpoint, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+        .then(function (response) {
+          return parseJsonSafe(response).then(function (data) {
+            return {
+              ok: response.ok,
+              data: data || {}
+            };
+          });
+        })
+        .then(function (result) {
+          if (!result.ok || result.data.ok !== true) {
+            var message = (((result.data || {}).error || {}).message) || 'We could not save your signup yet. Please try again.';
+            setStatus('error', message);
+            return;
+          }
+
+          setStatus('success', 'You are in. Text preferences were saved successfully.');
+          form.reset();
+        })
+        .catch(function () {
+          setStatus('error', 'Network error while saving your signup. Please try again.');
+        })
+        .finally(function () {
+          busy = false;
+          if (submitButton) {
+            submitButton.disabled = false;
+          }
+        });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "SMS Signups",
+  "settings": [
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline",
+      "default": "Modern Forestry LLC"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Get Text Updates from Modern Forestry"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Be first to hear about new releases, exclusive offers, cart reminders, and helpful order updates."
+    },
+    {
+      "type": "text",
+      "id": "card_label",
+      "label": "Card label",
+      "default": "Join The List"
+    },
+    {
+      "type": "text",
+      "id": "card_intro",
+      "label": "Card intro",
+      "default": "Share your details below and choose your communication preferences in one step."
+    },
+    {
+      "type": "text",
+      "id": "email_placeholder",
+      "label": "Email field placeholder",
+      "default": "Email address"
+    },
+    {
+      "type": "text",
+      "id": "phone_placeholder",
+      "label": "Phone field placeholder",
+      "default": "(555) 555-5555"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Submit button text",
+      "default": "Get text updates"
+    },
+    {
+      "type": "text",
+      "id": "benefit_one",
+      "label": "Benefit one",
+      "default": "Early access to launches"
+    },
+    {
+      "type": "text",
+      "id": "benefit_two",
+      "label": "Benefit two",
+      "default": "Exclusive offers and seasonal promos"
+    },
+    {
+      "type": "text",
+      "id": "benefit_three",
+      "label": "Benefit three",
+      "default": "Helpful order and shipping updates"
+    },
+    {
+      "type": "text",
+      "id": "benefit_four",
+      "label": "Benefit four",
+      "default": "Rewards and account updates when available"
+    },
+    {
+      "type": "text",
+      "id": "support_email",
+      "label": "Support email",
+      "default": "info@theforestrystudio.com"
+    },
+    {
+      "type": "text",
+      "id": "business_address",
+      "label": "Business address",
+      "default": "406 Piedmont Rd Easley SC 29642"
+    }
+  ],
+  "presets": [
+    {
+      "name": "SMS signup page"
+    }
+  ]
+}
+{% endschema %}

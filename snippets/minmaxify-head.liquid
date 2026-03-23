@@ -1,0 +1,7 @@
+{% if shop.permanent_domain == 'modernforestry.myshopify.com' %}
+<script type="text/javascript">
+minMaxifyContext={
+  customer: { id: {{ customer.id | json }}, tags: {{ customer.tags | json }} }
+};
+</script><script src="https://shopifyorderlimits.s3.amazonaws.com/limits/modernforestry.myshopify.com?v=100f&r=20230515152738&shop=modernforestry.myshopify.com"></script>
+{% endif %}

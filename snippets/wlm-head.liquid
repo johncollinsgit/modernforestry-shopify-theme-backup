@@ -1,0 +1,72 @@
+<script type='text/javascript' src='https://theforestrystudio.com/apps/wlm/js/wlm-1.1.js'></script>
+{% assign wlmEnabled = true %}
+{% assign wlmLockON = false %}
+{% assign wlmRedirectURL = '' %} 
+{% assign wlmPnfHead = '' %} 
+{% assign wlmPnfMsg = '' %}
+{% assign wlmPwdForm = false %}
+{% assign wlmPwdMsg = '' %}
+{% assign wlmSuperPage = false %}
+
+{% if request.page_type == 'page' and page.handle == 'rewards' %}
+{% assign wlmEnabled = false %}
+{% endif %}
+
+{% if template == 'customers/login' or template == 'customers/activate_account' or template == 'customers/reset_password' or canonical_url contains 'challenge' %}
+
+{% unless canonical_url contains '/products/' or canonical_url contains '/collection/' or canonical_url contains '/collections/' or canonical_url contains '/search' %} {% assign wlmSuperPage = true %}
+ {% endunless %}{% endif %}
+
+{% capture wlm_check %}{% include 'super_page_access' %}{% endcapture %}{% unless wlm_check contains 'Liquid error' %}{% include 'super_page_access' %}{% endunless %}
+{% if wlmEnabled %}
+<style type="text/css">.wlm-message-pnf{text-align:center;}#wlm-pwd-form {padding: 30px 0;text-align: center}#wlm-wrapper,.wlm-form-holder {display: inline-block}#wlm-pwd-error {display: none;color: #fb8077;text-align: left}#wlm-pwd-error.wlm-error {border: 1px solid #fb8077}#wlm-pwd-form-button {display: inline-block!important;height: auto!important;padding: 8px 15px!important;background: #777;border-radius: 3px!important;color: #fff!important;text-decoration: none!important;vertical-align: top}.wlm-instantclick-fix,.wlm-item-selector {position: absolute;z-index: -999;display: none;height: 0;width: 0;font-size: 0;line-height: 0}</style>
+
+{% unless wlmLockON or wlmSuperPage or template == 'customers/register' %}
+{% assign wlmLockedContent = false %}
+{% if template contains "collection" or template contains "product" %}
+{% if product.collections %}
+{% for c in product.collections %}
+{% if c.id == 149609283619 or c.id == 241788256444 or c.id == 241789599932 or c.id == 241784979644 or c.id == 241789731004 or c.id == 241844125884 or c.id == 241788780732 or c.id == 241789829308 %} 
+{% assign wlmLockedContent = true %}{% break %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% if template contains 'collection' or template contains 'product' %}
+{% if collection %}
+{% if   collection.handle == 'wholesale-collection' or  collection.handle == 'wholesale-fall-candle-collection' or  collection.handle == 'wholesale-holiday-collection' or  collection.handle == 'wholesale-room-sprays' or  collection.handle == 'wholesale-spring-collection' or  collection.handle == 'wholesale-summer-collection' or  collection.handle == 'wholesale-winter-fall-collection' or  collection.handle == 'wholesale-year-round-collection' %}
+{% assign wlmLockedContent = true %}
+{% endif %}
+{% endif %}
+{% endif %}
+{% if wlmLockedContent %}
+{% unless customer %}
+{% assign wlmLockON = true %}
+{% capture wlmPnfHead %}Page not found{% endcapture %}
+{% capture wlmPnfMsg %}<p>Sorry, we couldn't find this page.</p>{% endcapture %}
+{% capture wlmRedirectURL %}login{% endcapture %}
+{% else %}
+{% endunless %}
+{% endif %}
+{% endunless %}
+
+
+{% endif %}
+
+{% capture wlm_check_hide %}{% include 'wlm-hideByLink' %}{% endcapture %}{% unless wlm_check_hide contains 'Liquid error' %}{% include 'wlm-hideByLink' %}{% endunless %}
+
+        {% if wlmLockON %}<meta name='robots' content='NOINDEX,NOFOLLOW,NOARCHIVE,NOSNIPPET,NOODP,NOYDIR' />{% endif %}
+      <script type='text/javascript'>
+      {% if wlmLockON %}
+        wlm.navigate('{{ wlmRedirectURL}}');
+      {% else %}
+        wlm.navigateByLocation();
+      {% endif %}
+      wlm.jq(document).ready(function(){
+        wlm.removeLinks();
+      });
+    </script>
+    {% capture wlm_hide_price_check %}{% include "wlm-hide-price" %}{% endcapture %}
+    {% unless wlm_hide_price_check contains 'Liquid error' %}
+        {% include "wlm-hide-price" %}
+    {% endunless %}

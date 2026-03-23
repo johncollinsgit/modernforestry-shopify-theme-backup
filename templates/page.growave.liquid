@@ -1,0 +1,22 @@
+<section class="Section Section--spacingExtraLarge ForestryRewardsPageSection">
+  <div class="Container Container--narrow">
+    {% if customer %}
+      {% render 'forestry-rewards-root',
+        surface: 'page',
+        title: 'Candle Cash Central',
+        subtitle: 'Earn Candle Cash through reviews, referrals, birthdays, and a few easy wins.'
+      %}
+    {% else %}
+      <div class="ForestryRewardsSurface ForestryRewardsSurface--fallback">
+        <div class="ForestryRewardsFallback">
+          <p class="ForestryRewardsEyebrow">Candle Cash</p>
+          <h1 class="Heading u-h1">Sign in to see your Candle Cash</h1>
+          <p class="ForestryRewardsLead">Your balance, earn actions, referrals, and saved rewards live inside your account once you are signed in.</p>
+          <div class="ForestryRewardsCard__actions">
+            <a class="Button Button--primary" href="{{ routes.account_login_url }}">Sign in</a>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>

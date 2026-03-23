@@ -1,0 +1,282 @@
+{%- assign rewards_surface = surface | default: 'page' -%}
+{%- assign rewards_title = title | default: 'Candle Cash Central' -%}
+{%- assign rewards_subtitle = subtitle | default: 'Earn Candle Cash through reviews, referrals, birthdays, and a few easy wins.' -%}
+{%- assign rewards_page_url = rewards_url | default: '/pages/rewards' -%}
+{%- assign rewards_account_url = account_url | default: routes.account_url -%}
+{%- assign candle_club_url = candle_club_url | default: '/products/modern-forestry-candle-club-16oz-subscription-with-gifts?selling_plan=11300438275' -%}
+{%- assign candle_club_allowed_email = 'info@theforestrystudio.com' -%}
+{%- assign candle_club_customer_email = customer.email | default: '' | downcase -%}
+{%- assign candle_club_actionable = false -%}
+{%- if candle_club_customer_email == candle_club_allowed_email -%}
+  {%- assign candle_club_actionable = true -%}
+{%- endif -%}
+{%- assign candle_club_lock_message = 'Candle Cash' -%}
+{%- assign rewards_marketing_profile_id = marketing_profile_id | default: customer.metafields.custom.marketing_profile_id.value | default: '' -%}
+{%- assign candle_cash_points = customer.metafields.custom.candle_cash_points.value | default: customer.metafields.custom.candle_cash_balance_points.value | default: 0 -%}
+{%- assign candle_cash_amount = customer.metafields.custom.candle_cash_balance_amount.value | default: customer.metafields.custom.candle_cash_balance.value | default: customer.metafields.custom.candle_cash.value | default: 0 -%}
+{%- assign candle_cash_beta_emails = 'sarahcollins0816@gmail.com,info@theforestrystudio.com,randbhendrich@yahoo.com,pjordan.mail@gmail.com,marah.jordan@csuglobal.edu' | split: ',' -%}
+{%- assign candle_cash_customer_email = customer.email | default: '' | downcase -%}
+{%- assign normalized_candle_cash_customer_email = candle_cash_customer_email | to_s | strip | downcase -%}
+{%- assign candle_cash_redeem_live = false -%}
+{%- for beta_email in candle_cash_beta_emails -%}
+  {%- assign normalized_beta_email = beta_email | to_s | strip | downcase -%}
+  {%- if normalized_candle_cash_customer_email == normalized_beta_email -%}
+    {%- assign candle_cash_redeem_live = true -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- assign candle_cash_expiration_days = customer.metafields.custom.candle_cash_expiration_days.value | default: blank -%}
+{%- assign candle_cash_expiring_amount = customer.metafields.custom.candle_cash_expiring_amount.value | default: candle_cash_amount -%}
+{%- assign candle_cash_expiration_date = '' -%}
+{%- if customer and customer.metafields.custom.candle_cash_expiration_date != blank -%}
+  {%- assign candle_cash_expiration_date = customer.metafields.custom.candle_cash_expiration_date.value | date: '%Y-%m-%d' -%}
+{%- endif -%}
+{%- assign candle_club_member = false -%}
+{%- if customer -%}
+  {%- if customer.tags contains 'Candle Club' or customer.tags contains 'candle-club' or customer.tags contains 'candle_club' or customer.tags contains 'CandleClub' -%}
+    {%- assign candle_club_member = true -%}
+  {%- endif -%}
+  {%- if customer.metafields.custom.candle_club_member != blank -%}
+    {%- assign candle_club_member = customer.metafields.custom.candle_club_member.value -%}
+  {%- endif -%}
+{%- endif -%}
+{%- assign rewards_state = 'unknown_customer' -%}
+{%- if customer -%}
+  {%- assign rewards_state = 'linked_customer' -%}
+{%- endif -%}
+{%- capture forestry_rewards_fallback_json -%}
+{
+  "state": {{ rewards_state | json }},
+  "profile_id": {{ customer.id | json }},
+  "balance": {
+    "raw_points": {{ candle_cash_points | json }},
+    "points": {{ candle_cash_points | json }},
+    "candle_cash_amount": {{ candle_cash_amount | json }},
+    "amount": {{ candle_cash_amount | json }},
+    "expires_at": {{ candle_cash_expiration_date | json }},
+    "expiration_days": {{ candle_cash_expiration_days | json }},
+    "expiring_amount": {{ candle_cash_expiring_amount | json }}
+  },
+  "redemption_rules": {
+    "redeem_increment_dollars": 10,
+    "redeem_increment_formatted": "$10",
+    "redeem_increment_candle_cash": 10,
+    "redeem_increment_candle_cash_formatted": "$10.00 Candle Cash",
+    "max_redeemable_per_order_dollars": 10,
+    "max_redeemable_per_order_formatted": "$10",
+    "max_redemptions_per_order": 1
+  },
+  "redemption_access": {
+    "redeem_enabled": {{ candle_cash_redeem_live | json }},
+    "cta_label": {% if candle_cash_redeem_live %}"Redeem Candle Cash"{% else %}"COMING SOON!"{% endif %},
+    "message": {% if candle_cash_redeem_live %}"Candle Cash is live for this account."{% else %}"Candle Cash is temporarily live for selected accounts only."{% endif %},
+    "mode": {% if candle_cash_redeem_live %}"live"{% else %}"coming_soon"{% endif %}
+  },
+  "summary": {
+    "current_balance_points": {{ candle_cash_points | json }},
+    "current_balance_amount": {{ candle_cash_amount | json }},
+    "pending_rewards": 0,
+    "lifetime_earned_amount": 0,
+    "lifetime_earned_points": 0
+  },
+  "membership": {
+    "candle_club_member": {{ candle_club_member | json }},
+    "multiplier": {% if candle_club_member %}2{% else %}1{% endif %},
+    "member_headline": "Candle Club Members earn 2x Candle Cash",
+    "member_copy": "Members unlock bonus rewards and exclusive voting perks.",
+    "guest_headline": "Candle Club Members earn 2x Candle Cash",
+    "guest_copy": "Members unlock bonus rewards, exclusive voting perks, and a warmer loyalty experience.",
+    "cta_url": {% if candle_club_actionable %}{{ candle_club_url | json }}{% else %}""{% endif %},
+    "cta_text": {% if candle_club_actionable %}"Explore Candle Club"{% else %}{{ candle_club_lock_message | json }}{% endif %},
+    "cta_disabled": {% if candle_club_actionable %}false{% else %}true{% endif %},
+    "lock_message": {{ candle_club_lock_message | json }}
+  },
+  "thresholds": [
+    {
+      "spend_amount": 50,
+      "reward_amount": 3,
+      "reward_type": "candle_cash",
+      "reward_label": "$3 Candle Cash"
+    },
+    {
+      "spend_amount": 75,
+      "reward_amount": 0,
+      "reward_type": "gift",
+      "reward_label": "free wax melt"
+    },
+    {
+      "spend_amount": 100,
+      "reward_amount": 7,
+      "reward_type": "candle_cash",
+      "reward_label": "$7 Candle Cash"
+    }
+  ],
+  "tasks": [
+    {
+      "handle": "google-review",
+      "title": "Leave a Google Review",
+      "reward_amount": 3,
+      "button_text": "Leave a review",
+      "verification_mode": "system_event",
+      "auto_award": true,
+      "action_url": "https://www.google.com/search?q=Modern+Forestry+reviews",
+      "eligibility": {
+        "state": "available",
+        "completed_count": 0,
+        "pending_count": 0
+      },
+      "max_completions_per_customer": 1
+    },
+    {
+      "handle": "instagram-follow",
+      "title": "Follow us on Instagram",
+      "reward_amount": 2,
+      "button_text": "Open Instagram",
+      "verification_mode": "onsite_action",
+      "auto_award": false,
+      "action_url": {{ settings.social_instagram | default: 'https://instagram.com/modernforestry' | json }},
+      "eligibility": {
+        "state": "available",
+        "completed_count": 0,
+        "pending_count": 0
+      },
+      "max_completions_per_customer": 1
+    },
+    {
+      "handle": "refer-a-friend",
+      "title": "Refer a Friend",
+      "reward_amount": 10,
+      "button_text": "Share your link",
+      "verification_mode": "referral_conversion",
+      "auto_award": true,
+      "eligibility": {
+        "state": "available",
+        "completed_count": 0,
+        "pending_count": 0
+      },
+      "max_completions_per_customer": 999
+    },
+    {
+      "handle": "referred-friend-bonus",
+      "title": "Friend's first order",
+      "reward_amount": 10,
+      "button_text": "Tracks automatically",
+      "verification_mode": "referral_conversion",
+      "auto_award": true,
+      "eligibility": {
+        "state": "pending",
+        "completed_count": 0,
+        "pending_count": 0
+      },
+      "max_completions_per_customer": 999
+    },
+    {
+      "handle": "candle-club-vote",
+      "title": "Vote on the next scent",
+      "reward_amount": 0,
+      "reward_label": "Candle Club only",
+      "button_text": {% if candle_club_actionable %}"Explore Candle Club"{% else %}{{ candle_club_lock_message | json }}{% endif %},
+      "verification_mode": "onsite_action",
+      "auto_award": false,
+      "action_url": {% if candle_club_actionable %}{{ candle_club_url | json }}{% else %}""{% endif %},
+      "eligibility": {
+        "state": "members_only",
+        "locked_message": {% if candle_club_actionable %}"Candle Club only"{% else %}{{ candle_club_lock_message | json }}{% endif %},
+        "locked_cta_url": {% if candle_club_actionable %}{{ candle_club_url | json }}{% else %}""{% endif %},
+        "locked_cta_text": {% if candle_club_actionable %}"Explore Candle Club"{% else %}{{ candle_club_lock_message | json }}{% endif %}
+      },
+      "max_completions_per_customer": 999
+    }
+  ],
+  "referral": {
+    "enabled": true,
+    "headline": "Share Candle Cash with a friend",
+    "copy": "Share your link and earn Candle Cash when a friend places a qualifying first order.",
+    "referrer_reward_amount": 10,
+    "referred_reward_amount": 10,
+    "count": 0
+  },
+  "history": {
+    "tasks": [],
+    "ledger": []
+  },
+  "available_rewards": [
+    {
+      "id": 1,
+      "name": "Redeem $10 Candle Cash",
+      "description": "Apply $10 off this order. Candle Cash is redeemed in $10 increments, with a limit of $10 per order.",
+      "reward_type": "coupon",
+      "reward_value": "10USD",
+      "candle_cash_cost": 10,
+      "candle_cash_amount": 10,
+      "candle_cash_amount_formatted": "$10",
+      "redeem_increment_dollars": 10,
+      "redeem_increment_formatted": "$10",
+      "limit_per_order_dollars": 10,
+      "limit_per_order_formatted": "$10",
+      "max_redemptions_per_order": 1
+    }
+  ],
+  "celebration_state": {
+    "enabled": false,
+    "headline": "",
+    "body": "",
+    "amount": 0
+  },
+  "future_hooks": {
+    "personalized_reward_reminders": "",
+    "next_best_action": "",
+    "segmentation_message": "",
+    "referral_nudge": "",
+    "expiration_nudge": "",
+    "product_recommendation_message": ""
+  }
+}
+{%- endcapture -%}
+<div
+  class="ForestryRewardsRoot ForestryRewardsRoot--{{ rewards_surface }}"
+  data-forestry-rewards-root
+  data-theme="cognac-reserve"
+  data-surface="{{ rewards_surface }}"
+  data-title="{{ rewards_title | escape }}"
+  data-subtitle="{{ rewards_subtitle | escape }}"
+  data-marketing-profile-id="{{ rewards_marketing_profile_id }}"
+  data-customer-email="{{ customer.email | escape }}"
+  data-customer-phone="{{ customer.phone | escape }}"
+  data-shopify-customer-id="{{ customer.id }}"
+  data-customer-first-name="{{ customer.first_name | escape }}"
+  data-customer-last-name="{{ customer.last_name | escape }}"
+  data-login-url="{{ routes.account_login_url }}"
+  data-account-url="{{ rewards_account_url }}"
+  data-rewards-url="{{ rewards_page_url }}"
+  data-candle-club-url="{{ candle_club_url }}"
+  data-candle-club-preview-only="{% if candle_club_actionable %}false{% else %}true{% endif %}"
+  data-candle-club-lock-message="{{ candle_club_lock_message | escape }}"
+  data-order-number="{{ order.name | escape }}"
+  data-order-total-amount="{{ order.total_price | divided_by: 100.0 }}"
+  data-order-created-at="{{ order.created_at | date: '%s' }}"
+  data-endpoint-candle-cash-status="/apps/forestry/candle-cash/status"
+  data-endpoint-candle-cash-task-submit="/apps/forestry/candle-cash/tasks/submit"
+  data-endpoint-google-review-start="/apps/forestry/google-business/review/start"
+  data-endpoint-consent-optin="/apps/forestry/consent/optin"
+  data-endpoint-customer-status="/apps/forestry/customer/status"
+  data-endpoint-rewards-available="/apps/forestry/rewards/available"
+  data-endpoint-rewards-redeem="/apps/forestry/rewards/redeem"
+  data-endpoint-rewards-history="/apps/forestry/rewards/history"
+  data-endpoint-birthday-status="/apps/forestry/birthday/status"
+  data-endpoint-birthday-capture="/apps/forestry/birthday/capture"
+  data-endpoint-birthday-claim="/apps/forestry/birthday/claim"
+  data-endpoint-rewards-event="/apps/forestry/rewards/event"
+>
+  <div class="ForestryRewardsRoot__loading">
+    <div class="ForestryRewardsRoot__loading-copy">
+      <p class="Heading u-h6">{{ rewards_title }}</p>
+      <p class="Text--subdued">{{ rewards_subtitle }}</p>
+    </div>
+    <div class="ForestryRewardsRoot__skeleton" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+  <script type="application/json" data-forestry-rewards-fallback>
+    {{- forestry_rewards_fallback_json -}}
+  </script>
+</div>

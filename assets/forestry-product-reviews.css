@@ -1,0 +1,227 @@
+.ForestryProductReviewSummary {
+  margin-top: 14px;
+}
+
+.ForestryProductReviewSummary__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.ForestryProductReviewSummary__copy {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(var(--text-color-rgb), 0.72);
+}
+
+.ForestryProductReviewSummary__loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ForestryProductReviewSummary__dots {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.ForestryProductReviewSummary__dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(var(--text-color-rgb), 0.22);
+}
+
+.ForestryProductReviewStars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ForestryProductReviewStar {
+  color: rgba(var(--text-color-rgb), 0.18);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.ForestryProductReviewStar.is-filled {
+  color: #b67a28;
+}
+
+.ForestryProductReviewsRoot__loading {
+  padding: 18px 0;
+}
+
+.ForestryProductReviews__notice {
+  margin: 0 0 24px;
+  padding: 16px 18px;
+  border-radius: 22px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.ForestryProductReviews__notice--success {
+  background: rgba(58, 118, 79, 0.1);
+  border: 1px solid rgba(58, 118, 79, 0.18);
+  color: #355840;
+}
+
+.ForestryProductReviews__notice--danger {
+  background: rgba(140, 51, 51, 0.08);
+  border: 1px solid rgba(140, 51, 51, 0.16);
+  color: #7e3f3f;
+}
+
+.ForestryProductReviews__formShell {
+  margin: 0 0 28px;
+  padding: 22px;
+  border-radius: 26px;
+  background: rgba(255, 250, 245, 0.85);
+  border: 1px solid rgba(39, 29, 20, 0.08);
+}
+
+.ForestryProductReviews__intro {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.ForestryProductReviews__reward {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8a5b1c;
+}
+
+.ForestryProductReviews__ratingRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ForestryProductReviews__ratingOption {
+  position: relative;
+  cursor: pointer;
+}
+
+.ForestryProductReviews__ratingOption input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ForestryProductReviews__ratingOption span {
+  display: inline-flex;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(39, 29, 20, 0.12);
+  background: #fffaf5;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.ForestryProductReviews__ratingOption input:checked + span {
+  border-color: rgba(182, 122, 40, 0.45);
+  transform: translateY(-1px);
+}
+
+.ForestryProductReviews__guestGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.ForestryProductReviews__accountLine {
+  margin-top: 16px;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(var(--text-color-rgb), 0.56);
+}
+
+.ForestryProductReviews__empty {
+  padding: 18px 0 6px;
+}
+
+.ForestryProductReviews__empty p {
+  margin: 0;
+}
+
+.ForestryProductReviews__empty .Text--subdued {
+  margin-top: 10px;
+}
+
+#shopify-product-reviews .spr-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#shopify-product-reviews .spr-summary-actions {
+  margin-left: auto;
+}
+
+#shopify-product-reviews .spr-summary-actions .Button {
+  white-space: nowrap;
+}
+
+#shopify-product-reviews .spr-form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(var(--text-color-rgb), 0.58);
+}
+
+#shopify-product-reviews .spr-form-input-text,
+#shopify-product-reviews .spr-form-input-email,
+#shopify-product-reviews .spr-form-input-textarea {
+  width: 100%;
+  border-radius: 20px;
+  border: 1px solid rgba(39, 29, 20, 0.12);
+  background: #fff;
+  padding: 13px 15px;
+}
+
+#shopify-product-reviews .spr-form-review-title,
+#shopify-product-reviews .spr-form-review-body,
+#shopify-product-reviews .spr-form-actions {
+  margin-top: 18px;
+}
+
+#shopify-product-reviews .spr-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@media screen and (max-width: 999px) {
+  .ForestryProductReviews__guestGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .ForestryProductReviewSummary__button {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  #shopify-product-reviews .spr-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #shopify-product-reviews .spr-summary-actions {
+    margin-left: 0;
+  }
+}

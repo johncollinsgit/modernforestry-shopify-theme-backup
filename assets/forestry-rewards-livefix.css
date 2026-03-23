@@ -1,0 +1,320 @@
+.CandleCashCinematic__brandmark {
+  width: min(100%, clamp(320px, 28vw, 430px));
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.CandleCashCinematic__brandmark--logo::before,
+.CandleCashCinematic__brandmark--logo::after {
+  content: "";
+  position: absolute;
+  inset: 9% 8%;
+  border-radius: 24px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.CandleCashCinematic__brandmark--logo::before {
+  background:
+    radial-gradient(50% 70% at 50% 44%, rgba(233, 194, 127, 0.36), rgba(233, 194, 127, 0) 76%),
+    radial-gradient(42% 44% at 38% 68%, rgba(220, 176, 103, 0.2), rgba(220, 176, 103, 0) 78%);
+  filter: blur(30px);
+  opacity: 0.52;
+}
+
+.CandleCashCinematic__brandmark--logo::after {
+  inset: 14% 12%;
+  border: 1px solid rgba(230, 189, 117, 0.22);
+  filter: blur(1.5px);
+  opacity: 0.22;
+}
+
+.CandleCashCinematic__brandmark-logo-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  position: relative;
+  z-index: 1;
+  transform-origin: center center;
+  transform:
+    translate3d(calc(var(--candle-cash-shift-x) * 0.11), calc(var(--candle-cash-shift-y) * -0.08), 0)
+    perspective(900px)
+    rotateX(calc(var(--candle-cash-shift-y) * -0.04deg))
+    rotateY(calc(var(--candle-cash-shift-x) * 0.06deg));
+  will-change: transform;
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  filter:
+    drop-shadow(0 14px 26px rgba(0, 0, 0, 0.38))
+    drop-shadow(0 0 18px rgba(236, 199, 132, 0.46))
+    drop-shadow(0 0 40px rgba(205, 155, 79, 0.2));
+}
+
+.CandleCashPortal {
+  width: min(100%, 23.5rem);
+  min-height: clamp(320px, 34vw, 420px);
+}
+
+.CandleCashPortal__surface--hero {
+  align-self: start;
+}
+
+.CandleCashCinematic__panel {
+  width: min(100%, 23.5rem);
+  padding: clamp(22px, 3vw, 28px);
+  align-content: start;
+  gap: 1rem;
+}
+
+.CandleCashCinematic__panel-header {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.CandleCashCinematic__panel-kicker {
+  margin: 0;
+  font-size: 0.64rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(212, 154, 75, 0.82);
+  font-family: var(--heading-font-family);
+}
+
+.CandleCashCinematic__panel-title {
+  font-size: clamp(1.45rem, 2vw, 1.78rem);
+  line-height: 1.04;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: rgba(246, 241, 234, 0.94);
+}
+
+.CandleCashCinematic__panel-copy {
+  max-width: 22rem;
+  font-size: 0.98rem;
+  line-height: 1.72;
+  color: rgba(246, 241, 234, 0.72);
+}
+
+.CandleCashCinematic__actions {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.CandleCashCinematic__actions .Button {
+  width: 100%;
+}
+
+.CandleCashCinematic__panel-note {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: rgba(246, 241, 234, 0.54);
+}
+
+.CandleCashCinematic .Button--primary,
+.CandleCashCinematic .Button--secondary {
+  min-height: 48px;
+  min-width: 0;
+  padding: 0.82rem 1.35rem;
+  letter-spacing: 0.18em;
+  font-size: 0.68rem;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.24);
+}
+
+.CandleCashCinematic .Button--primary {
+  box-shadow: 0 18px 34px rgba(131, 84, 31, 0.24);
+}
+
+.CandleCashCinematic .Button--primary:hover,
+.CandleCashCinematic .Button--primary:focus-visible {
+  box-shadow: 0 20px 38px rgba(131, 84, 31, 0.32);
+}
+
+.CandleCashCinematic .Button--secondary:hover,
+.CandleCashCinematic .Button--secondary:focus-visible {
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
+}
+
+.js .CandleCashPortal__standard {
+  margin-top: 0;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-28px);
+  pointer-events: none;
+  transition:
+    max-height 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    margin-top 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.45s ease,
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0s linear 0.9s;
+}
+
+.js [data-candle-cash-cinematic][data-cinematic-view="minimized"] + .CandleCashPortal__standard {
+  margin-top: clamp(28px, 5vw, 56px);
+  max-height: 6000px;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+[data-candle-cash-cinematic][data-cinematic-interactive="true"] .CandleCashCinematic__brandmark-logo-image {
+  transform:
+    translate3d(calc(var(--candle-cash-shift-x) * 0.16), calc(var(--candle-cash-shift-y) * -0.11), 0)
+    perspective(900px)
+    rotateX(calc(var(--candle-cash-shift-y) * -0.07deg))
+    rotateY(calc(var(--candle-cash-shift-x) * 0.1deg));
+}
+
+@media screen and (max-width: 1140px) {
+  .CandleCashCinematic__brandmark {
+    width: min(100%, clamp(260px, 25vw, 340px));
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .CandleCashCinematic__brandmark {
+    width: min(100%, 340px);
+    margin: 0 auto;
+  }
+
+  .CandleCashCinematic__panel,
+  .CandleCashPortal {
+    justify-self: start;
+    width: min(420px, 100%);
+  }
+
+  .CandleCashPortal {
+    min-height: 0;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .CandleCashCinematic__brandmark {
+    width: min(100%, 300px);
+  }
+
+  .CandleCashCinematic__actions {
+    gap: 0.7rem;
+  }
+
+  .CandleCashCinematic .Button--primary,
+  .CandleCashCinematic .Button--secondary {
+    min-height: 46px;
+    padding-inline: 1.15rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .CandleCashCinematic__brandmark-logo-image {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .js .CandleCashPortal__standard {
+    transition: none !important;
+  }
+}
+
+/* Layout normalization: keep hero row balanced and prevent hidden auth surfaces from reserving height. */
+.ForestryRewardsPageSection--cinematic .CandleCashCinematic__content {
+  width: min(1320px, 100%);
+  margin-inline: auto;
+  grid-template-columns: minmax(260px, 1fr) minmax(330px, 430px) minmax(240px, 1fr);
+  grid-template-areas: "message portal brand";
+  align-items: center;
+  justify-items: center;
+  column-gap: clamp(24px, 3vw, 56px);
+  row-gap: clamp(18px, 2.2vw, 34px);
+  min-height: clamp(460px, 64vh, 740px);
+}
+
+.ForestryRewardsPageSection--cinematic .CandleCashCinematic__message {
+  grid-area: message;
+  justify-self: start;
+  align-self: center;
+  max-width: 34rem;
+  text-align: left;
+}
+
+.ForestryRewardsPageSection--cinematic .CandleCashPortal {
+  grid-area: portal;
+  justify-self: center;
+  align-self: center;
+  width: min(100%, 27.5rem);
+  min-height: 0;
+  display: grid;
+}
+
+.ForestryRewardsPageSection--cinematic .CandleCashCinematic__brandmark {
+  grid-area: brand;
+  justify-self: end;
+  align-self: center;
+  width: min(100%, clamp(220px, 20vw, 320px));
+}
+
+.ForestryRewardsPageSection--cinematic .CandleCashPortal__surface {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+}
+
+[data-candle-cash-cinematic][data-candle-cash-portal-mode="hero"] [data-candle-cash-portal-surface="hero"],
+[data-candle-cash-cinematic][data-candle-cash-portal-mode="login"] [data-candle-cash-portal-surface="login"],
+[data-candle-cash-cinematic][data-candle-cash-portal-mode="register"] [data-candle-cash-portal-surface="register"] {
+  position: relative;
+  inset: auto;
+}
+
+[data-candle-cash-cinematic][data-cinematic-view="minimized"] .CandleCashCinematic__content {
+  min-height: clamp(280px, 42vh, 460px);
+}
+
+@media screen and (max-width: 1200px) {
+  .ForestryRewardsPageSection--cinematic .CandleCashCinematic__content {
+    grid-template-columns: minmax(220px, 1fr) minmax(316px, 408px) minmax(200px, 1fr);
+    column-gap: clamp(18px, 2vw, 30px);
+    min-height: clamp(430px, 60vh, 660px);
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .ForestryRewardsPageSection--cinematic .CandleCashCinematic__content {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "message"
+      "portal"
+      "brand";
+    justify-items: center;
+    align-items: start;
+    min-height: auto;
+    row-gap: 1.6rem;
+  }
+
+  .ForestryRewardsPageSection--cinematic .CandleCashCinematic__message {
+    justify-self: center;
+    text-align: center;
+    max-width: 34rem;
+  }
+
+  .ForestryRewardsPageSection--cinematic .CandleCashPortal {
+    justify-self: center;
+    width: min(100%, 28rem);
+  }
+
+  .ForestryRewardsPageSection--cinematic .CandleCashCinematic__panel {
+    width: 100%;
+  }
+
+  .ForestryRewardsPageSection--cinematic .CandleCashCinematic__brandmark {
+    justify-self: center;
+    margin: 0 auto;
+    width: min(100%, 280px);
+  }
+}

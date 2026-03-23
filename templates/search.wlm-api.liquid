@@ -1,0 +1,37 @@
+{% layout none %}
+{%- capture contentForQuerystring -%}{{ content_for_header }}{%- endcapture -%}
+
+{%- assign pageUrl = contentForQuerystring | split:'"pageurl":"' | last | split:'"' | first | split:'.myshopify.com' | last |
+   replace:'\/','/' | 
+   replace:'%20',' ' | 
+   replace:'\u0026','&'
+-%}
+
+{% assign handles = pageUrl | split: 'handle=' | last %}
+{% assign h_array = handles | split: ',' %}
+
+{% assign CollectionId = pageUrl | split: 'collectionid=' | last %}
+{% assign CollectionId = CollectionId | split: '&' %}
+{% assign CollectionId = CollectionId[0] %}
+{% if CollectionId %}
+	{% assign  wlm_collection = CollectionId | strip %}
+{%endif%}
+
+{% capture output %}
+{
+	"products":
+        [
+            {% for handler in h_array %}
+			{% assign item = all_products[handler] %}
+			{% unless item == empty %}
+				{% include 'wlm-product' with item %}
+                {
+					"id"  : "{{item.id}}"
+                    ,"handle":"{{ item.handle }}"					
+                },
+			{% endunless %}
+			{% endfor %}{}
+        ]
+}
+{% endcapture %}
+{{- output | strip_newlines -}}

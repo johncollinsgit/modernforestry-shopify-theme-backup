@@ -1,0 +1,18 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: This file is auto-generated when a new template
+ * is created in the Shopify theme editor. Manual edits below
+ * should be kept in sync with the admin if the template changes.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "sms-signup": {
+      "type": "sms-signup-page",
+      "settings": {}
+    }
+  },
+  "order": [
+    "sms-signup"
+  ]
+}

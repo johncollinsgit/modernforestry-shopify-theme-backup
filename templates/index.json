@@ -1,0 +1,341 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "slideshow": {
+      "type": "slideshow",
+      "blocks": {
+        "slide-0": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/bright-fuschia-spring-blossoms_638cad68-df20-4a7b-b482-68abb3beb3bf.jpg",
+            "apply_overlay": true,
+            "content_position": "middleCenter",
+            "subheading": "",
+            "title": "Shop our Spring Collection",
+            "button_1_text": "Click to Shop",
+            "button_1_link": "shopify://collections/spring-collection",
+            "button_2_text": "",
+            "button_2_link": ""
+          }
+        },
+        "slide-1": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/easter-mini-eggs.jpg",
+            "apply_overlay": true,
+            "content_position": "middleCenter",
+            "subheading": "",
+            "title": "Earn $5 in Candle Cash",
+            "button_1_text": "Join for $5",
+            "button_1_link": "/pages/rewards?task=email-signup",
+            "button_2_text": "",
+            "button_2_link": ""
+          }
+        },
+        "candle-cash-central": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/magnolia-bloom-opening.jpg",
+            "apply_overlay": true,
+            "content_position": "middleCenter",
+            "subheading": "",
+            "title": "Candle Cash Central",
+            "button_1_text": "Earn Candle Cash",
+            "button_1_link": "/pages/rewards",
+            "button_2_text": "",
+            "button_2_link": ""
+          }
+        },
+        "2cdfa0be-19fe-4c67-8eec-192f9be38d8c": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/magnolia-bloom-opening.jpg",
+            "apply_overlay": true,
+            "content_position": "middleCenter",
+            "subheading": "",
+            "title": "Candle Club",
+            "button_1_text": "Join to get exclusive scents!",
+            "button_1_link": "shopify://products/modern-forestry-candle-club-16oz-subscription-with-gifts",
+            "button_2_text": "",
+            "button_2_link": ""
+          }
+        },
+        "0376ddec-6474-48b4-ac08-2f11d7cf8a05": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/monarch-butterfly-perched.jpg",
+            "apply_overlay": true,
+            "content_position": "middleCenter",
+            "subheading": "Become a wholesale partner",
+            "title": "Sell our candles",
+            "button_1_text": "Wholesale Application",
+            "button_1_link": "shopify://pages/wholesale-application",
+            "button_2_text": "",
+            "button_2_link": ""
+          }
+        }
+      },
+      "block_order": [
+        "slide-0",
+        "slide-1",
+        "candle-cash-central",
+        "2cdfa0be-19fe-4c67-8eec-192f9be38d8c",
+        "0376ddec-6474-48b4-ac08-2f11d7cf8a05"
+      ],
+      "settings": {
+        "show_fullscreen": false,
+        "show_arrow": true,
+        "autoplay": true,
+        "cycle_speed": 5,
+        "text_color": "#ffffff",
+        "button_color": "#363636",
+        "button_background": "#ffffff"
+      }
+    },
+    "collection-list": {
+      "type": "collection-list",
+      "blocks": {
+        "5a4be0bc-7d7f-4816-b330-0cc428dabc0c": {
+          "type": "collection",
+          "settings": {
+            "collection": "spring-collection",
+            "image_alignment": "center center",
+            "content_position": "bottomLeft",
+            "subheading": "",
+            "title": "Spring Collection",
+            "button_text": "View products",
+            "button_link": "",
+            "apply_overlay": true
+          }
+        },
+        "collection-0": {
+          "type": "collection",
+          "settings": {
+            "collection": "summer-collection",
+            "image_alignment": "center center",
+            "content_position": "bottomLeft",
+            "subheading": "",
+            "title": "Summer Collection",
+            "button_text": "View products",
+            "button_link": "",
+            "apply_overlay": true
+          }
+        },
+        "collection-1": {
+          "type": "collection",
+          "settings": {
+            "collection": "candle-bundles",
+            "image_alignment": "center center",
+            "content_position": "bottomLeft",
+            "subheading": "",
+            "title": "Buy bundles and save",
+            "button_text": "View products",
+            "button_link": "",
+            "apply_overlay": true
+          }
+        },
+        "collection-2": {
+          "type": "collection",
+          "settings": {
+            "collection": "autumn-collection",
+            "image_alignment": "center center",
+            "content_position": "bottomLeft",
+            "subheading": "",
+            "title": "Autumn Collection",
+            "button_text": "View products",
+            "button_link": "",
+            "apply_overlay": true
+          }
+        },
+        "9207e4e5-b69a-4eab-933a-c227144095da": {
+          "type": "collection",
+          "settings": {
+            "collection": "winter-collection",
+            "image_alignment": "center center",
+            "content_position": "bottomLeft",
+            "subheading": "",
+            "title": "Winter Collection",
+            "button_text": "View products",
+            "button_link": "",
+            "apply_overlay": true
+          }
+        },
+        "8738e856-4507-48c9-a472-f7433ef14efe": {
+          "type": "collection",
+          "settings": {
+            "collection": "holiday-collection",
+            "image_alignment": "center center",
+            "content_position": "bottomLeft",
+            "subheading": "",
+            "title": "Holiday Collection",
+            "button_text": "View products",
+            "button_link": "",
+            "apply_overlay": true
+          }
+        }
+      },
+      "block_order": [
+        "5a4be0bc-7d7f-4816-b330-0cc428dabc0c",
+        "collection-0",
+        "collection-1",
+        "collection-2",
+        "9207e4e5-b69a-4eab-933a-c227144095da",
+        "8738e856-4507-48c9-a472-f7433ef14efe"
+      ],
+      "settings": {
+        "image_size": "normal",
+        "add_spacing": true,
+        "expand_collection": false,
+        "stack_on_mobile": true,
+        "text_color": "#ffffff",
+        "button_color": "#363636"
+      }
+    },
+    "timeline": {
+      "type": "timeline",
+      "blocks": {
+        "item-0": {
+          "type": "item",
+          "settings": {
+            "image": "shopify://shop_images/Screen_Shot_2019-05-14_at_4.38.09_PM.png",
+            "apply_overlay": true,
+            "title": "2014",
+            "subheading": "Solving a Problem",
+            "heading": "Early Beginnings",
+            "content": "<p>Sarah was getting headaches from store bought candles. She started making soy wax candles on their stove. The first one made solved the problem of the migraines she was getting from petroleum chemicals found in many candles. They launched an Etsy shop and shortly after hired their first employee.</p>"
+          }
+        },
+        "item-1": {
+          "type": "item",
+          "settings": {
+            "image": "shopify://shop_images/Screen_Shot_2019-04-18_at_1.20.15_PM.png",
+            "apply_overlay": true,
+            "title": "2017",
+            "subheading": "Farmers Markets",
+            "heading": "Beautiful Beginnings",
+            "content": "<p>Sarah and John were going out every weekend selling candles at farmers markets. </p><p>They started Forestry Friday (Now Forestry Weekend), a makers market all their own. Their first child was born. Sarah quit her job in 2016, John quit his in 2017. The team grew to five.</p>"
+          }
+        },
+        "item-2": {
+          "type": "item",
+          "settings": {
+            "image": "shopify://shop_images/Monthly_Update_Family_Subscription_Box.jpg",
+            "apply_overlay": true,
+            "title": "2019",
+            "subheading": "Every Market They Could",
+            "heading": "They Joyfully Attended...",
+            "content": "<p>By 2019, they were selling at every market they could. The team had grown to six members and another child was born. Lifelong relationships were formed with the community, other makers, and event organizers. Bringing their young ones to market and doing business the best they could to continue moving forward in this great adventure.</p>"
+          }
+        },
+        "a0cc1610-59ac-4c35-8f62-141b3d6c30b3": {
+          "type": "item",
+          "settings": {
+            "image": "shopify://shop_images/Screen_Shot_2021-11-24_at_7.24.01_PM.png",
+            "apply_overlay": true,
+            "title": "2021",
+            "subheading": "1450 square feet",
+            "heading": "Growing team, Growing family",
+            "content": "<p>Little by little the team grew, accommodating wholesalers, retail sales, and attending over 200 events a year! If it were not for small businesses all over the country ordering wholesale, and faithful customers ordering online, they wouldn't have been able to stay in business.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "item-0",
+        "item-1",
+        "item-2",
+        "a0cc1610-59ac-4c35-8f62-141b3d6c30b3"
+      ],
+      "disabled": true,
+      "settings": {
+        "text_color": "#ffffff"
+      }
+    },
+    "featured-product": {
+      "type": "featured-product",
+      "blocks": {
+        "product-meta": {
+          "type": "product_meta",
+          "settings": {
+            "show_vendor": true,
+            "show_sku": false,
+            "show_product_rating": false,
+            "show_taxes_included": false
+          }
+        },
+        "share-buttons": {
+          "type": "share_buttons",
+          "settings": {}
+        },
+        "variant-selector": {
+          "type": "variant_selector",
+          "settings": {
+            "selector_mode": "dropdown",
+            "show_color_swatch": false,
+            "show_color_carousel": false,
+            "size_chart": ""
+          }
+        },
+        "buy-buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_price_in_button": false,
+            "show_payment_button": true
+          }
+        }
+      },
+      "block_order": [
+        "product-meta",
+        "share-buttons",
+        "variant-selector",
+        "buy-buttons"
+      ],
+      "settings": {
+        "subheading": "",
+        "title": "Featured product",
+        "show_headings_on_mobile": true,
+        "product": "modern-forestry-candle-club-16oz-subscription-with-gifts"
+      }
+    },
+    "featured-collections": {
+      "type": "featured-collections",
+      "blocks": {
+        "featured-collection-0": {
+          "type": "collection",
+          "settings": {
+            "collection": "candle-bundles",
+            "title": "",
+            "grid_items_count": 8,
+            "button_text": "View all products"
+          }
+        }
+      },
+      "block_order": [
+        "featured-collection-0"
+      ],
+      "settings": {
+        "title": "Featured collection",
+        "layout_mode": "grid",
+        "show_product_info": true,
+        "show_vendor": false,
+        "show_color_swatch": false,
+        "grid_mobile_items_per_row": "2",
+        "grid_desktop_items_per_row": 4
+      }
+    }
+  },
+  "order": [
+    "slideshow",
+    "collection-list",
+    "timeline",
+    "featured-product",
+    "featured-collections"
+  ]
+}

@@ -1,0 +1,104 @@
+{%- capture section_settings -%}
+{
+  "productId": {{ product.id | json }},
+  "recommendationsCount": {{ section.settings.recommendations_count }}
+}
+{%- endcapture -%}
+
+{%- capture flickity_options -%}
+{
+  "prevNextButtons": true,
+  "pageDots": false,
+  "wrapAround": false,
+  "contain": true,
+  "cellAlign": "center",
+  "watchCSS": true,
+  "dragThreshold": 8,
+  "groupCells": true,
+  "arrowShape": {"x0": 20, "x1": 60, "y1": 40, "x2": 60, "y2": 35, "x3": 25}
+}
+{%- endcapture -%}
+
+<section class="Section Section--spacingNormal" data-section-id="{{ section.id }}" data-section-type="product-recommendations" data-section-settings='{{ section_settings }}'>
+  {%- if section.settings.heading != blank -%}
+    <header class="SectionHeader SectionHeader--center">
+      <div class="Container">
+        <h3 class="SectionHeader__Heading Heading u-h3">{{ section.settings.heading | escape }}</h3>
+      </div>
+    </header>
+  {%- endif -%}
+
+  <div class="ProductRecommendations">
+    {%- if recommendations.performed and recommendations.products.size > 0 -%}
+      <div class="ProductListWrapper">
+        <div class="ProductList ProductList--carousel Carousel" data-flickity-config='{{ flickity_options }}'>
+          {%- for product in recommendations.products -%}
+            <div class="Carousel__Cell">
+              {% render 'product-item', product: product, show_product_info: section.settings.show_product_info, show_vendor: section.settings.show_vendor, show_color_swatch: section.settings.show_color_swatch, show_labels: true %}
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- else -%}
+      {%- comment -%}Hide the section if there is no recommendations to show{%- endcomment -%}
+      <style>
+        #shopify-section-{{ section.id }} {
+          display: none;
+        }
+      </style>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product recommendations",
+  "class": "shopify-section--bordered",
+  "templates": ["product"],
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Dynamic recommendations change and improve with time. Create manual product recommendations using the Shopify Search & Discovery app. [Learn more](https://help.shopify.com/en/manual/online-store/search-and-discovery/product-recommendations)."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "You may also like"
+    },
+    {
+      "type": "range",
+      "id": "recommendations_count",
+      "min": 1,
+      "max": 10,
+      "label": "Recommendations count",
+      "default": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_info",
+      "label": "Show product info",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_color_swatch",
+      "label": "Show color swatch",
+      "info": "Some colors appear white? [Learn more](http://support.maestrooo.com/article/80-product-uploading-custom-color-for-color-swatch).",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "category": "Product",
+      "name": "Product recommendations"
+    }
+  ]
+}
+{% endschema %}

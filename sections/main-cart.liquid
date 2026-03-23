@@ -1,0 +1,180 @@
+<!-- Begin Recharge code -->
+{% render 'subscription-cart-footer' %}
+<!-- End Recharge code -->
+
+{%- capture section_settings -%}
+{
+  "type": {{ settings.cart_type | json }},
+  "itemCount": {{ cart.item_count }},
+  "drawer": false,
+  "hasShippingEstimator": {% if section.settings.show_shipping_estimator and cart.item_count > 0 %}true{% else %}false{% endif %}
+}
+{%- endcapture -%}
+{%- assign cart_subtotal_label = 'cart.general.subtotal' | t -%}
+{%- assign cart_subtotal_label_check = cart_subtotal_label | downcase -%}
+{%- if cart_subtotal_label == blank or cart_subtotal_label_check contains 'translation missing:' -%}
+  {%- assign cart_subtotal_label = 'Subtotal' -%}
+{%- endif -%}
+{%- assign cart_discount_label = 'cart.general.discount' | t -%}
+{%- assign cart_discount_label_check = cart_discount_label | downcase -%}
+{%- if cart_discount_label == blank or cart_discount_label_check contains 'translation missing:' -%}
+  {%- assign cart_discount_label = 'Discount' -%}
+{%- endif -%}
+
+<section data-section-id="{{ section.id }}" data-section-type="cart" data-section-settings='{{ section_settings }}'>
+  {%- if cart.item_count == 0 -%}
+    <div class="EmptyState">
+      <div class="Container">
+        <h1 class="EmptyState__Title Heading u-h5">{{ 'cart.general.empty' | t }}</h1>
+
+        {%- if settings.cart_show_free_shipping_threshold -%}
+          {%- assign threshold_in_cents = settings.cart_free_shipping_threshold | times: 100 -%}
+          {%- capture remaining_amount -%}<span>{{ cart.total_price | minus: threshold_in_cents | abs | money }}</span>{%- endcapture -%}
+
+          <p class="Text--subdued">{{- 'cart.general.free_shipping_remaining_html' | t: remaining_amount: remaining_amount -}}</p>
+        {%- endif -%}
+
+        <a href="{{ routes.all_products_collection_url }}" class="EmptyState__Action Button Button--primary">{{ 'cart.general.empty_button' | t }}</a>
+      </div>
+    </div>
+  {%- else -%}
+    <div class="Container">
+      <header class="PageHeader">
+        <div class="SectionHeader SectionHeader--center">
+          <h1 class="SectionHeader__Heading Heading u-h1">{{ 'cart.general.title' | t }}</h1>
+
+          {%- if settings.cart_show_free_shipping_threshold -%}
+            {%- assign threshold_in_cents = settings.cart_free_shipping_threshold | times: 100 -%}
+
+            <p class="SectionHeader__Description Text--subdued">
+              {%- if cart.total_price >= threshold_in_cents -%}
+                {{- 'cart.general.free_shipping' | t -}}
+              {%- else -%}
+                {%- capture remaining_amount -%}<span>{{ cart.total_price | minus: threshold_in_cents | abs | money }}</span>{%- endcapture -%}
+                {{- 'cart.general.free_shipping_remaining_html' | t: remaining_amount: remaining_amount -}}
+              {%- endif -%}
+            </p>
+          {%- endif -%}
+        </div>
+      </header>
+
+      <div class="PageContent">
+        <form action="{{ routes.cart_url }}" method="POST" class="Cart Cart--expanded" novalidate>
+          <input type="hidden" name="attributes[collection_mobile_items_per_row]" value="">
+          <input type="hidden" name="attributes[collection_desktop_items_per_row]" value="">
+
+          {% render 'cart-items' %}
+
+          <footer class="Cart__Footer Cart__Footer--paired">
+            {%- if settings.cart_enable_notes -%}
+              <div class="Cart__NoteContainer Cart__NoteContainer--paired">
+                <span class="Cart__NoteButton">{{ 'cart.general.add_note' | t }}</span>
+                <div class="Cart__NoteCard">
+                  <textarea class="Cart__Note Form__Textarea" name="note" id="cart-note" rows="4" placeholder="{{ 'cart.general.note_placeholder' | t }}">{{ cart.note }}</textarea>
+                </div>
+              </div>
+            {%- endif -%}
+
+            <div class="Cart__Recap Cart__Recap--paired">
+              <span class="Cart__NoteButton Cart__NoteButton--static">Redeem Candle Cash</span>
+              <div class="ForestryRewardsCartMount">
+                {% render 'forestry-rewards-root',
+                  surface: 'cart',
+                  title: 'Candle Cash',
+                  subtitle: ''
+                %}
+              </div>
+
+              {%- capture shipping_and_taxes_notice -%}{{ 'cart.general.shipping_and_taxes_notice' | t }}{%- endcapture -%}
+
+              <div class="Cart__SummaryLines">
+                <p class="Cart__SummaryLine Cart__SummaryLine--subtotal Heading u-h6">
+                  <span>{{ cart_subtotal_label }}</span>
+                  <span data-cart-subtotal-display="with_currency">{{ cart.items_subtotal_price | money_with_currency }}</span>
+                </p>
+
+                {%- assign cart_discount_total = cart.items_subtotal_price | minus: cart.total_price -%}
+                <p
+                  class="Cart__SummaryLine Cart__SummaryLine--discount Heading u-h6{% if cart_discount_total <= 0 %} is-hidden{% endif %}"
+                  data-cart-discount-row
+                >
+                  <span data-cart-discount-label>
+                    {%- if cart.cart_level_discount_applications != blank -%}
+                      Candle Cash Applied
+                    {%- else -%}
+                      {{ cart_discount_label }}
+                    {%- endif -%}
+                  </span>
+                  <span>-<span data-cart-discount-display="with_currency">{{ cart_discount_total | money_with_currency }}</span></span>
+                </p>
+              </div>
+
+              <p class="Cart__Total Heading u-h6" data-cart-total-line>{{ 'cart.general.total' | t }}: <span data-cart-total-display="with_currency">{{ cart.total_price | money_with_currency }}</span></p>
+
+              {%- if shipping_and_taxes_notice != blank -%}
+                <p class="Cart__Taxes Text--subdued">{{ shipping_and_taxes_notice }}</p>
+              {%- endif -%}
+
+              <button type="submit" name="checkout" class="Cart__Checkout Button Button--primary Button--full">{{ 'cart.general.checkout' | t }}</button>
+            </div>
+          </footer>
+        </form>
+
+        {%- if section.settings.show_shipping_estimator -%}
+          <div class="Section Section--spacingExtraLarge">
+            <div class="Panel">
+              <h2 class="Panel__Title Heading u-h2">{{ 'cart.shipping_estimator.title' | t }}</h2>
+
+              <div class="Panel__Content">
+                <div class="ShippingEstimator">
+                  <div class="ShippingEstimator__Form">
+                    <div class="ShippingEstimator__Country Form__Select Select Select--primary">
+                      {%- render 'icon' with 'select-arrow' -%}
+                      <select name="country" title="{{ 'cart.shipping_estimator.country' | t }}" data-default="{% if customer %}{{ customer.default_address.country }}{% elsif section.settings.shipping_estimator_default_country != '' %}{{ section.settings.shipping_estimator_default_country }}{% endif %}">{{ country_option_tags }}</select>
+                    </div>
+
+                    <div class="ShippingEstimator__Province Form__Select Select Select--primary" style="display: none">
+                      {%- render 'icon' with 'select-arrow' -%}
+                      <select name="province" title="{{ 'cart.shipping_estimator.province' | t }}"></select>
+                    </div>
+
+                    <input type="text" class="ShippingEstimator__Zip Form__Input" name="zip" placeholder="{{ 'cart.shipping_estimator.zip_code' | t }}">
+
+                    <button type="button" class="ShippingEstimator__Submit Button Button--primary">{{ 'cart.shipping_estimator.estimate' | t }}</button>
+                  </div>
+
+                  <div class="ShippingEstimator__Error Alert Alert--error" style="display: none"></div>
+                  <div class="ShippingEstimator__Results">
+                    <div class="ShippingEstimator__ResultsInner"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Cart page",
+  "class": "shopify-section--bordered",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_shipping_estimator",
+      "label": "Show shipping rates calculator",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "shipping_estimator_default_country",
+      "label": "Default country to use",
+      "info": "If your customer is logged-in, the country in his default shipping address will be selected.",
+      "default": "United States"
+    }
+  ]
+}
+{% endschema %}

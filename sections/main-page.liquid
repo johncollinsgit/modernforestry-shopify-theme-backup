@@ -1,0 +1,34 @@
+{%- if request.page_type == 'page' and page.handle == 'rewards' -%}
+  {% render 'candle-cash-rewards-page',
+    title: 'Candle Cash Central',
+    subtitle: 'Earn Candle Cash through reviews, referrals, birthdays, and a few easy wins.'
+  %}
+{%- elsif request.page_type == 'page' and page.handle == 'rewards-program-faq' -%}
+  {% render 'candle-cash-faq-page' %}
+{%- else -%}
+  <div class="Container">
+    <header class="PageHeader">
+      <div class="SectionHeader SectionHeader--center">
+        <h1 class="SectionHeader__Heading Heading u-h1">{{ page.title }}</h1>
+      </div>
+    </header>
+
+    <div class="PageContent {% unless section.settings.show_large %}PageContent--narrow{% endunless %} Rte">
+      {{ page.content }}
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Page",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_large",
+      "label": "Large width",
+      "default": false
+    }
+  ]
+}
+{% endschema %}

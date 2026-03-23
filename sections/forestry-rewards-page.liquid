@@ -1,0 +1,25 @@
+{% comment %}Candle Cash portal section shell; visual markup lives in the snippet below.{% endcomment %}
+{% render 'candle-cash-rewards-page',
+  title: section.settings.title,
+  subtitle: section.settings.subtitle
+%}
+
+{% schema %}
+{
+  "name": "Forestry rewards page",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Candle Cash Central"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Earn Candle Cash through reviews, referrals, birthdays, and a few easy wins."
+    }
+  ]
+}
+{% endschema %}

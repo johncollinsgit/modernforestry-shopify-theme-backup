@@ -1,0 +1,176 @@
+{%- liquid
+  assign rewards_url = '/pages/rewards'
+  assign candle_club_url = '/products/modern-forestry-candle-club-16oz-subscription-with-gifts?selling_plan=11300438275'
+  assign candle_club_allowed_email = 'info@theforestrystudio.com'
+  assign candle_club_customer_email = customer.email | default: '' | downcase
+  assign candle_club_actionable = false
+  if candle_club_customer_email == candle_club_allowed_email
+    assign candle_club_actionable = true
+  endif
+  assign account_link = routes.account_login_url
+  assign hero_account_label = 'Sign in to view your balance'
+  assign closing_account_label = 'Sign in or create account'
+  if customer
+    assign account_link = routes.account_url
+    assign hero_account_label = 'View my balance'
+    assign closing_account_label = 'Open my account'
+  endif
+-%}
+
+{%- comment -%}
+  Candle Cash FAQ is rendered in-theme so the storefront copy stays aligned with the new rewards system.
+  If reward exclusions become stricter in backstage, update the relevant answers here before changing customer-facing claims.
+{%- endcomment -%}
+
+<section class="CandleCashFaqPage">
+  <div class="Container">
+    <div class="CandleCashFaqPage__hero">
+      <p class="CandleCashFaqPage__eyebrow">Candle Cash</p>
+      <h1 class="Heading u-h1">Rewards, simplified.</h1>
+      <p class="CandleCashFaqPage__lead">Candle Cash is the easiest way to earn and use rewards with The Forestry Studio. Your balance stays close in your account, cart, and rewards space, so it is ready when you are.</p>
+
+      <div class="CandleCashFaqPage__actions">
+        <a class="Button Button--primary" href="{{ account_link }}">{{ hero_account_label }}</a>
+        <a class="Button Button--secondary" href="{{ rewards_url }}">Open Candle Cash</a>
+        <a class="Button Button--secondary" href="{{ routes.all_products_collection_url }}">Shop candles</a>
+      </div>
+    </div>
+
+    <div class="CandleCashFaqPage__flow">
+      <article class="CandleCashFaqPage__flow-card">
+        <span class="CandleCashFaqPage__flow-step">1</span>
+        <h2 class="Heading u-h4">Earn</h2>
+        <p>Earn Candle Cash on qualifying orders, referrals, reviews, and select member-only moments.</p>
+      </article>
+
+      <article class="CandleCashFaqPage__flow-card">
+        <span class="CandleCashFaqPage__flow-step">2</span>
+        <h2 class="Heading u-h4">Save</h2>
+        <p>Your balance stays visible in your account, in the cart, and inside the Candle Cash page.</p>
+      </article>
+
+      <article class="CandleCashFaqPage__flow-card">
+        <span class="CandleCashFaqPage__flow-step">3</span>
+        <h2 class="Heading u-h4">Apply</h2>
+        <p>When an eligible reward is ready, you can apply it from your cart or rewards view in a few calm clicks.</p>
+      </article>
+    </div>
+
+    <div class="CandleCashFaqPage__grid">
+      <article class="CandleCashFaqPage__card">
+        <p class="CandleCashFaqPage__card-eyebrow">How Candle Cash Works</p>
+        <h2 class="Heading u-h3">A cleaner way to earn rewards</h2>
+        <p>Candle Cash is our current rewards experience. It keeps the program easy to understand and easier to use at checkout.</p>
+        <ul class="CandleCashFaqPage__list">
+          <li>Earn Candle Cash through qualifying purchases and select engagement actions.</li>
+          <li>See your balance in the places that matter most: account, cart, and rewards.</li>
+          <li>Redeem Candle Cash in $10 increments, with a limit of $10 per order.</li>
+        </ul>
+      </article>
+
+      <article class="CandleCashFaqPage__card">
+        <p class="CandleCashFaqPage__card-eyebrow">Candle Club</p>
+        <h2 class="Heading u-h3">Member perks stay built in</h2>
+        <p>Candle Club members earn 2x Candle Cash and unlock extra reward moments, including exclusive voting perks.</p>
+        <div class="CandleCashFaqPage__card-actions">
+          {%- if candle_club_actionable -%}
+            <a class="Button Button--secondary" href="{{ candle_club_url }}">Explore Candle Club</a>
+            <a class="Button Button--secondary" href="{{ rewards_url }}#candle-cash-task-candle-club-vote">View voting perk</a>
+          {%- else -%}
+            {% render 'candle-club-coming-soon', compact: true %}
+          {%- endif -%}
+        </div>
+      </article>
+    </div>
+
+    <div class="CandleCashFaqPage__faq">
+      <details class="CandleCashFaqPage__item" open>
+        <summary>What is Candle Cash?</summary>
+        <div>
+          <p>Candle Cash is The Forestry Studio rewards balance shown in dollars, so it is simple to follow and simple to use.</p>
+        </div>
+      </details>
+
+      <details class="CandleCashFaqPage__item">
+        <summary>How do I earn Candle Cash?</summary>
+        <div>
+          <p>You can earn Candle Cash through qualifying purchases, referrals, reviews, and select member-exclusive actions.</p>
+        </div>
+      </details>
+
+      <details class="CandleCashFaqPage__item">
+        <summary>Where can I see my balance?</summary>
+        <div>
+          <p>Your balance appears in your account, in the cart, on the Candle Cash page, and in select order follow-up views when relevant.</p>
+        </div>
+      </details>
+
+      <details class="CandleCashFaqPage__item">
+        <summary>How do I use Candle Cash?</summary>
+        <div>
+          <p>Candle Cash is redeemed in $10 increments. When you have at least $10 Candle Cash available, you can redeem $10 Candle Cash directly from the cart or rewards page and apply $10 off your order.</p>
+        </div>
+      </details>
+
+      <details class="CandleCashFaqPage__item">
+        <summary>Do I need an account?</summary>
+        <div>
+          <p>Yes. Signing in keeps your purchases, rewards, referrals, and member perks connected to the right account.</p>
+        </div>
+      </details>
+
+      <details class="CandleCashFaqPage__item">
+        <summary>Does Candle Cash expire?</summary>
+        <div>
+          <p>Some Candle Cash may carry an expiration date. If it does, we will show that clearly next to your balance.</p>
+        </div>
+      </details>
+
+      <details class="CandleCashFaqPage__item">
+        <summary>Can I combine Candle Cash with other offers?</summary>
+        <div>
+          <p>Shopify usually accepts one discount code at a time, and Candle Cash is limited to $10 per order.</p>
+        </div>
+      </details>
+
+      <details class="CandleCashFaqPage__item">
+        <summary>Can I use Candle Cash on subscriptions, Candle Club, or sale items?</summary>
+        <div>
+          <p>Eligibility can vary by reward and offer. If a reward has exclusions, we will show them in your rewards view before you apply it.</p>
+        </div>
+      </details>
+
+      <details class="CandleCashFaqPage__item">
+        <summary>What member-exclusive perks are included?</summary>
+        <div>
+          <p>Candle Club members earn 2x Candle Cash and unlock extra benefits, including members-only voting on upcoming scents.</p>
+        </div>
+      </details>
+
+      <details class="CandleCashFaqPage__item">
+        <summary>Who should I contact if something looks off?</summary>
+        <div>
+          <p>If your balance or reward activity looks off, please reach out through our <a href="/pages/contact">contact page</a> and we will take a closer look.</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="CandleCashFaqPage__closing">
+      <div>
+        <p class="CandleCashFaqPage__card-eyebrow">Ready when you are</p>
+        <h2 class="Heading u-h3">Keep Candle Cash close to your next order</h2>
+        <p>Sign in to see your balance, open your rewards page, or check back for Candle Club access soon.</p>
+      </div>
+
+      <div class="CandleCashFaqPage__actions">
+        <a class="Button Button--primary" href="{{ account_link }}">{{ closing_account_label }}</a>
+        <a class="Button Button--secondary" href="{{ rewards_url }}">Open Candle Cash</a>
+        {%- if candle_club_actionable -%}
+          <a class="Button Button--secondary" href="{{ candle_club_url }}">Join Candle Club</a>
+        {%- else -%}
+          {% render 'candle-club-coming-soon', compact: true %}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>

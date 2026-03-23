@@ -1,0 +1,82 @@
+<script type="text/javascript">
+var store_money_format="{{shop.money_format}}";
+var store_default_currency="{{shop.currency}}";
+var store_sc_qo_shop_domain="{{shop.domain}}";
+</script>
+<style type="text/css">
+  input[name="sc-qs-bof-product"]{
+    width: 100% !important;
+  }
+  .bof-cart-buttons > div{
+    margin-top: 5px;
+  }
+  .bof-cart-buttons button{
+    width: 100%;    
+  }
+</style>
+
+<div class="container sc-qs sc-qs-bof-container">
+  <div class="row">
+    <div class="col-sm-12">
+      {% if shop.metafields.ScQuickShop.ScQsSku == 1 %}
+      <div class="col-sm-3 col-xs-9">Order Products (by SKU or name or barcode)</div>
+      <div class="col-sm-2 col-xs-3">SKU</div>
+      {% else %}      
+  <div class="col-sm-5 col-xs-12">Order Products (by SKU or name or barcode)</div>
+      {% endif %}
+  <div class="col-sm-2 col-xs-4">Quantity</div>
+  <div class="col-sm-2 col-xs-4">Price</div>
+  <div class="col-sm-2 col-xs-4">Total</div>
+      <div class="col-sm-1 col-xs-2">&nbsp;</div>
+      </div>
+  </div>
+  
+  
+  
+  <div class="row container-btn-add-row">
+    <div class="col-sm-12">
+      <div class="col-sm-12"><button id="btn-add-row" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span> Add Product</button></div>
+    </div>
+  </div>
+  
+  <div class="row" style="margin-top:10px">
+    <div class="col-sm-12">
+      <div class="col-sm-2"><strong>Quantity: </strong><span id="sc-qs-bof-total-qty">0</span></div>
+      <div class="col-sm-2 col-sm-offset-7"><strong>Total Price: </strong><span id="sc-qs-bof-grand-total-price">0</span></div>
+      <div class="col-sm-1">&nbsp;</div>
+    </div>
+  </div>
+  
+  <div class="row" style="margin-top:30px;">
+    <div class="bof-cart-buttons col-sm-12">
+      <div class="col-sm-2 col-xs-12" style="margin-bottom:20px;"><button id="sc-qs-bof-btn-add-to-cart" class="btn btn-primary">ADD TO CART</button></div>            
+      <div class="col-sm-2 col-sm-offset-2 col-xs-12"><button id="sc-qs-bof-btn-clear-cart" class="btn btn-primary">CLEAR CART</button></div>
+      <div class="col-sm-2 col-xs-12"><button id="sc-qs-bof-btn-reset-form" class="btn btn-primary">RESET FORM</button></div>
+      <div class="col-sm-2 col-sm-offset-1 col-xs-12"><button id="sc-qs-bof-btn-go-to-cart" class="btn btn-primary">GO TO CART</button></div>
+    </div>
+  </div>
+  
+</div>
+
+
+<script type="text/template" id="tpl-bof-row">
+<div class="row" scbofrowindex="<%= sn %>">
+    <div class="col-md-12">
+    {% if shop.metafields.ScQuickShop.ScQsSku == 1 %}
+    <div class="col-sm-3 col-xs-9 form-group"><input id="sc_bof_product_<%= sn %>" type="text" class="form-control" scinputtype="sc-qs-bof-product" placeholder="Order Products (by SKU or name or barcode)" variantid="" scbofrowindex="<%= sn %>" /></div>
+    <div class="col-sm-2 col-xs-3 form-group"><input type="text" class="form-control" scinputtype="sc-qs-bof-sku" placeholder="SKU" disabled="disabled" scbofrowindex="<%= sn %>" /></div>
+    {% else %}
+  <div class="col-sm-5 col-xs-12 form-group"><input id="sc_bof_product_<%= sn %>" type="text" class="form-control" scinputtype="sc-qs-bof-product" placeholder="Order Products (by SKU or name or barcode)" variantid="" scbofrowindex="<%= sn %>" /></div>
+  {% endif %}
+  <div class="col-sm-2 col-xs-3 form-group"><input type="text" class="form-control col-sm-12" scinputtype="sc-qs-bof-qty" placeholder="Quantity" disabled="disabled" scbofrowindex="<%= sn %>" /><div scinputtype="sc-qs-bof-lbl-stock" class="col-sm-12"></div></div>
+  <div class="col-sm-2 col-xs-4 form-group"><input type="text" class="form-control" scinputtype="sc-qs-bof-ws" placeholder="Price" disabled="disabled" scbofrowindex="<%= sn %>" /></div>
+  <div class="col-sm-2 col-xs-4 form-group"><input type="text" class="form-control" scinputtype="sc-qs-bof-total" placeholder="Total" disabled="disabled" scbofrowindex="<%= sn %>" /></div>
+      <% if(removable==true){ %>
+      <div class="col-sm-1 col-xs-2 form-group"><a href="javascript:void(0);" scinputtype="sc-qs-bof-remove" scbofrowindex="<%= sn %>"><svg fill="#000000" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24px" height="24px"><path d="M 10 2 L 9 3 L 3 3 L 3 5 L 21 5 L 21 3 L 15 3 L 14 2 L 10 2 z M 4.3652344 7 L 6.0683594 22 L 17.931641 22 L 19.634766 7 L 4.3652344 7 z"/></svg></a></div>
+      <% } else{ %>
+      <div class="col-sm-1 col-xs-2 form-group">&nbsp;</div>
+      <% } %>
+    </div>
+  </div>
+</script>
+

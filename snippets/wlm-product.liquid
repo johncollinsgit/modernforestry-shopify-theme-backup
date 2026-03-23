@@ -1,0 +1,6 @@
+{%- assign w_continue = 'no' -%}
+{% assign wlmHideItem_Product = false %}
+
+{% if wlmHideItem_Product == true %}{% continue %}{% endif %}
+
+{%- if wlm_is_render == 'yes' -%}{{- w_continue -}}{%-endif-%}

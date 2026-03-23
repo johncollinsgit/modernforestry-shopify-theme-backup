@@ -1,0 +1,21 @@
+<div
+  class="ForestryProductReviewSummary"
+  data-forestry-product-review-summary
+  data-forestry-product-review-key="{{ product.id }}"
+  data-product-id="{{ product.id }}"
+  data-product-handle="{{ product.handle | escape }}"
+  data-product-title="{{ product.title | escape }}"
+  data-product-url="{{ product.url | escape }}"
+  data-customer-email="{{ customer.email | escape }}"
+  data-customer-phone="{{ customer.phone | escape }}"
+  data-shopify-customer-id="{{ customer.id }}"
+  data-customer-first-name="{{ customer.first_name | escape }}"
+  data-customer-last-name="{{ customer.last_name | escape }}"
+  data-login-url="{{ routes.account_login_url }}"
+  data-endpoint-product-review-status="/apps/forestry/product-reviews/status"
+>
+  <div class="ForestryProductReviewSummary__loading">
+    <span class="ForestryProductReviewSummary__dots" aria-hidden="true"><span></span><span></span><span></span></span>
+    <span class="Text--subdued">Loading reviews</span>
+  </div>
+</div>

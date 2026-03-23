@@ -1,0 +1,4207 @@
+.ForestryRewardsRoot {
+  position: relative;
+  min-width: 0;
+  --cc-bg: linear-gradient(135deg, #f4efe9 0%, #e7ddd2 100%);
+  --cc-surface: #ffffff;
+  --cc-surface-rgb: 255, 255, 255;
+  --cc-surface-alt: #f8f4ef;
+  --cc-surface-alt-rgb: 248, 244, 239;
+  --cc-border: rgba(43, 38, 35, 0.08);
+  --cc-text: #2b2623;
+  --cc-text-rgb: 43, 38, 35;
+  --cc-text-soft: #6a625c;
+  --cc-accent: #c46a2d;
+  --cc-accent-rgb: 196, 106, 45;
+  --cc-accent-hover: #ad5d27;
+  --cc-badge: #efe5d7;
+  --cc-success-soft: #ece7de;
+  --cc-success-soft-rgb: 236, 231, 222;
+  --cc-accent-text: #16120f;
+  --forestry-rewards-cta-shadow: 0 16px 34px rgba(117, 69, 35, 0.16);
+  --forestry-rewards-cta-focus-ring: rgba(196, 106, 45, 0.22);
+  --heading-color: var(--cc-text);
+  --text-color-rgb: var(--cc-text-rgb);
+  --background-rgb: var(--cc-surface-rgb);
+  --light-background-rgb: var(--cc-surface-alt-rgb);
+  --button-background: var(--cc-accent);
+  --button-background-rgb: var(--cc-accent-rgb);
+  --button-text-color: var(--cc-accent-text);
+  color: var(--cc-text);
+}
+
+.ForestryRewardsRoot[data-theme="midnight-ledger"] {
+  --cc-bg: linear-gradient(135deg, #1f2024 0%, #2c2a28 100%);
+  --cc-surface: #2a2b30;
+  --cc-surface-rgb: 42, 43, 48;
+  --cc-surface-alt: #232429;
+  --cc-surface-alt-rgb: 35, 36, 41;
+  --cc-border: rgba(255, 255, 255, 0.08);
+  --cc-text: #f5f1ea;
+  --cc-text-rgb: 245, 241, 234;
+  --cc-text-soft: #c7beb2;
+  --cc-accent: #c88a3d;
+  --cc-accent-rgb: 200, 138, 61;
+  --cc-accent-hover: #b37830;
+  --cc-badge: rgba(200, 138, 61, 0.14);
+  --cc-success-soft: rgba(255, 255, 255, 0.05);
+  --cc-success-soft-rgb: 255, 255, 255;
+  --cc-accent-text: #140f0a;
+  --forestry-rewards-cta-shadow: 0 20px 40px rgba(0, 0, 0, 0.22);
+  --forestry-rewards-cta-focus-ring: rgba(200, 138, 61, 0.24);
+}
+
+.ForestryRewardsRoot[data-theme="evergreen-club"] {
+  --cc-bg: linear-gradient(135deg, #eef1eb 0%, #dde4da 100%);
+  --cc-surface: #ffffff;
+  --cc-surface-rgb: 255, 255, 255;
+  --cc-surface-alt: #f4f6f2;
+  --cc-surface-alt-rgb: 244, 246, 242;
+  --cc-border: rgba(39, 50, 38, 0.08);
+  --cc-text: #273226;
+  --cc-text-rgb: 39, 50, 38;
+  --cc-text-soft: #667164;
+  --cc-accent: #7a5c3a;
+  --cc-accent-rgb: 122, 92, 58;
+  --cc-accent-hover: #654a2d;
+  --cc-badge: #e7ece3;
+  --cc-success-soft: #edf1eb;
+  --cc-success-soft-rgb: 237, 241, 235;
+  --cc-accent-text: #120f0c;
+  --forestry-rewards-cta-shadow: 0 18px 34px rgba(74, 57, 37, 0.16);
+  --forestry-rewards-cta-focus-ring: rgba(122, 92, 58, 0.2);
+}
+
+.ForestryRewardsRoot .Heading,
+.ForestryRewardsRoot h1,
+.ForestryRewardsRoot h2,
+.ForestryRewardsRoot h3,
+.ForestryRewardsRoot h4 {
+  color: var(--cc-text);
+}
+
+.ForestryRewardsThemeBar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 1.35rem;
+  padding: 0.1rem 0 0.35rem;
+  flex-wrap: wrap;
+}
+
+.ForestryRewardsThemeBar__copy {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.ForestryRewardsThemeBar__title {
+  margin: 0;
+  font-family: var(--heading-font-family);
+  font-size: 0.98rem;
+  line-height: 1.35;
+  color: var(--cc-text-soft);
+}
+
+.ForestryRewardsThemeToggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  width: 100%;
+}
+
+.ForestryRewardsThemeButton {
+  flex: 1 1 11.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.78rem 1.05rem;
+  border-radius: 999px;
+  border: 1px solid var(--cc-border);
+  background: rgba(var(--cc-surface-rgb), 0.78);
+  color: var(--cc-text-soft);
+  font-family: var(--heading-font-family);
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: background 0.24s ease, border-color 0.24s ease, color 0.24s ease, transform 0.24s ease, box-shadow 0.24s ease;
+}
+
+.ForestryRewardsThemeButton:hover {
+  background: rgba(var(--cc-surface-rgb), 0.96);
+  color: var(--cc-text);
+  transform: translateY(-1px);
+}
+
+.ForestryRewardsThemeButton.is-active {
+  background: rgba(var(--cc-surface-rgb), 0.98);
+  border-color: rgba(var(--cc-accent-rgb), 0.34);
+  color: var(--cc-text);
+  box-shadow: 0 14px 28px rgba(var(--cc-text-rgb), 0.08);
+}
+
+.ForestryRewardsThemeButton:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--forestry-rewards-cta-focus-ring);
+}
+
+.ForestryRewardsRoot .Button--primary,
+.ForestryRewardsRoot .Button--secondary {
+  min-height: 56px;
+  padding: 0.95rem 1.8rem;
+  overflow: hidden;
+  border-radius: 999px;
+  color: var(--cc-accent-text);
+  border-color: var(--cc-accent);
+  box-shadow: var(--forestry-rewards-cta-shadow);
+}
+
+.ForestryRewardsRoot .Button--primary::before,
+.ForestryRewardsRoot .Button--secondary::before {
+  border-radius: inherit;
+  background-color: var(--cc-accent);
+  transform-origin: left center;
+  transform: scale(1, 1);
+}
+
+.ForestryRewardsRoot .Button--primary:focus-visible,
+.ForestryRewardsRoot .Button--secondary:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 4px var(--forestry-rewards-cta-focus-ring),
+    var(--forestry-rewards-cta-shadow);
+}
+
+.ForestryRewardsRoot .Button--primary[disabled],
+.ForestryRewardsRoot .Button--primary[aria-disabled="true"],
+.ForestryRewardsRoot .Button--secondary[disabled],
+.ForestryRewardsRoot .Button--secondary[aria-disabled="true"] {
+  color: rgba(var(--cc-text-rgb), 0.46);
+  border-color: var(--cc-border);
+  box-shadow: none;
+}
+
+.ForestryRewardsRoot .Button--primary[disabled]::before,
+.ForestryRewardsRoot .Button--primary[aria-disabled="true"]::before,
+.ForestryRewardsRoot .Button--secondary[disabled]::before,
+.ForestryRewardsRoot .Button--secondary[aria-disabled="true"]::before {
+  background-color: rgba(var(--cc-accent-rgb), 0.34);
+}
+
+@media (-moz-touch-enabled: 0), (hover: hover) {
+  .features--show-button-transition .ForestryRewardsRoot .Button--primary:not([disabled]):hover,
+  .features--show-button-transition .ForestryRewardsRoot .Button--secondary:not([disabled]):hover {
+    color: var(--cc-accent-text);
+    border-color: var(--cc-accent-hover);
+    box-shadow: 0 18px 34px rgba(var(--cc-accent-rgb), 0.24);
+  }
+
+  .features--show-button-transition .ForestryRewardsRoot .Button--primary:not([disabled]):hover::before,
+  .features--show-button-transition .ForestryRewardsRoot .Button--secondary:not([disabled]):hover::before {
+    background-color: var(--cc-accent-hover);
+    transform-origin: left center;
+    transform: scale(1, 1);
+  }
+}
+
+.ForestryRewardsRoot__loading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 2rem;
+  border-radius: 28px;
+  border: 1px solid var(--cc-border);
+  background:
+    radial-gradient(circle at top left, rgba(var(--cc-accent-rgb), 0.08), transparent 36%),
+    var(--cc-bg);
+  box-shadow: 0 20px 48px rgba(var(--cc-text-rgb), 0.08);
+  overflow: hidden;
+}
+
+.ForestryRewardsRoot__loading-copy {
+  max-width: 36rem;
+}
+
+.ForestryRewardsRoot__skeleton {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 12rem;
+}
+
+.ForestryRewardsRoot__skeleton span {
+  display: block;
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(var(--text-color-rgb), 0.08), rgba(var(--text-color-rgb), 0.16), rgba(var(--text-color-rgb), 0.08));
+  background-size: 200% 100%;
+  animation: forestryRewardsPulse 1.8s ease-in-out infinite;
+}
+
+.ForestryRewardsRoot__skeleton span:nth-child(1) { width: 11rem; }
+.ForestryRewardsRoot__skeleton span:nth-child(2) { width: 8rem; }
+.ForestryRewardsRoot__skeleton span:nth-child(3) { width: 9.5rem; }
+
+.ForestryRewardsSurface,
+.ForestryRewardsHelper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 30px;
+  border: 1px solid var(--cc-border);
+  background:
+    radial-gradient(circle at top left, rgba(var(--cc-accent-rgb), 0.08), transparent 38%),
+    var(--cc-bg);
+  box-shadow: 0 28px 70px rgba(var(--cc-text-rgb), 0.08);
+}
+
+.ForestryRewardsSurface {
+  padding: 2rem;
+}
+
+.ForestryRewardsComingSoon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 0 1rem;
+  padding: 0.38rem 0.78rem;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--button-background-rgb), 0.28);
+  background: rgba(var(--button-background-rgb), 0.14);
+  color: rgba(var(--text-color-rgb), 0.82);
+  font-size: 0.73rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.ForestryRewardsComingSoon--compact {
+  margin: 0;
+  padding: 0.16rem 0.42rem;
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+}
+
+.ForestryRewardsSurface--account {
+  margin-bottom: 2rem;
+}
+
+.ForestryRewardsSurface__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.85fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.ForestryRewardsSurface__summary,
+.ForestryRewardsCard,
+.ForestryRewardsFallback {
+  border-radius: 24px;
+  border: 1px solid var(--cc-border);
+  background: rgba(var(--cc-surface-rgb), 0.88);
+  backdrop-filter: blur(10px);
+}
+
+.ForestryRewardsSurface__summary {
+  padding: 1.25rem 1.35rem;
+}
+
+.ForestryRewardsSurface__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.ForestryRewardsGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.85fr);
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.ForestryRewardsStack,
+.ForestryRewardsSurface__lower {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.ForestryRewardsCard,
+.ForestryRewardsFallback {
+  padding: 1.4rem;
+}
+
+.ForestryRewardsCard__header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ForestryRewardsCard__eyebrow,
+.ForestryRewardsEyebrow,
+.ForestryRewardsStatLabel {
+  margin: 0 0 0.45rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--cc-text-soft);
+}
+
+.ForestryRewardsLead,
+.ForestryRewardsCard__description,
+.ForestryRewardsStatNote,
+.ForestryRewardsHelper__rule,
+.ForestryRewardsHelper__quiet,
+.ForestryRewardsList__meta,
+.ForestryRewardsList__empty {
+  color: var(--cc-text-soft);
+}
+
+.ForestryRewardsLead {
+  max-width: 40rem;
+  margin: 0.5rem 0 0;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.ForestryRewardsLead--compact {
+  font-size: 0.96rem;
+}
+
+.ForestryRewardsStatValue,
+.ForestryRewardsCard__amount {
+  margin: 0;
+  color: var(--heading-color);
+}
+
+.ForestryRewardsStatValue {
+  font-family: var(--heading-font-family);
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+}
+
+.ForestryRewardsCard__amount {
+  margin-top: 1rem;
+  font-family: var(--heading-font-family);
+  font-size: clamp(2rem, 3vw, 3.2rem);
+}
+
+.ForestryRewardsCard__description {
+  margin: 0.8rem 0 0;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.ForestryRewardsCard__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.2rem;
+}
+
+.ForestryRewardsCard__actions--stack {
+  flex-direction: column;
+}
+
+.ForestryRewardsBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.82rem;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--text-color-rgb), 0.1);
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.ForestryRewardsBadge--success {
+  background: var(--cc-success-soft);
+  color: var(--cc-text);
+  border-color: var(--cc-border);
+}
+
+.ForestryRewardsBadge--soft {
+  background: var(--cc-badge);
+  color: var(--cc-text-soft);
+  border-color: var(--cc-border);
+}
+
+.ForestryRewardsBadge--neutral {
+  background: rgba(var(--cc-surface-alt-rgb), 0.9);
+  color: var(--heading-color);
+  border-color: var(--cc-border);
+}
+
+.ForestryRewardsMeta {
+  display: grid;
+  gap: 0.6rem;
+  margin: 1.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ForestryRewardsMeta li,
+.ForestryRewardsSnapshot div,
+.ForestryRewardsHelper__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ForestryRewardsMeta span,
+.ForestryRewardsSnapshot span,
+.ForestryRewardsHelper__footer span {
+  color: var(--cc-text-soft);
+}
+
+.ForestryRewardsMeta strong,
+.ForestryRewardsSnapshot strong {
+  color: var(--heading-color);
+}
+
+.ForestryRewardsMuted,
+.ForestryRewardsApplied,
+.ForestryRewardsHelper__applied,
+.ForestryRewardsHelper__quiet {
+  display: inline-flex;
+  align-items: center;
+  min-height: 52px;
+  border-radius: 999px;
+  padding: 0.8rem 1.1rem;
+  background: rgba(var(--cc-surface-alt-rgb), 0.92);
+  color: var(--cc-text-soft);
+}
+
+.ForestryRewardsApplied,
+.ForestryRewardsHelper__applied {
+  background: var(--cc-success-soft);
+  color: var(--cc-text);
+}
+
+.ForestryRewardsBirthdayForm {
+  display: none;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(var(--text-color-rgb), 0.1);
+}
+
+.ForestryRewardsBirthdayForm.is-open {
+  display: block;
+}
+
+.ForestryRewardsBirthdayForm__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.ForestryRewardsBirthdayForm label {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.ForestryRewardsBirthdayForm span {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(var(--text-color-rgb), 0.58);
+}
+
+.ForestryRewardsBirthdayForm input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(var(--text-color-rgb), 0.14);
+  background: rgba(var(--background-rgb), 0.92);
+  color: var(--heading-color);
+}
+
+.ForestryRewardsBirthdayForm__actions {
+  margin-top: 0.9rem;
+}
+
+.ForestryRewardsList {
+  display: grid;
+  gap: 0.85rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ForestryRewardsList__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.05rem;
+  border-radius: 18px;
+  background: rgba(var(--cc-surface-alt-rgb), 0.92);
+}
+
+.ForestryRewardsList__title {
+  margin: 0;
+  font-family: var(--heading-font-family);
+  color: var(--heading-color);
+}
+
+.ForestryRewardsList__meta {
+  margin: 0.35rem 0 0;
+}
+
+.ForestryRewardsList__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.7rem;
+}
+
+.ForestryRewardsList__actions code {
+  padding: 0.55rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(var(--background-rgb), 0.92);
+  border: 1px solid rgba(var(--text-color-rgb), 0.1);
+  font-size: 0.82rem;
+  color: var(--heading-color);
+}
+
+.ForestryRewardsHelper {
+  padding: 1rem;
+  min-height: 13.75rem;
+}
+
+.ForestryRewardsHelper__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(10.5rem, 0.8fr);
+  gap: 0.85rem;
+  align-items: start;
+}
+
+.ForestryRewardsHelper__balance {
+  display: grid;
+  gap: 0.28rem;
+  align-content: start;
+  padding: 0.85rem 0.95rem;
+  border-radius: 18px;
+  border: 1px solid var(--cc-border);
+  background:
+    radial-gradient(circle at top left, rgba(var(--cc-accent-rgb), 0.08), transparent 45%),
+    rgba(var(--cc-surface-rgb), 0.9);
+}
+
+.ForestryRewardsHelper__balance-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--cc-text-soft);
+}
+
+.ForestryRewardsHelper__balance-value {
+  font-family: var(--heading-font-family);
+  font-size: clamp(1.45rem, 2.5vw, 2rem);
+  line-height: 1;
+  color: var(--heading-color);
+}
+
+.ForestryRewardsHelper__balance-note {
+  color: var(--cc-text-soft);
+  line-height: 1.45;
+  font-size: 0.88rem;
+}
+
+.ForestryRewardsHelper__status {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: start;
+  padding: 0.9rem 0.95rem;
+  border-radius: 18px;
+  border: 1px solid var(--cc-border);
+  background: rgba(var(--cc-surface-rgb), 0.9);
+}
+
+.ForestryRewardsHelper__status strong {
+  display: block;
+  color: inherit;
+}
+
+.ForestryRewardsHelper__status p {
+  margin: 0.24rem 0 0;
+  color: inherit;
+  line-height: 1.45;
+}
+
+.ForestryRewardsHelper__status--success {
+  border-color: var(--cc-border);
+  background:
+    radial-gradient(circle at top left, rgba(var(--cc-accent-rgb), 0.1), transparent 42%),
+    var(--cc-success-soft);
+  color: var(--cc-text);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.ForestryRewardsHelper__status-icon {
+  position: relative;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--cc-accent), var(--cc-accent-hover));
+  box-shadow: 0 10px 22px rgba(var(--cc-accent-rgb), 0.2);
+}
+
+.ForestryRewardsHelper__status-icon::after {
+  content: "";
+  position: absolute;
+  left: 0.72rem;
+  top: 0.5rem;
+  width: 0.52rem;
+  height: 0.96rem;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(42deg);
+}
+
+.ForestryRewardsHelper__actions-wrap {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.ForestryRewardsHelper__copy h3 {
+  margin-bottom: 0.25rem;
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+
+.ForestryRewardsHelper__actions {
+  margin-top: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.ForestryRewardsHelper__footer {
+  margin-top: 0;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(var(--text-color-rgb), 0.1);
+  font-size: 0.8rem;
+}
+
+.ForestryRewardsHelper__footer span:first-child {
+  color: var(--heading-color);
+  font-family: var(--heading-font-family);
+}
+
+.ForestryRewardsToast {
+  position: sticky;
+  bottom: 1rem;
+  z-index: 4;
+  margin-top: 1rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.9rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--cc-border);
+  background: rgba(var(--cc-surface-rgb), 0.95);
+  color: var(--heading-color);
+  box-shadow: 0 18px 35px rgba(var(--cc-text-rgb), 0.12);
+}
+
+.ForestryRewardsToast--success {
+  border-color: var(--cc-border);
+  background: var(--cc-success-soft);
+  color: var(--cc-text);
+}
+
+.ForestryRewardsToast--warning {
+  background: var(--cc-badge);
+  color: var(--cc-text);
+}
+
+.ForestryRewardsConfetti {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.ForestryRewardsConfetti span {
+  position: absolute;
+  left: 50%;
+  top: 32%;
+  width: 12px;
+  height: 16px;
+  border-radius: 6px;
+  background: var(--bg);
+  opacity: 0;
+  transform: translate3d(0, 0, 0) rotate(0deg);
+  animation: forestryRewardsBurst 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  animation-delay: var(--delay);
+}
+
+.ForestryRewardsPageSection,
+.ForestryRewardsAccountMount,
+.ForestryRewardsCartMount {
+  margin-top: 1rem;
+}
+
+.Cart--expanded .ForestryRewardsCartMount {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 0 0.95rem 0;
+}
+
+.Cart--expanded .ForestryRewardsCartMount .ForestryRewardsRoot__loading,
+.Cart--expanded .ForestryRewardsCartMount .ForestryRewardsHelper,
+.Cart--expanded .ForestryRewardsCartMount .ForestryRewardsFallback {
+  min-height: 224px;
+}
+
+.Cart--expanded .ForestryRewardsCartMount .ForestryRewardsRoot__loading {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.95rem;
+}
+
+.Cart--expanded .ForestryRewardsCartMount .ForestryRewardsRoot__skeleton {
+  min-width: 0;
+  width: 100%;
+}
+
+.Cart--expanded .ForestryRewardsCartMount .ForestryRewardsHelper {
+  gap: 0.65rem;
+  min-height: 224px;
+  padding: 0.95rem;
+}
+
+.Cart--expanded .ForestryRewardsCartMount .ForestryRewardsHelper__head {
+  grid-template-columns: 1fr;
+  gap: 0.65rem;
+}
+
+.Cart--expanded .ForestryRewardsCartMount .ForestryRewardsHelper__balance {
+  padding: 0.8rem 0.9rem;
+}
+
+.Cart--expanded .ForestryRewardsCartMount .ForestryRewardsHelper__balance-value {
+  font-size: clamp(1.7rem, 2.6vw, 2rem);
+}
+
+.Cart--expanded .ForestryRewardsCartMount .ForestryRewardsHelper__footer {
+  padding-top: 0.7rem;
+  font-size: 0.78rem;
+}
+
+.Cart--expanded .ForestryRewardsCartMount .ForestryRewardsToast {
+  position: static;
+}
+
+.ForestryRewardsFallback {
+  text-align: left;
+}
+
+@keyframes forestryRewardsPulse {
+  0% { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes forestryRewardsBurst {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(0.85);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--x), 160px, 0) rotate(var(--r)) scale(1);
+  }
+}
+
+@media screen and (max-width: 999px) {
+  .ForestryRewardsSurface,
+  .ForestryRewardsRoot__loading {
+    padding: 1.35rem;
+  }
+
+  .ForestryRewardsSurface__hero,
+  .ForestryRewardsGrid,
+  .ForestryRewardsBirthdayForm__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ForestryRewardsSurface__summary,
+  .ForestryRewardsCard,
+  .ForestryRewardsFallback {
+    border-radius: 20px;
+  }
+
+  .ForestryRewardsThemeBar {
+    align-items: stretch;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .ForestryRewardsRoot__loading {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ForestryRewardsThemeBar {
+    gap: 0.85rem;
+  }
+
+  .ForestryRewardsThemeButton {
+    flex-basis: 100%;
+    width: 100%;
+  }
+
+  .ForestryRewardsSurface,
+  .ForestryRewardsHelper {
+    border-radius: 24px;
+  }
+
+  .ForestryRewardsCard,
+  .ForestryRewardsFallback,
+  .ForestryRewardsSurface__summary {
+    padding: 1.05rem;
+  }
+
+  .ForestryRewardsList__item,
+  .ForestryRewardsList__actions,
+  .ForestryRewardsMeta li,
+  .ForestryRewardsSnapshot div,
+  .ForestryRewardsHelper__footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ForestryRewardsList__actions,
+  .ForestryRewardsCard__actions {
+    width: 100%;
+  }
+
+  .ForestryRewardsList__actions > *,
+  .ForestryRewardsCard__actions > *,
+  .ForestryRewardsHelper__actions > * {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ForestryRewardsToast {
+    width: 100%;
+    border-radius: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ForestryRewardsRoot__skeleton span,
+  .ForestryRewardsConfetti span {
+    animation: none !important;
+  }
+}
+
+.ForestryRewardsStatGrid,
+.ForestryRewardsTaskGrid,
+.ForestryRewardsHistoryGrid,
+.ForestryRewardsFaq {
+  display: grid;
+  gap: 1rem;
+}
+
+.ForestryRewardsStatGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 1.5rem;
+}
+
+.ForestryRewardsStatCard,
+.ForestryRewardsTaskCard,
+.ForestryRewardsGuestCallout,
+.ForestryRewardsHistoryItem,
+.ForestryRewardsFaq__item {
+  border-radius: 22px;
+  border: 1px solid var(--cc-border);
+  background: rgba(var(--cc-surface-rgb), 0.88);
+  backdrop-filter: blur(10px);
+}
+
+.ForestryRewardsStatCard {
+  padding: 1.1rem 1.15rem;
+}
+
+.ForestryRewardsSection {
+  margin-top: 1.5rem;
+}
+
+.ForestryRewardsSection__header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ForestryRewardsGuestCallout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding: 1rem 1.1rem;
+}
+
+.ForestryRewardsReferralSplit {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.ForestryRewardsReferralSplit div,
+.ForestryRewardsReferralCode,
+.ForestryRewardsTaskMeta,
+.ForestryRewardsTaskProof__actions,
+.ForestryRewardsHistoryItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+}
+
+.ForestryRewardsReferralSplit div {
+  padding: 0.9rem 1rem;
+  border-radius: 18px;
+  background: rgba(var(--text-color-rgb), 0.04);
+}
+
+.ForestryRewardsReferralSplit span,
+.ForestryRewardsReferralFoot,
+.ForestryRewardsTaskMeta,
+.ForestryRewardsHistoryItem p,
+.ForestryRewardsHistoryEmpty {
+  color: rgba(var(--text-color-rgb), 0.64);
+}
+
+.ForestryRewardsReferralSplit strong,
+.ForestryRewardsHistoryItem strong {
+  color: var(--heading-color);
+}
+
+.ForestryRewardsReferralCode {
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(var(--text-color-rgb), 0.04);
+}
+
+.ForestryRewardsReferralCode code {
+  padding: 0.55rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(var(--background-rgb), 0.92);
+  border: 1px solid rgba(var(--text-color-rgb), 0.1);
+  font-size: 0.82rem;
+  color: var(--heading-color);
+}
+
+.ForestryRewardsReferralFoot {
+  margin-top: 0.85rem;
+  font-size: 0.9rem;
+}
+
+.ForestryRewardsTaskGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ForestryRewardsTaskGrid--compact {
+  grid-template-columns: 1fr;
+  margin-top: 1rem;
+}
+
+.ForestryRewardsTaskCard {
+  padding: 1.2rem;
+}
+
+.ForestryRewardsTaskCard__header,
+.ForestryRewardsTaskCard__badges {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.ForestryRewardsTaskCard__badges {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.ForestryRewardsTaskCard--locked,
+.ForestryRewardsTaskCard--members_only {
+  background: var(--cc-badge);
+}
+
+.ForestryRewardsTaskCard--pending {
+  background: rgba(var(--cc-surface-alt-rgb), 0.96);
+}
+
+.ForestryRewardsTaskCard--completed,
+.ForestryRewardsTaskCard--awarded,
+.ForestryRewardsTaskCard--approved {
+  background: var(--cc-success-soft);
+}
+
+.ForestryRewardsTaskMeta {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(var(--text-color-rgb), 0.08);
+  font-size: 0.86rem;
+}
+
+.ForestryRewardsTaskProof {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(var(--text-color-rgb), 0.1);
+}
+
+.ForestryRewardsTaskProof__grid {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.ForestryRewardsInlineField {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.ForestryRewardsInlineField span {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(var(--text-color-rgb), 0.58);
+}
+
+.ForestryRewardsInlineField input,
+.ForestryRewardsInlineField textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(var(--text-color-rgb), 0.14);
+  background: rgba(var(--background-rgb), 0.92);
+  color: var(--heading-color);
+}
+
+.ForestryRewardsInlineField textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.ForestryRewardsTaskProof__actions {
+  flex-wrap: wrap;
+  margin-top: 0.9rem;
+}
+
+.ForestryRewardsHistoryGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ForestryRewardsHistoryList {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.ForestryRewardsHistoryItem {
+  padding: 0.95rem 1rem;
+}
+
+.ForestryRewardsHistoryItem p {
+  margin: 0.28rem 0 0;
+}
+
+.ForestryRewardsHistoryEmpty {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(var(--text-color-rgb), 0.04);
+}
+
+.ForestryRewardsFaq {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ForestryRewardsFaq__item {
+  padding: 1rem 1.05rem;
+}
+
+.ForestryRewardsFaq__item h3 {
+  margin-bottom: 0.5rem;
+}
+
+@media screen and (max-width: 999px) {
+  .ForestryRewardsStatGrid,
+  .ForestryRewardsTaskGrid,
+  .ForestryRewardsHistoryGrid,
+  .ForestryRewardsFaq,
+  .ForestryRewardsReferralSplit {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .ForestryRewardsGuestCallout,
+  .ForestryRewardsReferralCode,
+  .ForestryRewardsTaskCard__header,
+  .ForestryRewardsTaskCard__badges,
+  .ForestryRewardsTaskMeta,
+  .ForestryRewardsTaskProof__actions,
+  .ForestryRewardsHistoryItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ForestryRewardsGuestCallout > *,
+  .ForestryRewardsReferralCode > *,
+  .ForestryRewardsTaskProof__actions > *,
+  .ForestryRewardsTaskCard__actions > * {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.ForestryRewardsHeaderMount {
+  display: flex;
+  align-items: center;
+}
+
+.ForestryRewardsRoot--header .ForestryRewardsRoot__loading,
+.ForestryRewardsRoot--sidebar .ForestryRewardsRoot__loading {
+  width: 100%;
+  min-width: 11.35rem;
+  min-height: 2rem;
+  gap: 0.7rem;
+  align-items: center;
+  padding: 0.42rem 0.72rem;
+  display: grid;
+  grid-template-columns: auto minmax(4.8rem, 1fr);
+  border-radius: 999px;
+  border-color: rgba(var(--text-color-rgb), 0.08);
+  background: rgba(var(--background-rgb), 0.88);
+  box-shadow: none;
+}
+
+.ForestryRewardsRoot--header .ForestryRewardsRoot__loading-copy,
+.ForestryRewardsRoot--sidebar .ForestryRewardsRoot__loading-copy {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.ForestryRewardsRoot--header .ForestryRewardsRoot__loading-copy p,
+.ForestryRewardsRoot--sidebar .ForestryRewardsRoot__loading-copy p {
+  margin: 0;
+}
+
+.ForestryRewardsRoot--header .ForestryRewardsRoot__loading-copy .Heading,
+.ForestryRewardsRoot--sidebar .ForestryRewardsRoot__loading-copy .Heading {
+  font-size: 0.76rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.ForestryRewardsRoot--header .ForestryRewardsRoot__loading-copy .Text--subdued,
+.ForestryRewardsRoot--sidebar .ForestryRewardsRoot__loading-copy .Text--subdued {
+  display: none;
+}
+
+.ForestryRewardsRoot--header .ForestryRewardsRoot__skeleton,
+.ForestryRewardsRoot--sidebar .ForestryRewardsRoot__skeleton {
+  min-width: 4.8rem;
+  width: 100%;
+  gap: 0.25rem;
+  justify-items: end;
+}
+
+.ForestryRewardsRoot--header .ForestryRewardsRoot__skeleton span,
+.ForestryRewardsRoot--sidebar .ForestryRewardsRoot__skeleton span {
+  height: 10px;
+}
+
+.ForestryRewardsRoot--header .ForestryRewardsRoot__skeleton span:nth-child(1),
+.ForestryRewardsRoot--sidebar .ForestryRewardsRoot__skeleton span:nth-child(1) {
+  width: 4.5rem;
+}
+
+.ForestryRewardsRoot--header .ForestryRewardsRoot__skeleton span:nth-child(2),
+.ForestryRewardsRoot--sidebar .ForestryRewardsRoot__skeleton span:nth-child(2) {
+  width: 3rem;
+}
+
+.ForestryRewardsRoot--header .ForestryRewardsRoot__skeleton span:nth-child(3),
+.ForestryRewardsRoot--sidebar .ForestryRewardsRoot__skeleton span:nth-child(3) {
+  display: none;
+}
+
+.ForestryRewardsHeaderMount__group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2rem;
+  line-height: 1;
+}
+
+.ForestryRewardsHeaderMount__account {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.ForestryRewardsHeaderMount__inline {
+  display: inline-flex;
+  align-items: center;
+  min-width: 11.35rem;
+  min-height: 2rem;
+  flex: 0 0 11.35rem;
+}
+
+.ForestryRewardsHeaderLink {
+  display: grid;
+  grid-template-columns: auto minmax(3.9rem, auto) minmax(4.35rem, auto);
+  align-items: center;
+  gap: 0.36rem;
+  padding: 0.28rem 0.56rem;
+  min-height: 2rem;
+  min-width: 11.35rem;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--text-color-rgb), 0.1);
+  background: rgba(var(--background-rgb), 0.9);
+  text-decoration: none;
+  transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+  white-space: nowrap;
+}
+
+.ForestryRewardsHeaderLink:hover {
+  border-color: rgba(var(--text-color-rgb), 0.18);
+  background: rgba(var(--background-rgb), 0.92);
+  transform: translateY(-1px);
+}
+
+.ForestryRewardsHeaderLink__eyebrow,
+.ForestryRewardsClub__eyebrow,
+.ForestryRewardsCelebration__eyebrow {
+  margin: 0;
+  font-size: 0.64rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(var(--text-color-rgb), 0.54);
+}
+
+.ForestryRewardsHeaderLink__value {
+  font-family: var(--heading-font-family);
+  font-size: 0.76rem;
+  line-height: 1;
+  color: var(--heading-color);
+  min-width: 3.9rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ForestryRewardsHeaderLink__meta {
+  font-size: 0.68rem;
+  line-height: 1;
+  color: rgba(var(--text-color-rgb), 0.58);
+  min-width: 4.35rem;
+  text-align: right;
+}
+
+.ForestryRewardsHeaderLink--sidebar {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border-radius: 18px;
+}
+
+.ForestryRewardsSidebarMount,
+.ForestryRewardsOrderMount {
+  margin-top: 0.55rem;
+}
+
+.ForestryRewardsSidebarMount .ForestryRewardsHeaderLink {
+  background: rgba(var(--background-rgb), 0.78);
+  box-shadow: none;
+}
+
+.ForestryRewardsHeaderLink--fallback {
+  opacity: 0.92;
+}
+
+.ForestryRewardsHeaderLink .ForestryRewardsComingSoon {
+  margin-left: 0.2rem;
+}
+
+.ForestryRewardsOrderMount {
+  margin-bottom: 2rem;
+}
+
+.ForestryRewardsSurface--order {
+  padding: 1.55rem;
+}
+
+.ForestryRewardsSurface__utility {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.ForestryRewardsSurface--order > .ForestryRewardsSurface__utility:first-of-type {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  margin-top: 1rem;
+}
+
+.ForestryRewardsNotice,
+.ForestryRewardsProgress,
+.ForestryRewardsClub,
+.ForestryRewardsCelebration {
+  border-radius: 22px;
+  border: 1px solid rgba(var(--text-color-rgb), 0.08);
+  background: rgba(var(--background-rgb), 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.ForestryRewardsNotice {
+  margin: 0;
+  padding: 0.95rem 1.1rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+  color: rgba(var(--text-color-rgb), 0.7);
+}
+
+.ForestryRewardsNotice--compact,
+.ForestryRewardsNotice--order {
+  font-size: 0.88rem;
+}
+
+.ForestryRewardsClub {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 1.1rem;
+}
+
+.ForestryRewardsClub--compact {
+  padding: 0.95rem 1rem;
+}
+
+.ForestryRewardsClub__headline {
+  margin: 0.3rem 0 0;
+  font-family: var(--heading-font-family);
+  font-size: 1.02rem;
+  line-height: 1.35;
+  color: var(--heading-color);
+}
+
+.ForestryRewardsClub__copy,
+.ForestryRewardsCelebration__copy,
+.ForestryRewardsCelebration__note {
+  margin: 0.38rem 0 0;
+  color: rgba(var(--text-color-rgb), 0.7);
+  line-height: 1.55;
+}
+
+.ForestryRewardsClub__cta,
+.ForestryRewardsClub__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.8rem 1rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.ForestryRewardsClub__cta {
+  border: 1px solid rgba(var(--text-color-rgb), 0.12);
+  color: var(--heading-color);
+  text-decoration: none;
+}
+
+.ForestryRewardsClub__badge {
+  background: var(--cc-success-soft);
+  color: var(--cc-text);
+}
+
+.CandleClubAccessNotice {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  width: 100%;
+  padding: 0.9rem 1.1rem;
+  border-radius: 22px;
+  border: 1px solid rgba(var(--text-color-rgb), 0.1);
+  background:
+    radial-gradient(circle at top left, rgba(var(--button-background-rgb), 0.1), transparent 44%),
+    rgba(var(--background-rgb), 0.82);
+  text-align: center;
+}
+
+.CandleClubAccessNotice--compact {
+  min-height: 44px;
+  width: auto;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+}
+
+.CandleClubAccessNotice__label {
+  font-size: 0.76rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--heading-color);
+}
+
+.ForestryRewardsProgress {
+  padding: 1rem 1.1rem;
+}
+
+.ForestryRewardsProgress__message {
+  margin: 0;
+  color: var(--heading-color);
+  line-height: 1.55;
+}
+
+.ForestryRewardsProgress__bar {
+  position: relative;
+  overflow: hidden;
+  height: 8px;
+  margin-top: 0.9rem;
+  border-radius: 999px;
+  background: rgba(var(--text-color-rgb), 0.08);
+}
+
+.ForestryRewardsProgress__bar span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(var(--button-background-rgb), 0.48), rgba(var(--button-background-rgb), 0.84));
+  transition: width 0.35s ease;
+}
+
+.ForestryRewardsCelebration {
+  padding: 1rem 1.1rem;
+  background:
+    radial-gradient(circle at top left, rgba(var(--button-background-rgb), 0.12), transparent 48%),
+    rgba(var(--background-rgb), 0.8);
+  animation: forestryRewardsRise 0.45s ease both;
+}
+
+.ForestryRewardsCelebration h3 {
+  margin-top: 0.28rem;
+}
+
+.ForestryRewardsCelebration__note {
+  font-size: 0.9rem;
+}
+
+@keyframes forestryRewardsRise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media screen and (max-width: 999px) {
+  .ForestryRewardsSurface--order > .ForestryRewardsSurface__utility:first-of-type,
+  .ForestryRewardsClub {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .ForestryRewardsHeaderMount__inline {
+    min-width: 10.4rem;
+    flex-basis: 10.4rem;
+  }
+}
+
+.ForestryRewardsHelper {
+  display: grid;
+  gap: 1rem;
+}
+
+.ForestryRewardsHelper .ForestryRewardsComingSoon {
+  margin-bottom: -0.15rem;
+}
+
+.ForestryRewardsHelper--fallback {
+  min-height: 0;
+  padding: 0.9rem 0.95rem;
+}
+
+.ForestryRewardsHelper .ForestryRewardsSurface__utility {
+  margin-top: 0;
+}
+
+.ForestryRewardsHelper__actions,
+.ForestryRewardsHelper__copy h3 {
+  margin: 0;
+}
+
+.ForestryRewardsHelper .ForestryRewardsProgress,
+.ForestryRewardsHelper .ForestryRewardsNotice,
+.ForestryRewardsHelper .ForestryRewardsClub {
+  box-shadow: none;
+}
+
+.ForestryRewardsHelper--cart,
+.ForestryRewardsHelper--drawer {
+  border-radius: 24px;
+}
+
+.ForestryRewardsHelper--cart .ForestryRewardsLead,
+.ForestryRewardsHelper--drawer .ForestryRewardsLead {
+  max-width: 26rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.ForestryRewardsHelper--cart .ForestryRewardsSurface__utility,
+.ForestryRewardsHelper--drawer .ForestryRewardsSurface__utility {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.ForestryRewardsHelper--cart .ForestryRewardsProgress,
+.ForestryRewardsHelper--drawer .ForestryRewardsProgress,
+.ForestryRewardsHelper--cart .ForestryRewardsNotice,
+.ForestryRewardsHelper--drawer .ForestryRewardsNotice {
+  padding: 0.8rem 0.9rem;
+  border-radius: 16px;
+}
+
+.ForestryRewardsHelper--cart .ForestryRewardsHelper__footer span:last-child,
+.ForestryRewardsHelper--drawer .ForestryRewardsHelper__footer span:last-child {
+  color: rgba(var(--text-color-rgb), 0.62);
+}
+
+@media screen and (max-width: 767px) {
+  .ForestryRewardsHelper__head {
+    grid-template-columns: 1fr;
+  }
+
+  .ForestryRewardsHelper__footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.CandleClubPerkLink {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: 22px;
+  border: 1px solid rgba(var(--text-color-rgb), 0.1);
+  background:
+    radial-gradient(circle at top left, rgba(var(--button-background-rgb), 0.08), transparent 42%),
+    rgba(var(--background-rgb), 0.8);
+}
+
+.CandleClubPerkLink__eyebrow,
+.CandleCashFaqPage__eyebrow,
+.CandleCashFaqPage__card-eyebrow {
+  margin: 0;
+  font-size: 0.76rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(var(--text-color-rgb), 0.56);
+}
+
+.CandleClubPerkLink__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.45rem;
+  font-family: var(--heading-font-family);
+  font-size: 1rem;
+  color: var(--heading-color);
+  text-decoration: none;
+}
+
+.CandleClubPerkLink__link::after {
+  content: "->";
+  font-size: 0.85em;
+  letter-spacing: 0.08em;
+}
+
+.CandleClubPerkLink__copy {
+  margin-top: 0.45rem;
+  color: rgba(var(--text-color-rgb), 0.7);
+  line-height: 1.6;
+}
+
+.CandleClubPerkLink .CandleClubAccessNotice {
+  margin-top: 0.45rem;
+}
+
+.CandleCashFaqPage {
+  padding: 2rem 0 3rem;
+}
+
+.CandleCashFaqPage__hero,
+.CandleCashFaqPage__card,
+.CandleCashFaqPage__item,
+.CandleCashFaqPage__closing,
+.CandleCashFaqPage__flow-card {
+  border-radius: 28px;
+  border: 1px solid rgba(var(--text-color-rgb), 0.1);
+  background:
+    radial-gradient(circle at top left, rgba(var(--button-background-rgb), 0.08), transparent 40%),
+    rgba(var(--background-rgb), 0.86);
+  box-shadow: 0 24px 56px rgba(var(--text-color-rgb), 0.06);
+}
+
+.CandleCashFaqPage__hero,
+.CandleCashFaqPage__closing {
+  padding: 2rem;
+}
+
+.CandleCashFaqPage__lead {
+  max-width: 44rem;
+  margin: 0.75rem 0 0;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(var(--text-color-rgb), 0.72);
+}
+
+.CandleCashFaqPage__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 1.4rem;
+}
+
+.CandleCashFaqPage__flow,
+.CandleCashFaqPage__grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.CandleCashFaqPage__flow {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.CandleCashFaqPage__grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.CandleCashFaqPage__flow-card,
+.CandleCashFaqPage__card {
+  padding: 1.35rem;
+}
+
+.CandleCashFaqPage__flow-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  background: rgba(var(--text-color-rgb), 0.06);
+  color: var(--heading-color);
+  font-family: var(--heading-font-family);
+  font-size: 1rem;
+}
+
+.CandleCashFaqPage__flow-card h2,
+.CandleCashFaqPage__card h2 {
+  margin-top: 0.8rem;
+}
+
+.CandleCashFaqPage__flow-card p,
+.CandleCashFaqPage__card p,
+.CandleCashFaqPage__closing p {
+  color: rgba(var(--text-color-rgb), 0.72);
+  line-height: 1.65;
+}
+
+.CandleCashFaqPage__card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.CandleCashFaqPage__list {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.CandleCashFaqPage__list li {
+  position: relative;
+  padding-left: 1.1rem;
+  color: rgba(var(--text-color-rgb), 0.72);
+  line-height: 1.6;
+}
+
+.CandleCashFaqPage__list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.7rem;
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 999px;
+  background: rgba(var(--button-background-rgb), 0.78);
+}
+
+.CandleCashFaqPage__faq {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1.5rem;
+}
+
+.CandleCashFaqPage__item {
+  padding: 0;
+  overflow: hidden;
+}
+
+.CandleCashFaqPage__item summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.2rem 1.3rem;
+  font-family: var(--heading-font-family);
+  color: var(--heading-color);
+}
+
+.CandleCashFaqPage__item summary::-webkit-details-marker {
+  display: none;
+}
+
+.CandleCashFaqPage__item summary::after {
+  content: "+";
+  flex-shrink: 0;
+  color: rgba(var(--text-color-rgb), 0.56);
+}
+
+.CandleCashFaqPage__item[open] summary {
+  border-bottom: 1px solid rgba(var(--text-color-rgb), 0.08);
+}
+
+.CandleCashFaqPage__item[open] summary::after {
+  content: "-";
+}
+
+.CandleCashFaqPage__item > div {
+  padding: 1rem 1.3rem 1.25rem;
+}
+
+.CandleCashFaqPage__item p {
+  color: rgba(var(--text-color-rgb), 0.72);
+  line-height: 1.65;
+}
+
+.CandleCashFaqPage__closing {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+@media screen and (max-width: 999px) {
+  .CandleCashFaqPage__flow,
+  .CandleCashFaqPage__grid,
+  .CandleCashFaqPage__closing {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .CandleCashFaqPage__hero,
+  .CandleCashFaqPage__flow-card,
+  .CandleCashFaqPage__card,
+  .CandleCashFaqPage__closing {
+    padding: 1.25rem;
+    border-radius: 22px;
+  }
+
+  .CandleCashFaqPage__actions > *,
+  .CandleCashFaqPage__card-actions > * {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/**
+ * ----------------------------------------------------------------------------
+ * Candle Cash cinematic logged-out experience
+ * ----------------------------------------------------------------------------
+ */
+.ForestryRewardsPageSection--cinematic {
+  padding: 0;
+  background: #0b0a09;
+}
+
+.ForestryRewardsPageSection--cinematic .CandleCashCinematic {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: #f6f1ea;
+  background:
+    radial-gradient(1200px 640px at 12% -20%, rgba(200, 138, 61, 0.22), transparent 62%),
+    radial-gradient(900px 520px at 88% 10%, rgba(255, 255, 255, 0.08), transparent 58%),
+    linear-gradient(180deg, #0b0a09 0%, #120f0d 55%, #090807 100%);
+  padding: clamp(72px, 12vh, 140px) clamp(24px, 7vw, 120px);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  --cinematic-ink: #f6f1ea;
+  --cinematic-ink-muted: rgba(246, 241, 234, 0.72);
+  --cinematic-accent: #c88a3d;
+  --cinematic-accent-strong: #d49a4b;
+  --cinematic-border: rgba(255, 255, 255, 0.12);
+  --cinematic-panel: rgba(12, 10, 9, 0.72);
+  --cinematic-panel-strong: rgba(12, 10, 9, 0.9);
+  --button-background: var(--cinematic-accent);
+  --button-text-color: #1a1108;
+  --text-color-light: var(--cinematic-ink);
+  --text-color-light-rgb: 246, 241, 234;
+  --candle-cash-pointer-x: 50%;
+  --candle-cash-pointer-y: 50%;
+  --candle-cash-shift-x: 0px;
+  --candle-cash-shift-y: 0px;
+  --candle-cash-intro-opacity-duration: 1.8s;
+  --candle-cash-intro-transform-duration: 2.2s;
+  --candle-cash-intro-bg-duration: 4.8s;
+  --candle-cash-intro-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --candle-cash-trace-duration: 4.35s;
+  --candle-cash-candle-delay: 3.8s;
+  --candle-cash-candle-duration: 1.05s;
+}
+
+@supports (--css: variables) {
+  .ForestryRewardsPageSection--cinematic .CandleCashCinematic {
+    min-height: calc(var(--window-height) - var(--header-height) - var(--announcement-bar-height, 0px));
+  }
+}
+
+.CandleCashCinematic::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.22;
+  background: radial-gradient(520px circle at var(--candle-cash-pointer-x) var(--candle-cash-pointer-y), rgba(212, 154, 75, 0.14), transparent 68%);
+  transition: opacity 0.6s ease;
+}
+
+.CandleCashCinematic::after {
+  content: "";
+  position: absolute;
+  inset: -16%;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(520px 320px at 50% 48%, rgba(226, 168, 86, 0.24), rgba(226, 168, 86, 0.08) 38%, rgba(16, 12, 10, 0.88) 72%),
+    radial-gradient(640px 420px at 50% 62%, rgba(111, 159, 184, 0.12), rgba(0, 0, 0, 0) 72%);
+  mix-blend-mode: screen;
+  filter: blur(18px);
+  transform: scale(0.78);
+  transition:
+    opacity 0.45s ease,
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.6s ease;
+}
+
+.CandleCashCinematic__controls {
+  position: absolute;
+  top: clamp(18px, 4vw, 34px);
+  right: clamp(18px, 4vw, 34px);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.CandleCashCinematic__control,
+.CandleCashCinematic__skip {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(246, 241, 234, 0.62);
+  font-family: var(--heading-font-family);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition: color 0.25s ease, opacity 0.25s ease;
+}
+
+.CandleCashCinematic__control--minimize::before {
+  content: "- ";
+  letter-spacing: 0.4em;
+}
+
+.CandleCashCinematic__control:hover,
+.CandleCashCinematic__control:focus-visible,
+.CandleCashCinematic__skip:hover,
+.CandleCashCinematic__skip:focus-visible {
+  color: rgba(246, 241, 234, 0.9);
+}
+
+.CandleCashCinematic__control:focus-visible,
+.CandleCashCinematic__skip:focus-visible {
+  outline: 2px solid rgba(212, 154, 75, 0.72);
+  outline-offset: 6px;
+}
+
+.CandleCashCinematic__trace {
+  position: absolute;
+  inset: clamp(10px, 1.6vw, 18px);
+  z-index: 1;
+  pointer-events: none;
+  border-radius: clamp(18px, 2.8vw, 28px);
+  opacity: 0;
+}
+
+.CandleCashCinematic__trace-edge {
+  position: absolute;
+  opacity: 0;
+  filter: blur(0.2px);
+}
+
+.CandleCashCinematic__trace-edge--top,
+.CandleCashCinematic__trace-edge--bottom {
+  left: 0;
+  width: 100%;
+  height: 2px;
+}
+
+.CandleCashCinematic__trace-edge--left,
+.CandleCashCinematic__trace-edge--right {
+  top: 0;
+  width: 2px;
+  height: 100%;
+}
+
+.CandleCashCinematic__trace-edge--top {
+  top: 0;
+  transform-origin: left center;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(200, 138, 61, 0.5) 25%, rgba(255, 241, 214, 0.96) 50%, rgba(200, 138, 61, 0.5) 75%, rgba(0, 0, 0, 0));
+  box-shadow: 0 0 18px rgba(212, 154, 75, 0.46);
+}
+
+.CandleCashCinematic__trace-edge--right {
+  right: 0;
+  transform-origin: center top;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(200, 138, 61, 0.48) 25%, rgba(255, 241, 214, 0.96) 50%, rgba(200, 138, 61, 0.48) 75%, rgba(0, 0, 0, 0));
+  box-shadow: 0 0 18px rgba(212, 154, 75, 0.44);
+}
+
+.CandleCashCinematic__trace-edge--bottom {
+  bottom: 0;
+  transform-origin: right center;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(200, 138, 61, 0.48) 25%, rgba(255, 241, 214, 0.96) 50%, rgba(200, 138, 61, 0.48) 75%, rgba(0, 0, 0, 0));
+  box-shadow: 0 0 18px rgba(212, 154, 75, 0.42);
+}
+
+.CandleCashCinematic__trace-edge--left {
+  left: 0;
+  transform-origin: center bottom;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(200, 138, 61, 0.34) 25%, rgba(255, 241, 214, 0.82) 50%, rgba(200, 138, 61, 0.34) 75%, rgba(0, 0, 0, 0));
+  box-shadow: 0 0 16px rgba(212, 154, 75, 0.32);
+}
+
+.CandleCashCinematic__scene {
+  position: absolute;
+  right: clamp(18px, 2.8vw, 34px);
+  bottom: clamp(18px, 2.6vw, 30px);
+  z-index: 1;
+  width: clamp(86px, 9vw, 128px);
+  height: clamp(124px, 12vw, 174px);
+  pointer-events: none;
+  transform: translateY(0) scale(1);
+  transition: opacity 1.2s ease, transform 1s cubic-bezier(0.16, 1, 0.3, 1), filter 1s ease;
+  opacity: 0.9;
+}
+
+.CandleCashCinematic__candle-glow {
+  position: absolute;
+  left: 50%;
+  bottom: 12%;
+  width: 72%;
+  height: 64%;
+  transform: translateX(-50%) scale(0.72);
+  opacity: 0;
+  filter: blur(26px);
+  background:
+    radial-gradient(circle at 50% 38%, rgba(255, 219, 151, 0.3), rgba(214, 145, 55, 0.16) 40%, rgba(0, 0, 0, 0) 74%),
+    radial-gradient(circle at 50% 68%, rgba(214, 145, 55, 0.18), rgba(0, 0, 0, 0) 72%);
+}
+
+.CandleCashCinematic__candle {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 63%;
+  height: 78%;
+  transform: translateX(-50%) translateY(18px) scale(0.96);
+  opacity: 0.22;
+  border-radius: 22% 22% 18% 18% / 9% 9% 12% 12%;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.04) 18%, rgba(255, 255, 255, 0.03) 60%, rgba(255, 255, 255, 0.12) 100%),
+    radial-gradient(circle at 26% 22%, rgba(255, 255, 255, 0.18), transparent 24%),
+    linear-gradient(180deg, rgba(12, 10, 9, 0.18), rgba(12, 10, 9, 0.04));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 18px 38px rgba(0, 0, 0, 0.3);
+  transition: opacity 1.2s ease, transform 1.5s var(--candle-cash-intro-ease), box-shadow 0.9s ease;
+}
+
+.CandleCashCinematic__candle::before {
+  content: "";
+  position: absolute;
+  inset: 7% 12% 10%;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.02) 24%, rgba(255, 255, 255, 0.02) 70%, rgba(255, 255, 255, 0.16));
+  opacity: 0.85;
+}
+
+.CandleCashCinematic__candle-neck,
+.CandleCashCinematic__candle-rim,
+.CandleCashCinematic__candle-wax,
+.CandleCashCinematic__candle-etch,
+.CandleCashCinematic__candle-wick,
+.CandleCashCinematic__candle-flame {
+  position: absolute;
+}
+
+.CandleCashCinematic__candle-neck {
+  left: 50%;
+  top: -10%;
+  width: 42%;
+  height: 20%;
+  transform: translateX(-50%);
+  border-radius: 36% 36% 28% 28% / 32% 32% 18% 18%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-bottom: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
+}
+
+.CandleCashCinematic__candle-rim {
+  left: 50%;
+  top: -1.5%;
+  width: 54%;
+  height: 8%;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(244, 231, 212, 0.72), rgba(141, 110, 73, 0.2));
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
+}
+
+.CandleCashCinematic__candle-wax {
+  inset: 23% 8% 7%;
+  border-radius: 18% 18% 16% 16% / 6% 6% 12% 12%;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 230, 194, 0.38), rgba(222, 183, 130, 0.08) 45%, rgba(0, 0, 0, 0) 70%),
+    linear-gradient(180deg, rgba(138, 91, 50, 0.4), rgba(77, 49, 26, 0.62));
+  opacity: 0.88;
+}
+
+.CandleCashCinematic__candle-etch {
+  left: 50%;
+  top: 41%;
+  width: 36%;
+  height: 18%;
+  transform: translateX(-50%);
+  border-radius: 44%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  opacity: 0.55;
+}
+
+.CandleCashCinematic__candle-wick {
+  left: 50%;
+  top: 11%;
+  width: 2px;
+  height: 12%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(29, 21, 13, 0.86), rgba(85, 57, 27, 0.82));
+  opacity: 0.75;
+}
+
+.CandleCashCinematic__candle-flame {
+  left: 50%;
+  top: -9%;
+  width: 30px;
+  height: 60px;
+  transform: translate(-50%, 8px) scale(0.44) rotate(-2deg);
+  transform-origin: center bottom;
+  opacity: 0;
+  filter: blur(0.75px);
+  border-radius: 54% 42% 52% 48% / 78% 72% 28% 22%;
+  background:
+    radial-gradient(circle at 52% 18%, rgba(255, 249, 234, 0.96), rgba(255, 244, 216, 0.92) 18%, rgba(255, 213, 128, 0.88) 34%, rgba(248, 156, 62, 0.96) 62%, rgba(188, 78, 22, 0.78) 100%);
+  box-shadow:
+    0 0 22px rgba(255, 214, 142, 0.5),
+    0 0 42px rgba(214, 145, 55, 0.26);
+  transition:
+    opacity var(--candle-cash-candle-duration) ease,
+    transform var(--candle-cash-candle-duration) var(--candle-cash-intro-ease),
+    filter var(--candle-cash-candle-duration) ease;
+  transition-delay: var(--candle-cash-candle-delay);
+}
+
+.CandleCashCinematic__candle-flame::before,
+.CandleCashCinematic__candle-flame::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.CandleCashCinematic__candle-flame::before {
+  left: 50%;
+  bottom: 18%;
+  width: 44%;
+  height: 48%;
+  transform: translateX(-50%);
+  border-radius: 52% 40% 50% 50% / 68% 64% 34% 30%;
+  background: linear-gradient(180deg, rgba(255, 253, 246, 1), rgba(255, 236, 184, 0.98) 52%, rgba(255, 199, 107, 0.34) 100%);
+  filter: blur(0.15px);
+  animation: CandleCashFlameCore 2.6s ease-in-out infinite;
+}
+
+.CandleCashCinematic__candle-flame::after {
+  inset: -20% -32% 8%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 56%, rgba(255, 196, 108, 0.42), rgba(214, 145, 55, 0.16) 44%, rgba(0, 0, 0, 0) 74%);
+  filter: blur(6px);
+  opacity: 0.9;
+  animation: CandleCashFlameAura 3.4s ease-in-out infinite;
+}
+
+.CandleCashCinematic__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(420px 280px at 72% 30%, rgba(200, 138, 61, 0.24), transparent 70%),
+    radial-gradient(520px 320px at 24% 62%, rgba(200, 138, 61, 0.18), transparent 72%),
+    linear-gradient(120deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 55%);
+}
+
+.CandleCashCinematic__bg::before,
+.CandleCashCinematic__bg::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  opacity: 0.7;
+  background:
+    radial-gradient(480px 320px at 45% 20%, rgba(212, 154, 75, 0.18), transparent 65%),
+    radial-gradient(640px 420px at 60% 80%, rgba(255, 255, 255, 0.08), transparent 68%);
+  mix-blend-mode: screen;
+  filter: blur(8px);
+  animation: CandleCashGlowDrift 18s ease-in-out infinite;
+}
+
+.CandleCashCinematic__bg::after {
+  opacity: 0.45;
+  animation-duration: 26s;
+}
+
+.CandleCashCinematic__content {
+  position: relative;
+  z-index: 3;
+  width: min(1320px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.62fr) minmax(320px, 0.9fr);
+  gap: clamp(28px, 4vw, 72px);
+  align-items: center;
+  opacity: 1;
+  filter: none;
+  transform: translate3d(var(--candle-cash-shift-x), var(--candle-cash-shift-y), 0);
+  transition:
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.45s ease,
+    filter 0.45s ease;
+}
+
+.CandleCashCinematic__message {
+  display: grid;
+  gap: 0.7rem;
+  max-width: 560px;
+}
+
+.CandleCashCinematic__eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: rgba(246, 241, 234, 0.68);
+  font-family: var(--heading-font-family);
+}
+
+.CandleCashCinematic__headline {
+  margin: 0;
+  font-family: var(--heading-font-family);
+  font-size: clamp(2.8rem, 6vw, 5.1rem);
+  line-height: 0.95;
+  color: var(--cinematic-ink);
+}
+
+.CandleCashCinematic__subhead {
+  margin: 0;
+  font-size: clamp(1.15rem, 2.6vw, 1.9rem);
+  color: var(--cinematic-ink);
+  font-family: var(--heading-font-family);
+  letter-spacing: 0.01em;
+}
+
+.CandleCashCinematic__copy {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--cinematic-ink-muted);
+  max-width: 26rem;
+}
+
+.CandleCashCinematic__tag {
+  margin: 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(212, 154, 75, 0.82);
+}
+
+.CandleCashCinematic__brandmark {
+  position: relative;
+  justify-self: center;
+  align-self: center;
+  width: min(100%, clamp(248px, 24vw, 360px));
+  display: grid;
+  gap: clamp(0.3rem, 1vw, 0.75rem);
+  pointer-events: none;
+}
+
+.CandleCashCinematic__brandmark-wordmark,
+.CandleCashCinematic__brandmark-trees,
+.CandleCashCinematic__brandmark-site {
+  position: relative;
+  overflow: hidden;
+}
+
+.CandleCashCinematic__brandmark-wordmark {
+  aspect-ratio: 704 / 156;
+}
+
+.CandleCashCinematic__brandmark-trees {
+  aspect-ratio: 704 / 188;
+}
+
+.CandleCashCinematic__brandmark-site {
+  aspect-ratio: 704 / 58;
+  margin-top: -0.2rem;
+}
+
+.CandleCashCinematic__brandmark-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  filter: none;
+  mix-blend-mode: normal;
+}
+
+.CandleCashCinematic__brandmark-image--trees {
+  transform: translateY(-40.5%);
+}
+
+.CandleCashCinematic__brandmark-image--site {
+  transform: translateY(-85.4%);
+}
+
+.CandleCashCinematic__brandmark-tree-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  transform-origin: center bottom;
+  will-change: transform;
+  animation-name: CandleCashForestSway;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.CandleCashCinematic__brandmark-tree-layer--one {
+  --tree-sway-x: -1.3%;
+  --tree-rotate: -0.9deg;
+  --tree-skew: -0.55deg;
+  clip-path: inset(0 69% 0 0);
+  animation-duration: 16.5s;
+  animation-delay: -5.8s;
+}
+
+.CandleCashCinematic__brandmark-tree-layer--two {
+  --tree-sway-x: 1.1%;
+  --tree-rotate: 0.8deg;
+  --tree-skew: 0.45deg;
+  clip-path: inset(0 45% 0 24%);
+  animation-duration: 14.2s;
+  animation-delay: -3.6s;
+}
+
+.CandleCashCinematic__brandmark-tree-layer--three {
+  --tree-sway-x: -0.95%;
+  --tree-rotate: -0.7deg;
+  --tree-skew: -0.35deg;
+  clip-path: inset(0 21% 0 48%);
+  animation-duration: 18.4s;
+  animation-delay: -7.4s;
+}
+
+.CandleCashCinematic__brandmark-tree-layer--four {
+  --tree-sway-x: 1.15%;
+  --tree-rotate: 0.82deg;
+  --tree-skew: 0.4deg;
+  clip-path: inset(0 0 0 72%);
+  animation-duration: 15.1s;
+  animation-delay: -2.9s;
+}
+
+.CandleCashCinematic__panel {
+  position: relative;
+  justify-self: end;
+  width: min(100%, 30rem);
+  padding: clamp(22px, 4vw, 34px);
+  border-radius: 28px;
+  border: 1px solid var(--cinematic-border);
+  background: linear-gradient(150deg, rgba(12, 10, 9, 0.92), rgba(9, 8, 7, 0.7));
+  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.45);
+  display: grid;
+  gap: 1rem;
+  overflow: hidden;
+}
+
+.CandleCashCinematic__panel::before,
+.CandleCashCinematic__panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.CandleCashCinematic__panel::before {
+  background: radial-gradient(320px circle at var(--candle-cash-pointer-x) var(--candle-cash-pointer-y), rgba(255, 255, 255, 0.12), transparent 72%);
+  opacity: 0.2;
+  transition: opacity 0.45s ease;
+}
+
+.CandleCashCinematic__panel::after {
+  inset: 1px;
+  background: linear-gradient(118deg, transparent 18%, rgba(255, 255, 255, 0.14) 50%, transparent 76%);
+  opacity: 0;
+  transform: translateX(-26%);
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+}
+
+@supports ((-webkit-backdrop-filter: blur(14px)) or (backdrop-filter: blur(14px))) {
+  .CandleCashCinematic__panel {
+    background: var(--cinematic-panel);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+  }
+}
+
+.CandleCashCinematic__panel-title {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(246, 241, 234, 0.8);
+  font-family: var(--heading-font-family);
+}
+
+.CandleCashCinematic__panel-copy {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: rgba(246, 241, 234, 0.74);
+}
+
+.CandleCashCinematic__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+
+.CandleCashPortal {
+  position: relative;
+  justify-self: end;
+  width: min(100%, 30rem);
+  min-height: 28rem;
+  display: grid;
+}
+
+.CandleCashPortal__surface {
+  grid-area: 1 / 1;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px) scale(0.98);
+  filter: blur(16px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.85s ease;
+}
+
+.CandleCashPortal__surface--hero {
+  pointer-events: auto;
+}
+
+.CandleCashPortal__surface--auth {
+  align-self: stretch;
+}
+
+.CandleCashPortal__auth-shell {
+  height: 100%;
+}
+
+.CandleCashPortal__surface-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.CandleCashPortal__surface-control {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(246, 241, 234, 0.68);
+  font-family: var(--heading-font-family);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition: color 0.24s ease, opacity 0.24s ease;
+}
+
+.CandleCashPortal__surface-control:hover,
+.CandleCashPortal__surface-control:focus-visible {
+  color: rgba(246, 241, 234, 0.96);
+}
+
+.CandleCashPortal__error {
+  margin: 0 0 0.4rem;
+  padding: 0.9rem 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 122, 122, 0.22);
+  background: rgba(84, 20, 20, 0.24);
+  color: #ffe8e6;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.CandleCashPortal__error[hidden] {
+  display: none !important;
+}
+
+.CandleCashPortal__hint {
+  margin-top: 0.15rem;
+}
+
+.CandleCashPortal__standard {
+  margin-top: clamp(28px, 5vw, 56px);
+}
+
+[data-candle-cash-cinematic][data-candle-cash-portal-mode="hero"] [data-candle-cash-portal-surface="hero"],
+[data-candle-cash-cinematic][data-candle-cash-portal-mode="login"] [data-candle-cash-portal-surface="login"],
+[data-candle-cash-cinematic][data-candle-cash-portal-mode="register"] [data-candle-cash-portal-surface="register"] {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+[data-candle-cash-cinematic][data-candle-cash-portal-mode="login"] .CandleCashCinematic__message,
+[data-candle-cash-cinematic][data-candle-cash-portal-mode="register"] .CandleCashCinematic__message {
+  transform: translateY(-4px);
+}
+
+[data-candle-cash-cinematic][data-candle-cash-portal-mode="login"] .CandleCashCinematic__brandmark,
+[data-candle-cash-cinematic][data-candle-cash-portal-mode="register"] .CandleCashCinematic__brandmark {
+  transform: scale(0.97);
+  opacity: 0.94;
+}
+
+[data-candle-cash-cinematic][data-candle-cash-authing="true"] .CandleCashCinematic__content {
+  opacity: 0.08;
+  filter: blur(20px);
+  transform: translate3d(0, -12px, 0) scale(0.98);
+}
+
+.CandleCashCinematic .Button--primary,
+.CandleCashCinematic .Button--secondary {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  min-width: 11.5rem;
+  padding: 0.95rem 1.9rem;
+  border-radius: 999px;
+  overflow: hidden;
+  text-align: center;
+  text-decoration: none;
+  letter-spacing: 0.16em;
+  font-size: 0.78rem;
+  line-height: 1;
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.28);
+  transition: transform 0.32s ease, box-shadow 0.32s ease, border-color 0.32s ease, color 0.32s ease;
+}
+
+.CandleCashCinematic .Button--primary {
+  color: #1a1108;
+  border-color: rgba(221, 167, 92, 0.92);
+  box-shadow: 0 22px 42px rgba(131, 84, 31, 0.26);
+}
+
+.CandleCashCinematic .Button--secondary {
+  color: var(--cinematic-ink);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.CandleCashCinematic .Button--primary::before,
+.CandleCashCinematic .Button--secondary::before {
+  border-radius: inherit;
+}
+
+.CandleCashCinematic .Button--primary::before {
+  background: linear-gradient(135deg, #c88a3d 0%, #d69d4f 100%);
+}
+
+.CandleCashCinematic .Button--secondary::before {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.CandleCashCinematic .Button--primary:hover,
+.CandleCashCinematic .Button--primary:focus-visible,
+.CandleCashCinematic .Button--secondary:hover,
+.CandleCashCinematic .Button--secondary:focus-visible {
+  transform: translateY(-1px);
+}
+
+.CandleCashCinematic .Button--primary:hover,
+.CandleCashCinematic .Button--primary:focus-visible {
+  box-shadow: 0 24px 46px rgba(131, 84, 31, 0.34);
+}
+
+.CandleCashCinematic .Button--secondary:hover,
+.CandleCashCinematic .Button--secondary:focus-visible {
+  border-color: rgba(255, 255, 255, 0.32);
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.26);
+}
+
+.js [data-candle-cash-cinematic][data-cinematic-state="pre"] .CandleCashCinematic__bg {
+  opacity: 0;
+  transform: scale(1.04);
+  filter: blur(12px);
+}
+
+.js [data-candle-cash-cinematic][data-cinematic-state="pre"] .CandleCashCinematic__message > *,
+.js [data-candle-cash-cinematic][data-cinematic-state="pre"] .CandleCashCinematic__brandmark,
+.js [data-candle-cash-cinematic][data-cinematic-state="pre"] .CandleCashCinematic__panel {
+  opacity: 0;
+  transform: translateY(18px) scale(0.98);
+  filter: blur(12px);
+  will-change: opacity, transform, filter;
+}
+
+.CandleCashCinematic__bg,
+.CandleCashCinematic__message > *,
+.CandleCashCinematic__brandmark,
+.CandleCashCinematic__panel {
+  transition:
+    opacity var(--candle-cash-intro-opacity-duration) ease,
+    transform var(--candle-cash-intro-transform-duration) var(--candle-cash-intro-ease),
+    filter var(--candle-cash-intro-transform-duration) ease;
+}
+
+.CandleCashCinematic__bg {
+  transition-duration:
+    var(--candle-cash-intro-bg-duration),
+    var(--candle-cash-intro-bg-duration),
+    var(--candle-cash-intro-bg-duration);
+}
+
+.CandleCashCinematic__candle-glow,
+.CandleCashCinematic__trace {
+  transition: opacity 0.5s ease;
+}
+
+.CandleCashCinematic__candle-glow {
+  transition:
+    opacity var(--candle-cash-candle-duration) ease,
+    transform var(--candle-cash-candle-duration) var(--candle-cash-intro-ease),
+    filter var(--candle-cash-candle-duration) ease;
+  transition-delay: var(--candle-cash-candle-delay);
+}
+
+.js [data-candle-cash-cinematic][data-cinematic-state="pre"] .CandleCashCinematic__trace,
+.js [data-candle-cash-cinematic][data-cinematic-state="pre"] .CandleCashCinematic__candle-glow {
+  opacity: 0;
+}
+
+.js [data-candle-cash-cinematic][data-cinematic-state="pre"] .CandleCashCinematic__scene {
+  opacity: 0.78;
+}
+
+.js [data-candle-cash-cinematic][data-cinematic-state="pre"] .CandleCashCinematic__candle {
+  opacity: 0.12;
+  transform: translateX(-50%) translateY(24px) scale(0.92);
+}
+
+.js [data-candle-cash-cinematic][data-cinematic-state="pre"] .CandleCashCinematic__candle-flame {
+  opacity: 0;
+  transform: translate(-50%, 10px) scale(0.36);
+  filter: blur(3px);
+}
+
+[data-candle-cash-cinematic]:not([data-cinematic-state="pre"]) .CandleCashCinematic__candle {
+  opacity: 0.92;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+
+[data-candle-cash-cinematic]:not([data-cinematic-state="pre"]) .CandleCashCinematic__candle-glow {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+[data-candle-cash-cinematic]:not([data-cinematic-state="pre"]) .CandleCashCinematic__candle-flame {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1) rotate(-2deg);
+  filter: blur(0);
+  animation: CandleCashFlameFlicker 3.6s ease-in-out infinite;
+  animation-delay: var(--candle-cash-candle-delay);
+}
+
+[data-candle-cash-cinematic]:not([data-cinematic-state="pre"]) .CandleCashCinematic__scene {
+  opacity: 1;
+}
+
+[data-candle-cash-cinematic][data-cinematic-state="enter"] .CandleCashCinematic__trace {
+  opacity: 1;
+}
+
+[data-candle-cash-cinematic][data-cinematic-state="enter"] .CandleCashCinematic__trace-edge--top {
+  animation: CandleCashTraceTop var(--candle-cash-trace-duration) linear both;
+}
+
+[data-candle-cash-cinematic][data-cinematic-state="enter"] .CandleCashCinematic__trace-edge--right {
+  animation: CandleCashTraceRight var(--candle-cash-trace-duration) linear both;
+}
+
+[data-candle-cash-cinematic][data-cinematic-state="enter"] .CandleCashCinematic__trace-edge--bottom {
+  animation: CandleCashTraceBottom var(--candle-cash-trace-duration) linear both;
+}
+
+[data-candle-cash-cinematic][data-cinematic-state="enter"] .CandleCashCinematic__trace-edge--left {
+  animation: CandleCashTraceLeft var(--candle-cash-trace-duration) linear both;
+}
+
+[data-candle-cash-cinematic][data-cinematic-state="settled"] .CandleCashCinematic__skip {
+  opacity: 0;
+  pointer-events: none;
+}
+
+[data-candle-cash-cinematic][data-cinematic-view="minimized"] {
+  min-height: clamp(360px, 42vh, 470px);
+  padding-top: clamp(36px, 5vh, 56px);
+  padding-bottom: clamp(30px, 4vh, 48px);
+}
+
+@supports (--css: variables) {
+  [data-candle-cash-cinematic][data-cinematic-view="minimized"] {
+    min-height: min(
+      calc(var(--window-height) - var(--header-height) - var(--announcement-bar-height, 0px)),
+      470px
+    );
+  }
+}
+
+[data-candle-cash-cinematic][data-cinematic-view="minimized"] .CandleCashCinematic__content {
+  gap: clamp(20px, 3vw, 44px);
+}
+
+[data-candle-cash-cinematic][data-cinematic-view="minimized"] .CandleCashCinematic__message {
+  gap: 0.35rem;
+}
+
+[data-candle-cash-cinematic][data-cinematic-view="minimized"] .CandleCashCinematic__headline {
+  font-size: clamp(2.1rem, 4vw, 3.2rem);
+}
+
+[data-candle-cash-cinematic][data-cinematic-view="minimized"] .CandleCashCinematic__copy,
+[data-candle-cash-cinematic][data-cinematic-view="minimized"] .CandleCashCinematic__tag {
+  display: none;
+}
+
+[data-candle-cash-cinematic][data-cinematic-view="minimized"] .CandleCashCinematic__brandmark {
+  transform: scale(0.78);
+  opacity: 0.8;
+}
+
+[data-candle-cash-cinematic][data-cinematic-view="minimized"] .CandleCashCinematic__scene {
+  transform: translateY(6px) scale(0.74);
+  opacity: 0.62;
+}
+
+[data-candle-cash-cinematic][data-cinematic-view="minimized"] .CandleCashPortal {
+  min-height: 0;
+}
+
+[data-candle-cash-cinematic][data-cinematic-view="minimized"] .CandleCashPortal__surface {
+  transform: translateY(0) scale(0.98);
+}
+
+[data-candle-cash-cinematic][data-cinematic-view="minimized"][data-candle-cash-portal-mode="hero"] .CandleCashPortal__surface--hero {
+  align-self: start;
+}
+
+[data-candle-cash-cinematic][data-cinematic-transition="out"]::before {
+  opacity: 0.08;
+}
+
+[data-candle-cash-cinematic][data-cinematic-transition="out"]::after {
+  opacity: 0.94;
+  transform: scale(1.06);
+  filter: blur(10px);
+}
+
+[data-candle-cash-cinematic][data-cinematic-transition="out"] .CandleCashCinematic__bg {
+  opacity: 0.18;
+  transform: scale(1.06);
+  filter: blur(16px);
+}
+
+[data-candle-cash-cinematic][data-cinematic-transition="out"] .CandleCashCinematic__content {
+  opacity: 0;
+  filter: blur(18px);
+  transform: translate3d(0, -10px, 0) scale(0.98);
+}
+
+[data-candle-cash-cinematic][data-cinematic-transition="out"] .CandleCashCinematic__scene {
+  opacity: 1;
+  transform: translateY(-6px) scale(1.06);
+  filter: blur(0.2px);
+}
+
+[data-candle-cash-cinematic][data-cinematic-transition="out"] .CandleCashCinematic__trace {
+  opacity: 1;
+}
+
+[data-candle-cash-cinematic][data-cinematic-transition="out"] .CandleCashCinematic__control,
+[data-candle-cash-cinematic][data-cinematic-transition="out"] .CandleCashCinematic__skip {
+  opacity: 0;
+}
+
+[data-candle-cash-cinematic][data-cinematic-speed="remembered"] {
+  --candle-cash-intro-opacity-duration: 1.05s;
+  --candle-cash-intro-transform-duration: 1.25s;
+  --candle-cash-intro-bg-duration: 1.8s;
+  --candle-cash-trace-duration: 1.5s;
+  --candle-cash-candle-delay: 0.95s;
+  --candle-cash-candle-duration: 0.72s;
+}
+
+[data-candle-cash-cinematic][data-cinematic-speed="remembered"] .CandleCashCinematic__eyebrow {
+  transition-delay: 0.08s;
+}
+
+[data-candle-cash-cinematic][data-cinematic-speed="remembered"] .CandleCashCinematic__headline {
+  transition-delay: 0.22s;
+}
+
+[data-candle-cash-cinematic][data-cinematic-speed="remembered"] .CandleCashCinematic__subhead {
+  transition-delay: 0.42s;
+}
+
+[data-candle-cash-cinematic][data-cinematic-speed="remembered"] .CandleCashCinematic__copy {
+  transition-delay: 0.62s;
+}
+
+[data-candle-cash-cinematic][data-cinematic-speed="remembered"] .CandleCashCinematic__brandmark {
+  transition-delay: 0.72s;
+}
+
+[data-candle-cash-cinematic][data-cinematic-speed="remembered"] .CandleCashCinematic__tag {
+  transition-delay: 0.78s;
+}
+
+[data-candle-cash-cinematic][data-cinematic-speed="remembered"] .CandleCashCinematic__panel {
+  transition-delay: 0.82s;
+}
+
+[data-candle-cash-cinematic][data-cinematic-speed="instant"] .CandleCashCinematic__bg,
+[data-candle-cash-cinematic][data-cinematic-speed="instant"] .CandleCashCinematic__message > *,
+[data-candle-cash-cinematic][data-cinematic-speed="instant"] .CandleCashCinematic__brandmark,
+[data-candle-cash-cinematic][data-cinematic-speed="instant"] .CandleCashCinematic__panel,
+[data-candle-cash-cinematic][data-cinematic-speed="instant"] .CandleCashCinematic__content,
+[data-candle-cash-cinematic][data-cinematic-speed="instant"] .CandleCashCinematic__candle,
+[data-candle-cash-cinematic][data-cinematic-speed="instant"] .CandleCashCinematic__candle-glow,
+[data-candle-cash-cinematic][data-cinematic-speed="instant"] .CandleCashCinematic__candle-flame,
+[data-candle-cash-cinematic][data-cinematic-speed="instant"] .CandleCashCinematic__scene {
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+  animation-delay: 0s !important;
+}
+
+[data-candle-cash-cinematic][data-cinematic-interactive="true"]::before {
+  opacity: 0.42;
+}
+
+[data-candle-cash-cinematic][data-cinematic-interactive="true"] .CandleCashCinematic__panel::before {
+  opacity: 0.36;
+}
+
+@media (-moz-touch-enabled: 0), (hover: hover) {
+  [data-candle-cash-cinematic][data-cinematic-state="settled"] .CandleCashCinematic__panel:hover::after,
+  [data-candle-cash-cinematic][data-cinematic-state="settled"] .CandleCashCinematic__panel:focus-within::after {
+    opacity: 0.42;
+    transform: translateX(20%);
+  }
+}
+
+.CandleCashCinematic__eyebrow {
+  transition-delay: 0.3s;
+}
+
+.CandleCashCinematic__headline {
+  transition-delay: 0.95s;
+}
+
+.CandleCashCinematic__subhead {
+  transition-delay: 1.7s;
+}
+
+.CandleCashCinematic__copy {
+  transition-delay: 2.45s;
+}
+
+.CandleCashCinematic__brandmark {
+  transition-delay: 2.85s;
+}
+
+.CandleCashCinematic__tag {
+  transition-delay: 3.1s;
+}
+
+.CandleCashCinematic__panel {
+  transition-delay: 3.35s;
+}
+
+@keyframes CandleCashGlowDrift {
+  0% {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+    opacity: 0.65;
+  }
+  50% {
+    transform: translate3d(2%, 1%, 0) scale(1.04);
+    opacity: 0.92;
+  }
+  100% {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+    opacity: 0.7;
+  }
+}
+
+@keyframes CandleCashTraceTop {
+  0%, 2% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  5%, 24% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  28%, 100% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes CandleCashTraceRight {
+  0%, 21% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  26%, 47% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  52%, 100% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes CandleCashTraceBottom {
+  0%, 44% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  50%, 72% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  78%, 100% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes CandleCashTraceLeft {
+  0%, 68% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  74%, 88% {
+    opacity: 0.82;
+    transform: scaleY(1);
+  }
+  94%, 100% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes CandleCashFlameFlicker {
+  0%, 100% {
+    transform: translate(-50%, 0) scale(0.98, 1.02) rotate(-3deg);
+  }
+  18% {
+    transform: translate(-50%, -1px) scale(1.02, 0.96) rotate(-1deg);
+  }
+  42% {
+    transform: translate(-50%, -3px) scale(0.96, 1.14) rotate(2deg);
+  }
+  68% {
+    transform: translate(-50%, -1px) scale(1.04, 0.94) rotate(0deg);
+  }
+  84% {
+    transform: translate(-50%, 1px) scale(0.95, 1.08) rotate(-2deg);
+  }
+}
+
+@keyframes CandleCashFlameCore {
+  0%, 100% {
+    transform: translateX(-50%) scale(0.96, 1);
+    opacity: 0.94;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.08, 0.92);
+    opacity: 1;
+  }
+}
+
+@keyframes CandleCashFlameAura {
+  0%, 100% {
+    opacity: 0.68;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes CandleCashForestSway {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) skewX(0deg);
+  }
+  20% {
+    transform: translate3d(calc(var(--tree-sway-x) * -0.32), -0.5%, 0) rotate(calc(var(--tree-rotate) * -0.24)) skewX(calc(var(--tree-skew) * -0.24));
+  }
+  46% {
+    transform: translate3d(var(--tree-sway-x), 0, 0) rotate(var(--tree-rotate)) skewX(var(--tree-skew));
+  }
+  72% {
+    transform: translate3d(calc(var(--tree-sway-x) * 0.42), 0.45%, 0) rotate(calc(var(--tree-rotate) * 0.46)) skewX(calc(var(--tree-skew) * 0.46));
+  }
+}
+
+@media screen and (min-width: 641px) {
+  .ForestryRewardsPageSection--cinematic .CandleCashCinematic {
+    min-height: 100vh;
+  }
+  @supports (--css: variables) {
+    .ForestryRewardsPageSection--cinematic .CandleCashCinematic {
+      min-height: calc(var(--window-height) - var(--header-height) - var(--announcement-bar-height, 0px));
+    }
+  }
+}
+
+@media screen and (max-width: 1140px) {
+  .CandleCashCinematic__content {
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 0.52fr) minmax(280px, 0.86fr);
+    gap: clamp(20px, 3vw, 40px);
+  }
+
+  .CandleCashCinematic__brandmark {
+    width: min(100%, clamp(220px, 26vw, 300px));
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .CandleCashCinematic__content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .CandleCashCinematic__controls {
+    gap: 0.8rem;
+  }
+
+  .CandleCashCinematic__scene {
+    right: 1.2rem;
+    bottom: 1.2rem;
+    top: auto;
+    width: 96px;
+    height: 138px;
+  }
+
+  .CandleCashCinematic__message {
+    max-width: 100%;
+  }
+
+  .CandleCashCinematic__brandmark {
+    width: min(100%, 320px);
+    margin: 0 auto;
+  }
+
+  .CandleCashCinematic__panel {
+    justify-self: start;
+    width: min(480px, 100%);
+  }
+
+  .CandleCashPortal {
+    justify-self: start;
+    width: min(480px, 100%);
+    min-height: 0;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .ForestryRewardsPageSection--cinematic .CandleCashCinematic {
+    padding: clamp(56px, 12vh, 100px) 1.5rem;
+  }
+
+  [data-candle-cash-cinematic][data-cinematic-view="minimized"] {
+    min-height: clamp(280px, 34vh, 360px);
+  }
+
+  .CandleCashCinematic__trace {
+    inset: 8px;
+  }
+
+  .CandleCashCinematic__scene {
+    right: 0.8rem;
+    bottom: 0.9rem;
+    top: auto;
+    width: 82px;
+    height: 118px;
+    opacity: 0.78;
+  }
+
+  .CandleCashCinematic__controls {
+    top: 1.1rem;
+    right: 1.1rem;
+    gap: 0.7rem;
+  }
+
+  .CandleCashCinematic__brandmark {
+    width: min(100%, 280px);
+  }
+
+  .CandleCashCinematic__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .CandleCashCinematic__actions .Button {
+    width: 100%;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .CandleCashPortal__surface-controls {
+    margin-bottom: 0.2rem;
+  }
+
+  .CandleCashPortal__surface-control {
+    font-size: 0.64rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .CandleCashCinematic__brandmark-tree-layer {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+.CandleCashWelcome {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(780px 480px at 50% 30%, rgba(207, 142, 57, 0.18), rgba(0, 0, 0, 0) 72%),
+    linear-gradient(180deg, rgba(10, 9, 8, 0.18), rgba(10, 9, 8, 0.78));
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  transition: opacity 0.9s ease, backdrop-filter 1.1s ease;
+}
+
+.CandleCashWelcome::before,
+.CandleCashWelcome::after {
+  content: "";
+  position: absolute;
+  inset: -24%;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 1s ease,
+    transform 1.2s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 1.2s ease;
+}
+
+.CandleCashWelcome::before {
+  background:
+    radial-gradient(closest-side, rgba(238, 173, 92, 0.22), rgba(238, 173, 92, 0.04) 44%, rgba(0, 0, 0, 0) 76%);
+  mix-blend-mode: screen;
+  filter: blur(34px);
+  transform: translateY(10%) scale(0.84);
+}
+
+.CandleCashWelcome::after {
+  background:
+    linear-gradient(180deg, rgba(148, 189, 214, 0) 0%, rgba(148, 189, 214, 0.08) 34%, rgba(214, 238, 247, 0.16) 52%, rgba(148, 189, 214, 0.08) 68%, rgba(148, 189, 214, 0) 100%);
+  filter: blur(22px);
+  transform: translateY(18%) scale(1.08);
+}
+
+.CandleCashWelcome[hidden] {
+  display: none !important;
+}
+
+.CandleCashWelcome__wash {
+  position: absolute;
+  inset: -12%;
+  border-radius: 999px;
+  filter: blur(28px);
+  opacity: 0;
+  transition:
+    opacity 0.9s ease,
+    transform 1.15s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 1.15s ease;
+}
+
+.CandleCashWelcome__wash--ember {
+  background:
+    radial-gradient(closest-side, rgba(228, 166, 86, 0.44), rgba(228, 166, 86, 0.12) 46%, rgba(0, 0, 0, 0) 72%);
+  transform: scale(0.72) translateY(8%);
+}
+
+.CandleCashWelcome__wash--mist {
+  background:
+    radial-gradient(closest-side, rgba(115, 163, 196, 0.18), rgba(115, 163, 196, 0.08) 42%, rgba(0, 0, 0, 0) 72%);
+  transform: scale(0.92) translateY(16%);
+}
+
+.CandleCashWelcome__content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 36rem;
+  color: #f6f1ea;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.CandleCashWelcome__eyebrow,
+.CandleCashWelcome__headline,
+.CandleCashWelcome__copy {
+  opacity: 0;
+  transform: translateY(28px) scale(0.98);
+  filter: blur(16px);
+  transition:
+    opacity 0.95s ease,
+    transform 1.15s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 1.15s ease;
+}
+
+.CandleCashWelcome__eyebrow {
+  margin: 0 0 0.9rem;
+  font-family: var(--heading-font-family);
+  font-size: 0.74rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: rgba(246, 241, 234, 0.66);
+}
+
+.CandleCashWelcome__headline {
+  margin: 0;
+  font-family: var(--heading-font-family);
+  font-size: clamp(2.4rem, 5vw, 4.25rem);
+  line-height: 0.96;
+  color: #fff8f1;
+}
+
+.CandleCashWelcome__copy {
+  margin: 1rem auto 0;
+  max-width: 28rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(246, 241, 234, 0.78);
+}
+
+.CandleCashWelcome[data-welcome-state="enter"],
+.CandleCashWelcome[data-welcome-state="dissolve"] {
+  opacity: 1;
+}
+
+.CandleCashWelcome[data-welcome-state="enter"]::before {
+  opacity: 0.92;
+  transform: translateY(0) scale(1);
+}
+
+.CandleCashWelcome[data-welcome-state="enter"]::after {
+  opacity: 0.72;
+  transform: translateY(0) scale(1);
+}
+
+.CandleCashWelcome[data-welcome-state="enter"] .CandleCashWelcome__wash--ember {
+  opacity: 0.88;
+  transform: scale(1) translateY(0);
+}
+
+.CandleCashWelcome[data-welcome-state="enter"] .CandleCashWelcome__wash--mist {
+  opacity: 0.7;
+  transform: scale(1.04) translateY(0);
+}
+
+.CandleCashWelcome[data-welcome-state="enter"] .CandleCashWelcome__eyebrow {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+  transition-delay: 0.08s;
+}
+
+.CandleCashWelcome[data-welcome-state="enter"] .CandleCashWelcome__headline {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+  transition-delay: 0.22s;
+}
+
+.CandleCashWelcome[data-welcome-state="enter"] .CandleCashWelcome__copy {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+  transition-delay: 0.38s;
+}
+
+.CandleCashWelcome[data-welcome-state="enter"] .CandleCashWelcome__content {
+  animation: CandleCashWelcomeDrift 5.6s ease-in-out infinite;
+}
+
+.CandleCashWelcome[data-welcome-state="dissolve"] {
+  opacity: 0;
+  -webkit-backdrop-filter: blur(0);
+  backdrop-filter: blur(0);
+}
+
+.CandleCashWelcome[data-welcome-state="dissolve"]::before {
+  opacity: 0.34;
+  transform: translateY(-10%) scale(1.22);
+  filter: blur(48px);
+}
+
+.CandleCashWelcome[data-welcome-state="dissolve"]::after {
+  opacity: 0.52;
+  transform: translateY(28%) scale(1.18);
+  filter: blur(34px);
+}
+
+.CandleCashWelcome[data-welcome-state="dissolve"] .CandleCashWelcome__wash--ember {
+  opacity: 0.34;
+  transform: scale(1.3) translateY(-8%);
+  filter: blur(44px);
+}
+
+.CandleCashWelcome[data-welcome-state="dissolve"] .CandleCashWelcome__wash--mist {
+  opacity: 0.26;
+  transform: scale(1.18) translateY(14%);
+  filter: blur(52px);
+}
+
+.CandleCashWelcome[data-welcome-state="dissolve"] .CandleCashWelcome__eyebrow {
+  opacity: 0;
+  transform: translateY(-18px) scale(1.03);
+  filter: blur(18px);
+  transition-delay: 0s;
+}
+
+.CandleCashWelcome[data-welcome-state="dissolve"] .CandleCashWelcome__headline {
+  opacity: 0;
+  transform: translateY(-20px) scale(1.05);
+  filter: blur(22px);
+  transition-delay: 0.06s;
+}
+
+.CandleCashWelcome[data-welcome-state="dissolve"] .CandleCashWelcome__copy {
+  opacity: 0;
+  transform: translateY(-8px) scale(1.02);
+  filter: blur(24px);
+  transition-delay: 0.1s;
+}
+
+.CandleCashAuth {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(48px, 8vh, 88px) 0;
+  background:
+    radial-gradient(1180px 640px at 8% -18%, rgba(200, 138, 61, 0.18), transparent 60%),
+    radial-gradient(880px 520px at 92% 12%, rgba(255, 255, 255, 0.08), transparent 62%),
+    linear-gradient(180deg, #090807 0%, #100d0b 54%, #090807 100%);
+  color: #f6f1ea;
+}
+
+.template-login #shopify-section-announcement,
+.template-register #shopify-section-announcement,
+.template-login .shopify-section--header,
+.template-register .shopify-section--header,
+.template-login footer.Footer,
+.template-register footer.Footer {
+  display: none !important;
+}
+
+.template-login .CandleCashAuth,
+.template-register .CandleCashAuth {
+  min-height: 100vh;
+  padding: clamp(34px, 6vh, 62px) 0;
+}
+
+.CandleCashAuth::before,
+.CandleCashAuth::after {
+  content: "";
+  position: absolute;
+  inset: -18%;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 0.75s ease,
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.9s ease;
+}
+
+.CandleCashAuth::before {
+  background:
+    radial-gradient(closest-side, rgba(229, 170, 90, 0.22), rgba(229, 170, 90, 0.05) 42%, rgba(0, 0, 0, 0) 76%);
+  filter: blur(36px);
+  transform: scale(0.82);
+}
+
+.CandleCashAuth::after {
+  background:
+    linear-gradient(180deg, rgba(138, 179, 204, 0) 0%, rgba(138, 179, 204, 0.06) 34%, rgba(215, 241, 252, 0.14) 52%, rgba(138, 179, 204, 0.08) 70%, rgba(138, 179, 204, 0) 100%);
+  filter: blur(26px);
+  transform: scale(1.12) translateY(14%);
+}
+
+@supports (--css: variables) {
+  .CandleCashAuth {
+    min-height: calc(var(--window-height) - var(--header-height) - var(--announcement-bar-height, 0px));
+  }
+
+  .template-login .CandleCashAuth,
+  .template-register .CandleCashAuth {
+    min-height: var(--window-height);
+  }
+}
+
+.CandleCashAuth__bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(560px 320px at 18% 26%, rgba(212, 154, 75, 0.14), transparent 72%),
+    radial-gradient(640px 380px at 82% 74%, rgba(255, 255, 255, 0.06), transparent 74%);
+  opacity: 0.9;
+  pointer-events: none;
+  transform: scale(1);
+  filter: none;
+  transition:
+    opacity 0.75s ease,
+    transform 0.95s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.95s ease;
+}
+
+.CandleCashAuth__shell {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(36px, 5vw, 104px);
+  align-items: center;
+  width: min(1200px, 100%);
+  margin: 0 auto;
+}
+
+.CandleCashAuth__story {
+  display: grid;
+  gap: 1.1rem;
+  max-width: 38rem;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: none;
+  transition:
+    opacity 0.8s ease,
+    transform 1s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 1s ease;
+}
+
+.CandleCashAuth__eyebrow,
+.CandleCashAuth__kicker,
+.CandleCashAuth__bonus-kicker {
+  margin: 0;
+  font-family: var(--heading-font-family);
+  font-size: 0.72rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(246, 241, 234, 0.64);
+}
+
+.CandleCashAuth__headline,
+.CandleCashAuth__title {
+  margin: 0;
+  font-family: var(--heading-font-family);
+  line-height: 0.98;
+  color: #fff8f1;
+}
+
+.CandleCashAuth__headline {
+  font-size: clamp(3.1rem, 6vw, 5.6rem);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+}
+
+.CandleCashAuth__subhead,
+.CandleCashAuth__legend,
+.CandleCashAuth__story-copy,
+.CandleCashAuth__bonus-title {
+  margin: 0;
+  color: rgba(246, 241, 234, 0.76);
+}
+
+.CandleCashAuth__subhead {
+  font-size: clamp(1.08rem, 1.95vw, 1.34rem);
+  line-height: 1.72;
+  max-width: 31rem;
+}
+
+.CandleCashAuth__story-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 0.35rem;
+}
+
+.CandleCashAuth__story-grid span {
+  padding: 0.78rem 1.02rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(246, 241, 234, 0.84);
+  font-size: 0.8rem;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+}
+
+.CandleCashAuth__story-copy {
+  max-width: 27rem;
+  font-size: 0.94rem;
+  line-height: 1.72;
+}
+
+.CandleCashAuth__panel {
+  position: relative;
+  padding: clamp(28px, 4.2vw, 40px);
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(150deg, rgba(12, 10, 9, 0.96), rgba(8, 7, 6, 0.8));
+  box-shadow: 0 40px 96px rgba(0, 0, 0, 0.44);
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: none;
+  transition:
+    opacity 0.82s ease,
+    transform 1.02s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 1.02s ease,
+    box-shadow 0.4s ease;
+}
+
+.CandleCashAuth__panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(212, 154, 75, 0.52), rgba(255, 255, 255, 0));
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+@supports ((-webkit-backdrop-filter: blur(14px)) or (backdrop-filter: blur(14px))) {
+  .CandleCashAuth__panel {
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    background: rgba(12, 10, 9, 0.74);
+  }
+}
+
+.CandleCashAuth[data-auth-portal-state="pre"]::before {
+  opacity: 0.9;
+  transform: scale(0.78);
+}
+
+.CandleCashAuth[data-auth-portal-state="pre"]::after {
+  opacity: 0.66;
+  transform: scale(1.14) translateY(20%);
+}
+
+.CandleCashAuth[data-auth-portal-state="pre"] .CandleCashAuth__bg {
+  opacity: 0.18;
+  transform: scale(1.04);
+  filter: blur(16px);
+}
+
+.CandleCashAuth[data-auth-portal-state="pre"] .CandleCashAuth__story,
+.CandleCashAuth[data-auth-portal-state="pre"] .CandleCashAuth__panel {
+  opacity: 0;
+  transform: translateY(24px) scale(0.98);
+  filter: blur(18px);
+}
+
+.CandleCashAuth[data-auth-portal-state="enter"]::before {
+  opacity: 0.72;
+  transform: scale(1);
+}
+
+.CandleCashAuth[data-auth-portal-state="enter"]::after {
+  opacity: 0.52;
+  transform: scale(1) translateY(0);
+}
+
+.CandleCashAuth[data-auth-portal-state="enter"] .CandleCashAuth__story,
+.CandleCashAuth[data-auth-portal-state="enter"] .CandleCashAuth__panel {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+.CandleCashAuth[data-auth-portal-transition="out"]::before {
+  opacity: 0.94;
+  transform: scale(1.14);
+  filter: blur(46px);
+}
+
+.CandleCashAuth[data-auth-portal-transition="out"]::after {
+  opacity: 0.74;
+  transform: scale(1.08) translateY(-10%);
+  filter: blur(30px);
+}
+
+.CandleCashAuth[data-auth-portal-transition="out"] .CandleCashAuth__bg {
+  opacity: 0.14;
+  transform: scale(1.04);
+  filter: blur(14px);
+}
+
+.CandleCashAuth[data-auth-portal-transition="out"] .CandleCashAuth__story,
+.CandleCashAuth[data-auth-portal-transition="out"] .CandleCashAuth__panel {
+  opacity: 0;
+  transform: translateY(-12px) scale(0.98);
+  filter: blur(18px);
+}
+
+.CandleCashAuth__form {
+  display: grid;
+  gap: 1.05rem;
+}
+
+.CandleCashAuth__header {
+  display: grid;
+  gap: 0.4rem;
+  margin-bottom: 0.35rem;
+}
+
+.CandleCashAuth__title {
+  font-size: clamp(2.15rem, 3.6vw, 3rem);
+  letter-spacing: -0.015em;
+}
+
+.CandleCashAuth__legend {
+  font-size: 0.95rem;
+  line-height: 1.72;
+  max-width: 31rem;
+}
+
+.CandleCashAuth .Form__Item {
+  margin-bottom: 0;
+}
+
+.CandleCashAuth .Form__Input {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f6f1ea;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.CandleCashAuth .Form__Input::placeholder {
+  color: rgba(246, 241, 234, 0.54);
+}
+
+.CandleCashAuth .Form__Input:focus {
+  border-color: rgba(212, 154, 75, 0.74);
+  box-shadow: 0 0 0 4px rgba(212, 154, 75, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.CandleCashAuth .Form__FloatingLabel,
+.CandleCashAuth .Text--subdued {
+  color: rgba(246, 241, 234, 0.58);
+}
+
+.CandleCashAuth .Form__ItemHelp,
+.CandleCashAuth .Link {
+  color: rgba(246, 241, 234, 0.82);
+}
+
+.CandleCashAuth .Form__Alert {
+  margin: 0;
+  border-radius: 18px;
+}
+
+.CandleCashAuth__bonus-toggle {
+  display: none;
+  width: fit-content;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(246, 241, 234, 0.72);
+  font-family: var(--heading-font-family);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.js .CandleCashAuth__bonus-toggle {
+  display: inline-flex;
+}
+
+.CandleCashAuth__bonus-toggle:hover,
+.CandleCashAuth__bonus-toggle:focus-visible {
+  color: rgba(246, 241, 234, 0.95);
+}
+
+.CandleCashAuth__bonus {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1.05rem 1.05rem 1.15rem;
+  margin-top: 0.35rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    radial-gradient(260px circle at 100% 0%, rgba(212, 154, 75, 0.12), transparent 68%),
+    rgba(255, 255, 255, 0.03);
+}
+
+.js .CandleCashAuth__bonus {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-top: 0;
+  border-color: rgba(255, 255, 255, 0);
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition:
+    max-height 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.25s ease,
+    padding 0.25s ease,
+    margin 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.js [data-candle-cash-bonus-expanded="true"] .CandleCashAuth__bonus {
+  max-height: 640px;
+  padding-top: 1.05rem;
+  padding-bottom: 1.15rem;
+  margin-top: 0.35rem;
+  border-color: rgba(255, 255, 255, 0.1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.CandleCashAuth__bonus-head {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.CandleCashAuth__bonus-title {
+  font-size: 0.93rem;
+  line-height: 1.62;
+}
+
+.CandleCashAuth__consent {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: start;
+  padding: 0.95rem 1rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.CandleCashAuth__consent input {
+  margin-top: 0.2rem;
+  width: 1rem;
+  height: 1rem;
+  accent-color: #d49a4b;
+}
+
+.CandleCashAuth__consent strong,
+.CandleCashAuth__consent small {
+  display: block;
+}
+
+.CandleCashAuth__consent strong {
+  color: #f6f1ea;
+  font-size: 0.94rem;
+  letter-spacing: 0.02em;
+}
+
+.CandleCashAuth__consent small {
+  margin-top: 0.25rem;
+  color: rgba(246, 241, 234, 0.62);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.CandleCashAuth__phone {
+  display: block;
+}
+
+.CandleCashAuth__phone[hidden] {
+  display: none !important;
+}
+
+.CandleCashAuth__legal {
+  margin: 0;
+  color: rgba(246, 241, 234, 0.56);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.CandleCashAuth__legal a {
+  color: rgba(246, 241, 234, 0.84);
+  text-decoration: underline;
+}
+
+.CandleCashAuth__hint {
+  margin-top: 0.15rem;
+}
+
+.CandleCashAuth .Button--primary {
+  min-height: 58px;
+  border-radius: 999px;
+  letter-spacing: 0.13em;
+  font-size: 0.78rem;
+}
+
+@keyframes CandleCashWelcomeDrift {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.CandleCashAuth .Button--primary:focus-visible,
+.CandleCashAuth .Link:focus-visible,
+.CandleCashAuth .Form__ItemHelp:focus-visible,
+.CandleCashAuth__bonus-toggle:focus-visible,
+.CandleCashAuth__consent input:focus-visible {
+  outline: 2px solid rgba(212, 154, 75, 0.8);
+  outline-offset: 4px;
+}
+
+@media screen and (max-width: 990px) {
+  .CandleCashAuth__shell {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .CandleCashAuth__story {
+    max-width: none;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .CandleCashWelcome {
+    padding: 1.5rem;
+  }
+
+  .CandleCashAuth {
+    padding: 2.5rem 0;
+  }
+
+  .CandleCashAuth__story-grid {
+    gap: 0.55rem;
+  }
+
+  .CandleCashAuth__story-grid span {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .CandleCashAuth__panel {
+    padding: 1.25rem;
+    border-radius: 24px;
+  }
+
+  .CandleCashAuth__consent {
+    padding: 0.85rem 0.9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .CandleCashCinematic::before,
+  .CandleCashCinematic::after,
+  .CandleCashCinematic__bg,
+  .CandleCashCinematic__trace,
+  .CandleCashCinematic__trace-edge,
+  .CandleCashCinematic__message > *,
+  .CandleCashCinematic__panel,
+  .CandleCashCinematic__content,
+  .CandleCashCinematic__panel::before,
+  .CandleCashCinematic__panel::after,
+  .CandleCashCinematic__candle,
+  .CandleCashCinematic__candle-glow,
+  .CandleCashCinematic__candle-flame,
+  .CandleCashCinematic__candle-flame::before,
+  .CandleCashCinematic__candle-flame::after {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+    will-change: auto;
+  }
+
+  .CandleCashCinematic__control,
+  .CandleCashCinematic__skip {
+    transition: none !important;
+  }
+
+  .CandleCashCinematic__trace,
+  .CandleCashCinematic__trace-edge {
+    opacity: 0 !important;
+  }
+
+  .CandleCashWelcome,
+  .CandleCashWelcome::before,
+  .CandleCashWelcome::after,
+  .CandleCashWelcome__wash,
+  .CandleCashWelcome__content,
+  .CandleCashWelcome__eyebrow,
+  .CandleCashWelcome__headline,
+  .CandleCashWelcome__copy,
+  .CandleCashAuth::before,
+  .CandleCashAuth::after,
+  .CandleCashAuth__bg,
+  .CandleCashAuth__story,
+  .CandleCashAuth__panel,
+  .CandleCashAuth__bonus,
+  .CandleCashAuth__bonus-toggle {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/* Live rewards portal override tail */
+.CandleCashCinematic__content {
+  width: min(1280px, 100%);
+  grid-template-columns: minmax(300px, 0.76fr) minmax(390px, 1.06fr) minmax(220px, 0.58fr);
+  grid-template-areas: "message portal brand";
+  gap: clamp(20px, 2.8vw, 40px);
+  align-items: center;
+  justify-items: center;
+  min-height: clamp(60vh, 72vh, 720px);
+}
+.CandleCashCinematic__message {
+  grid-area: message;
+  max-width: 28rem;
+  gap: 0.58rem;
+}
+.CandleCashCinematic__headline {
+  font-size: clamp(2.6rem, 5.2vw, 4.55rem);
+}
+.CandleCashCinematic__subhead {
+  font-size: clamp(1.08rem, 2.2vw, 1.58rem);
+}
+.CandleCashCinematic__copy {
+  max-width: 24rem;
+  font-size: 0.98rem;
+}
+.CandleCashCinematic__tag {
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+}
+.CandleCashPortal {
+  grid-area: portal;
+  justify-self: center;
+  width: min(100%, 27.5rem);
+  min-height: 0;
+  align-self: center;
+}
+.CandleCashCinematic__panel {
+  width: min(100%, 27.5rem);
+  padding: clamp(19px, 2vw, 24px);
+  border-radius: 24px;
+  gap: 0.76rem;
+  align-content: start;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.42);
+}
+.CandleCashCinematic__panel-header {
+  display: grid;
+  gap: 0.5rem;
+}
+.CandleCashCinematic__brandmark {
+  grid-area: brand;
+  justify-self: end;
+  align-self: center;
+  width: min(100%, clamp(238px, 19vw, 292px));
+  gap: clamp(0.42rem, 0.8vw, 0.72rem);
+  opacity: 0.94;
+  transform-style: preserve-3d;
+}
+.CandleCashCinematic__brandmark-wordmark,
+.CandleCashCinematic__brandmark-trees,
+.CandleCashCinematic__brandmark-site {
+  overflow: visible;
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease;
+}
+.CandleCashCinematic__brandmark-wordmark { display: grid; gap: 0.22rem; transform: translate3d(calc(var(--candle-cash-shift-x) * -0.06), calc(var(--candle-cash-shift-y) * -0.08), 0); }
+.CandleCashCinematic__brandmark-trees {
+  position: relative;
+  aspect-ratio: 704 / 188;
+  overflow: hidden;
+  padding: 0 0.15rem;
+  transform: translate3d(calc(var(--candle-cash-shift-x) * 0.03), calc(var(--candle-cash-shift-y) * -0.02), 0);
+}
+.CandleCashCinematic__brandmark-site { display: grid; justify-items: center; gap: 0.36rem; margin-top: 0; transform: translate3d(calc(var(--candle-cash-shift-x) * 0.08), calc(var(--candle-cash-shift-y) * 0.1), 0); }
+.CandleCashCinematic__brandmark-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.CandleCashCinematic__brandmark-tree-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: none;
+  transform: translateY(-40.5%);
+  opacity: 0.94;
+  filter: grayscale(0.06) contrast(1.02);
+}
+.CandleCashCinematic__brandmark-title,
+.CandleCashCinematic__brandmark-subtitle,
+.CandleCashCinematic__brandmark-site-text { margin: 0; text-align: center; color: rgba(246, 241, 234, 0.96); user-select: none; }
+.CandleCashCinematic__brandmark-title { font-size: clamp(1.55rem, 2vw, 2rem); line-height: 0.96; letter-spacing: 0.015em; font-family: var(--heading-font-family); }
+.CandleCashCinematic__brandmark-subtitle { font-size: 0.56rem; letter-spacing: 0.5em; text-transform: lowercase; color: rgba(246, 241, 234, 0.78); padding-left: 0.5em; }
+.CandleCashCinematic__brandmark-site-line { display: block; width: min(100%, 12rem); height: 1px; background: linear-gradient(90deg, rgba(214, 170, 100, 0.06), rgba(214, 170, 100, 0.7), rgba(214, 170, 100, 0.06)); }
+.CandleCashCinematic__brandmark-site-text { font-size: 0.58rem; letter-spacing: 0.2em; text-transform: lowercase; color: rgba(231, 222, 210, 0.62); padding-left: 0.2em; }
+.CandleCashPortal__surface--hero { align-self: center; }
+.CandleCashCinematic__panel-kicker { margin: 0; font-size: 0.61rem; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(212, 154, 75, 0.84); font-family: var(--heading-font-family); }
+.CandleCashCinematic__panel-title { font-size: clamp(1.74rem, 2.4vw, 2.12rem); line-height: 1.02; letter-spacing: -0.01em; text-transform: none; color: rgba(246, 241, 234, 0.96); }
+.CandleCashCinematic__panel-copy { max-width: 22rem; font-size: 0.97rem; line-height: 1.56; color: rgba(246, 241, 234, 0.74); }
+.CandleCashCinematic__actions { display: grid; gap: 0.62rem; }
+.CandleCashCinematic__actions .Button { width: 100%; }
+.CandleCashCinematic__panel-note { margin: 0.06rem 0 0; font-size: 0.8rem; line-height: 1.48; color: rgba(246, 241, 234, 0.55); }
+.CandleCashCinematic .Button--primary,
+.CandleCashCinematic .Button--secondary { min-height: 42px; min-width: 0; padding: 0.64rem 1rem; letter-spacing: 0.14em; font-size: 0.62rem; box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2); }
+.CandleCashCinematic .Button--primary { box-shadow: 0 18px 34px rgba(131, 84, 31, 0.24); }
+.CandleCashCinematic .Button--primary:hover,
+.CandleCashCinematic .Button--primary:focus-visible { box-shadow: 0 20px 38px rgba(131, 84, 31, 0.32); }
+.CandleCashCinematic .Button--secondary:hover,
+.CandleCashCinematic .Button--secondary:focus-visible { box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22); }
+.js .CandleCashPortal__standard { margin-top: 0; max-height: 0; overflow: hidden; opacity: 0; visibility: hidden; transform: translateY(-28px); pointer-events: none; transition: max-height 0.9s cubic-bezier(0.16, 1, 0.3, 1), margin-top 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease, transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.9s; }
+.js [data-candle-cash-cinematic][data-cinematic-view="minimized"] + .CandleCashPortal__standard { margin-top: clamp(28px, 5vw, 56px); max-height: 6000px; opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto; transition-delay: 0s; }
+[data-candle-cash-cinematic][data-cinematic-interactive="true"] .CandleCashCinematic__brandmark-tree-depth { transform: translate(calc(var(--candle-cash-shift-x) * var(--tree-depth-x-factor, 0)), calc(var(--candle-cash-shift-y) * var(--tree-depth-y-factor, 0))) scale(var(--tree-depth-scale, 1)); }
+@media screen and (max-width: 1140px) {
+  .CandleCashCinematic__content { grid-template-columns: minmax(0, 0.7fr) minmax(340px, 0.98fr) minmax(170px, 0.5fr); grid-template-areas: "message portal brand"; gap: clamp(16px, 2.2vw, 28px); }
+  .CandleCashPortal { width: min(100%, 25.25rem); }
+  .CandleCashCinematic__panel { width: min(100%, 25.25rem); }
+  .CandleCashCinematic__brandmark { width: min(100%, clamp(196px, 16vw, 230px)); }
+}
+@media screen and (max-width: 900px) {
+  .CandleCashCinematic__content { grid-template-columns: 1fr; grid-template-areas: "message" "portal" "brand"; gap: 1.75rem; }
+  .CandleCashCinematic__message { max-width: 100%; justify-self: center; text-align: center; }
+  .CandleCashPortal { justify-self: center; width: min(420px, 100%); min-height: 0; }
+  .CandleCashCinematic__brandmark { width: min(100%, 260px); margin: 0 auto; justify-self: center; }
+  .CandleCashCinematic__panel { width: min(420px, 100%); }
+}
+@media screen and (max-width: 640px) {
+  .CandleCashPortal { width: 100%; }
+  .CandleCashCinematic__panel { width: 100%; padding: 1.05rem; }
+  .CandleCashCinematic__panel-title { font-size: clamp(1.58rem, 7vw, 1.92rem); }
+  .CandleCashCinematic__panel-copy { font-size: 0.98rem; }
+  .CandleCashCinematic__brandmark { width: min(100%, 232px); }
+  .CandleCashCinematic__actions { gap: 0.58rem; }
+  .CandleCashCinematic .Button--primary, .CandleCashCinematic .Button--secondary { min-height: 42px; padding-inline: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) { .CandleCashCinematic__brandmark-tree-depth { transform: none !important; transition: none !important; } .js .CandleCashPortal__standard { transition: none !important; } }
+
+/* Layout normalization: keep hero row balanced and prevent hidden auth surfaces from reserving height. */
+.ForestryRewardsPageSection--cinematic .CandleCashCinematic__content {
+  width: min(1320px, 100%);
+  margin-inline: auto;
+  grid-template-columns: minmax(260px, 1fr) minmax(330px, 430px) minmax(240px, 1fr);
+  grid-template-areas: "message portal brand";
+  align-items: center;
+  justify-items: center;
+  column-gap: clamp(24px, 3vw, 56px);
+  row-gap: clamp(18px, 2.2vw, 34px);
+  min-height: clamp(460px, 64vh, 740px);
+}
+
+.ForestryRewardsPageSection--cinematic .CandleCashCinematic__message {
+  grid-area: message;
+  justify-self: start;
+  align-self: center;
+  max-width: 34rem;
+  text-align: left;
+}
+
+.ForestryRewardsPageSection--cinematic .CandleCashPortal {
+  grid-area: portal;
+  justify-self: center;
+  align-self: center;
+  width: min(100%, 27.5rem);
+  min-height: 0;
+  display: grid;
+}
+
+.ForestryRewardsPageSection--cinematic .CandleCashCinematic__brandmark {
+  grid-area: brand;
+  justify-self: end;
+  align-self: center;
+  width: min(100%, clamp(220px, 20vw, 320px));
+}
+
+.ForestryRewardsPageSection--cinematic .CandleCashPortal__surface {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+}
+
+[data-candle-cash-cinematic][data-candle-cash-portal-mode="hero"] [data-candle-cash-portal-surface="hero"],
+[data-candle-cash-cinematic][data-candle-cash-portal-mode="login"] [data-candle-cash-portal-surface="login"],
+[data-candle-cash-cinematic][data-candle-cash-portal-mode="register"] [data-candle-cash-portal-surface="register"] {
+  position: relative;
+  inset: auto;
+}
+
+[data-candle-cash-cinematic][data-cinematic-view="minimized"] .CandleCashCinematic__content {
+  min-height: clamp(280px, 42vh, 460px);
+}
+
+@media screen and (max-width: 1200px) {
+  .ForestryRewardsPageSection--cinematic .CandleCashCinematic__content {
+    grid-template-columns: minmax(220px, 1fr) minmax(316px, 408px) minmax(200px, 1fr);
+    column-gap: clamp(18px, 2vw, 30px);
+    min-height: clamp(430px, 60vh, 660px);
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .ForestryRewardsPageSection--cinematic .CandleCashCinematic__content {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "message"
+      "portal"
+      "brand";
+    justify-items: center;
+    align-items: start;
+    min-height: auto;
+    row-gap: 1.6rem;
+  }
+
+  .ForestryRewardsPageSection--cinematic .CandleCashCinematic__message {
+    justify-self: center;
+    text-align: center;
+    max-width: 34rem;
+  }
+
+  .ForestryRewardsPageSection--cinematic .CandleCashPortal {
+    justify-self: center;
+    width: min(100%, 28rem);
+  }
+
+  .ForestryRewardsPageSection--cinematic .CandleCashCinematic__panel {
+    width: 100%;
+  }
+
+  .ForestryRewardsPageSection--cinematic .CandleCashCinematic__brandmark {
+    justify-self: center;
+    margin: 0 auto;
+    width: min(100%, 280px);
+  }
+}

@@ -1,0 +1,148 @@
+{%- assign rewards_return_to = '/pages/rewards?candle_cash_welcome=login' -%}
+{%- assign rewards_register_portal_url = routes.account_register_url | append: '?candle_cash_portal=register' -%}
+{%- assign is_recover_active = false -%}
+
+{%- form 'recover_customer_password' -%}
+  {%- if form.errors or form.posted_successfully? -%}
+    {%- assign is_recover_active = true -%}
+  {%- endif -%}
+{%- endform -%}
+
+{%- if is_recover_active -%}
+  {%- assign login_default_visibility = 'display: none' -%}
+  {%- assign recover_default_visibility = 'display: block' -%}
+{%- else -%}
+  {%- assign login_default_visibility = 'display: block' -%}
+  {%- assign recover_default_visibility = 'display: none' -%}
+{%- endif -%}
+
+<section class="CandleCashAuth CandleCashAuth--login" data-section-id="login" data-section-type="login" data-candle-cash-auth="login" data-auth-portal-state="idle" data-auth-portal-transition="idle" data-candle-cash-bonus-expanded="false">
+  <div class="CandleCashAuth__bg" aria-hidden="true"></div>
+  <div class="Container">
+    <div class="CandleCashAuth__shell" data-candle-cash-auth-shell>
+      <div class="CandleCashAuth__story" data-candle-cash-auth-story>
+        <p class="CandleCashAuth__eyebrow">Modern Forestry Rewards</p>
+        <h1 class="CandleCashAuth__headline">Come back to Candle Cash.</h1>
+        <p class="CandleCashAuth__subhead">Log in through a warm, modern portal and step right back into Candle Cash Central.</p>
+        <div class="CandleCashAuth__story-grid" aria-hidden="true">
+          <span>Future savings</span>
+          <span>Member-only perks</span>
+          <span>Exclusive rewards</span>
+        </div>
+        <p class="CandleCashAuth__story-copy">A premium member experience that keeps the sense of arrival intact all the way through login.</p>
+      </div>
+
+      <div class="CandleCashAuth__panel" data-candle-cash-auth-panel>
+        {%- form 'customer_login', name: 'login', class: 'Form Form--spacingTight CandleCashAuth__form', id: 'customer_login', style: login_default_visibility -%}
+          <header class="CandleCashAuth__header">
+            <p class="CandleCashAuth__kicker">Member Login</p>
+            <h2 class="CandleCashAuth__title">Welcome back.</h2>
+            <p class="CandleCashAuth__legend">Enter smoothly and pick up right where Candle Cash left off.</p>
+          </header>
+
+          <input type="hidden" name="return_to" value="{{ rewards_return_to }}">
+
+          {%- if form.errors -%}
+            <p class="Form__Alert Alert Alert--error">
+              {{- form.errors.messages['form'] -}}
+            </p>
+          {%- endif -%}
+
+          <div class="Form__Item">
+            <input type="email" class="Form__Input" name="customer[email]" required="required" placeholder="{{ 'customer.login.email' | t }}" aria-label="{{ 'customer.login.email' | t }}" autocomplete="email" autofocus>
+            <label class="Form__FloatingLabel">{{ 'customer.login.email' | t }}</label>
+          </div>
+
+          <div class="Form__Item">
+            <input type="password" class="Form__Input" name="customer[password]" required="required" placeholder="{{ 'customer.login.password' | t }}" aria-label="{{ 'customer.login.password' | t }}" autocomplete="current-password">
+            <label class="Form__FloatingLabel">{{ 'customer.login.password' | t }}</label>
+            <button type="button" class="Form__ItemHelp Link Link--primary" data-action="toggle-recover-form">{{ 'customer.login.forgot' | t }}</button>
+          </div>
+
+          <button class="CandleCashAuth__bonus-toggle" type="button" data-candle-cash-bonus-toggle aria-expanded="false" aria-controls="CandleCashLoginBonus">ADD BONUS CANDLE CASH</button>
+
+          <div class="CandleCashAuth__bonus" id="CandleCashLoginBonus" data-candle-cash-bonus-panel>
+            <div class="CandleCashAuth__bonus-head">
+              <p class="CandleCashAuth__bonus-kicker">Optional Bonus Candle Cash</p>
+              <h3 class="CandleCashAuth__bonus-title">Add optional member messaging while you log in.</h3>
+            </div>
+
+            <label class="CandleCashAuth__consent">
+              <input type="checkbox" value="1" data-candle-cash-consent-email>
+              <span>
+                <strong>Email updates</strong>
+                <small>Earn +5 Candle Cash with optional member email.</small>
+              </span>
+            </label>
+
+            <label class="CandleCashAuth__consent">
+              <input type="checkbox" value="1" data-candle-cash-consent-sms>
+              <span>
+                <strong>Text updates</strong>
+                <small>Earn +2 Candle Cash with optional member texts.</small>
+              </span>
+            </label>
+
+            <div class="CandleCashAuth__phone" data-candle-cash-phone-field hidden>
+              <div class="Form__Item">
+                <input type="tel" class="Form__Input" name="candle_cash_phone" placeholder="Phone number" aria-label="Phone number for Candle Cash texts" autocomplete="tel" data-candle-cash-consent-phone>
+                <label class="Form__FloatingLabel">Phone number</label>
+              </div>
+            </div>
+
+            <p class="CandleCashAuth__legal">Email and text consent are optional and never required to log in. By opting into texts, you agree to recurring automated marketing messages. Msg &amp; data rates may apply. Reply STOP to opt out. See our <a href="/policies/privacy-policy">Privacy Policy</a> and <a href="/policies/terms-of-service">Terms</a>.</p>
+          </div>
+
+          <button type="submit" class="Form__Submit Button Button--primary Button--full">Enter Candle Cash</button>
+
+          <div class="Form__Hint Form__Hint--center CandleCashAuth__hint">
+            <span class="Text--subdued">{{ 'customer.login.register_label' | t }}</span>
+            <a href="{{ rewards_register_portal_url }}" class="Link Link--secondary" data-candle-cash-auth-portal-link data-portal-target="register">Create an account</a>
+          </div>
+
+          {% render 'subscription-account-login' %}
+        {%- endform -%}
+
+        {%- form 'recover_customer_password', name: 'recover', class: 'Form Form--spacingTight CandleCashAuth__form CandleCashAuth__form--recover', id: 'recover_customer_password', style: recover_default_visibility -%}
+          <header class="CandleCashAuth__header">
+            <p class="CandleCashAuth__kicker">Password Recovery</p>
+            <h2 class="CandleCashAuth__title">{{ 'customer.recover_password.title' | t }}</h2>
+            {%- unless form.posted_successfully? -%}
+              <p class="CandleCashAuth__legend">{{ 'customer.recover_password.description' | t }}</p>
+            {%- endunless -%}
+          </header>
+
+          {%- if form.errors -%}
+            <p class="Form__Alert Alert Alert--error">
+              {{- form.errors.messages['form'] -}}
+            </p>
+          {%- endif -%}
+
+          {%- if form.posted_successfully? -%}
+            <p class="Form__Alert Alert Alert--success">
+              {{- 'customer.recover_password.success' | t -}}
+            </p>
+          {%- endif -%}
+
+          <div class="Form__Item">
+            <input type="email" class="Form__Input" name="email" required="required" placeholder="{{ 'customer.recover_password.email' | t }}" aria-label="{{ 'customer.recover_password.email' | t }}" autocomplete="email" autofocus>
+            <label class="Form__FloatingLabel">{{ 'customer.recover_password.email' | t }}</label>
+          </div>
+
+          <button type="submit" class="Form__Submit Button Button--primary Button--full">{{ 'customer.recover_password.submit' | t }}</button>
+
+          <div class="Form__Hint Form__Hint--center CandleCashAuth__hint">
+            <span class="Text--subdued">{{ 'customer.recover_password.login_label' | t }}</span>
+            <button type="button" class="Link Link--secondary" data-action="toggle-recover-form">{{ 'customer.recover_password.login_link' | t }}</button>
+          </div>
+        {%- endform -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Customer login"
+}
+{% endschema %}

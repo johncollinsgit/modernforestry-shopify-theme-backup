@@ -1,0 +1,126 @@
+{%- assign rewards_return_to = '/pages/rewards?candle_cash_welcome=register' -%}
+{%- assign rewards_login_portal_url = routes.account_login_url | append: '?candle_cash_portal=login' -%}
+
+<section class="CandleCashAuth CandleCashAuth--register" data-section-id="reset-password" data-section-type="reset-password" data-candle-cash-auth="register" data-auth-portal-state="idle" data-auth-portal-transition="idle" data-candle-cash-bonus-expanded="false">
+  <div class="CandleCashAuth__bg" aria-hidden="true"></div>
+  <div class="Container">
+    <div class="CandleCashAuth__shell" data-candle-cash-auth-shell>
+      <div class="CandleCashAuth__story" data-candle-cash-auth-story>
+        <p class="CandleCashAuth__eyebrow">Modern Forestry Rewards</p>
+        <h1 class="CandleCashAuth__headline">Begin your Candle Cash era.</h1>
+        <p class="CandleCashAuth__subhead">Create your account through the same portal and arrive in Candle Cash feeling like you never left the magic.</p>
+        <div class="CandleCashAuth__story-grid" aria-hidden="true">
+          <span>Save on future orders</span>
+          <span>Unlock exclusive perks</span>
+          <span>Keep every reward close</span>
+        </div>
+        <p class="CandleCashAuth__story-copy">We&apos;ll carry you directly into Candle Cash Central the moment your account is ready.</p>
+      </div>
+
+      <div class="CandleCashAuth__panel" data-candle-cash-auth-panel>
+        {%- form 'create_customer', name: 'create_customer', class: 'Form Form--spacingTight CandleCashAuth__form', id: 'create_customer' -%}
+          <header class="CandleCashAuth__header">
+            <p class="CandleCashAuth__kicker">Create Account</p>
+            <h2 class="CandleCashAuth__title">Join the members-only side.</h2>
+            <p class="CandleCashAuth__legend">Set up your account and we&apos;ll land you directly inside your rewards world.</p>
+          </header>
+
+          <input type="hidden" name="return_to" value="{{ rewards_return_to }}">
+
+          {%- if form.errors -%}
+            <div class="Form__Alert Alert Alert--error">
+              <ul class="Alert__ErrorList">
+                {%- for field in form.errors -%}
+                  {%- if field == 'form' -%}
+                    <li class="Alert__ErrorItem">{{ form.errors.messages[field] }}</li>
+                  {%- else -%}
+                    <li class="Alert__ErrorItem"><strong>{{ form.errors.translated_fields[field] }}</strong> {{ form.errors.messages[field] }}</li>
+                  {%- endif -%}
+                {%- endfor -%}
+              </ul>
+            </div>
+          {%- endif -%}
+
+          {%- if request.locale.iso_code == 'ja' -%}
+            <div class="Form__Item">
+              <input type="text" class="Form__Input" name="customer[last_name]" aria-label="{{ 'customer.register.last_name' | t }}" placeholder="{{ 'customer.register.last_name' | t }}" autocomplete="family-name">
+              <label class="Form__FloatingLabel">{{ 'customer.register.last_name' | t }}</label>
+            </div>
+
+            <div class="Form__Item">
+              <input type="text" class="Form__Input" name="customer[first_name]" aria-label="{{ 'customer.register.first_name' | t }}" placeholder="{{ 'customer.register.first_name' | t }}" autocomplete="given-name" autofocus>
+              <label class="Form__FloatingLabel">{{ 'customer.register.first_name' | t }}</label>
+            </div>
+          {%- else -%}
+            <div class="Form__Item">
+              <input type="text" class="Form__Input" name="customer[first_name]" aria-label="{{ 'customer.register.first_name' | t }}" placeholder="{{ 'customer.register.first_name' | t }}" autocomplete="given-name" autofocus>
+              <label class="Form__FloatingLabel">{{ 'customer.register.first_name' | t }}</label>
+            </div>
+
+            <div class="Form__Item">
+              <input type="text" class="Form__Input" name="customer[last_name]" aria-label="{{ 'customer.register.last_name' | t }}" placeholder="{{ 'customer.register.last_name' | t }}" autocomplete="family-name">
+              <label class="Form__FloatingLabel">{{ 'customer.register.last_name' | t }}</label>
+            </div>
+          {%- endif -%}
+
+          <div class="Form__Item">
+            <input type="email" class="Form__Input" name="customer[email]" aria-label="{{ 'customer.register.email' | t }}" placeholder="{{ 'customer.register.email' | t }}" required="required" autocomplete="email">
+            <label class="Form__FloatingLabel">{{ 'customer.register.email' | t }}</label>
+          </div>
+
+          <div class="Form__Item">
+            <input type="password" class="Form__Input" name="customer[password]" aria-label="{{ 'customer.register.password' | t }}" placeholder="{{ 'customer.register.password' | t }}" required="required" autocomplete="new-password">
+            <label class="Form__FloatingLabel">{{ 'customer.register.password' | t }}</label>
+          </div>
+
+          <button class="CandleCashAuth__bonus-toggle" type="button" data-candle-cash-bonus-toggle aria-expanded="false" aria-controls="CandleCashRegisterBonus">ADD BONUS CANDLE CASH</button>
+
+          <div class="CandleCashAuth__bonus" id="CandleCashRegisterBonus" data-candle-cash-bonus-panel>
+            <div class="CandleCashAuth__bonus-head">
+              <p class="CandleCashAuth__bonus-kicker">Optional Bonus Candle Cash</p>
+              <h3 class="CandleCashAuth__bonus-title">Start stronger with optional member messaging.</h3>
+            </div>
+
+            <label class="CandleCashAuth__consent">
+              <input type="checkbox" value="1" data-candle-cash-consent-email>
+              <span>
+                <strong>Email updates</strong>
+                <small>Earn +5 Candle Cash with optional member email.</small>
+              </span>
+            </label>
+
+            <label class="CandleCashAuth__consent">
+              <input type="checkbox" value="1" data-candle-cash-consent-sms>
+              <span>
+                <strong>Text updates</strong>
+                <small>Earn +2 Candle Cash with optional member texts.</small>
+              </span>
+            </label>
+
+            <div class="CandleCashAuth__phone" data-candle-cash-phone-field hidden>
+              <div class="Form__Item">
+                <input type="tel" class="Form__Input" name="candle_cash_phone" placeholder="Phone number" aria-label="Phone number for Candle Cash texts" autocomplete="tel" data-candle-cash-consent-phone>
+                <label class="Form__FloatingLabel">Phone number</label>
+              </div>
+            </div>
+
+            <p class="CandleCashAuth__legal">Email and text consent are optional and never required to create your account. By opting into texts, you agree to recurring automated marketing messages. Msg &amp; data rates may apply. Reply STOP to opt out. See our <a href="/policies/privacy-policy">Privacy Policy</a> and <a href="/policies/terms-of-service">Terms</a>.</p>
+          </div>
+
+          <button type="submit" class="Form__Submit Button Button--primary Button--full">Create account</button>
+
+          <div class="Form__Hint Form__Hint--center CandleCashAuth__hint">
+            <span class="Text--subdued">Already have an account?</span>
+            <a href="{{ rewards_login_portal_url }}" class="Link Link--secondary" data-candle-cash-auth-portal-link data-portal-target="login">Log in</a>
+          </div>
+        {%- endform -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Customer register"
+}
+{% endschema %}

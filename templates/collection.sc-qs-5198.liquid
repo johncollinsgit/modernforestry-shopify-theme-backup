@@ -1,0 +1,56 @@
+{% comment %} Added by SolverCircle for Quick Order App {% endcomment %}
+
+{% layout none %}
+{% paginate collection.products by 50 %}
+{% assign resultTotal = collection.products_count %}
+{% assign scCollectionsProducts = collection.products %}
+
+{% capture output %}
+{
+    {% if customer %} 
+        "CustomerID" : "{{customer.id}}",
+    {% endif %}
+    "TotalProduct" : "{{resultTotal}}",
+    "CurrentPage": "{{paginate.current_page}}",
+	"Limit":50,
+    "Items":
+        [
+            {% for result in scCollectionsProducts %}
+                {% assign resultURL = result.url %}
+                {
+           			"id":"{{result.id}}"
+					,"title":{{result.title | json}}
+					,"handle":{{result.handle|json}}
+                    ,"price":"{{result.price}}"
+					, "featured_image" : { "src": "{{result.featured_image.src | product_img_url: "large"}}", 
+					"aspect_ratio": "{{result.featured_image.aspect_ratio}}" }
+					,"options":{{result.options|json}}
+                    , "collections"	:	{{ result.collections | json }}
+					,"variants":
+					[
+						{% for vrnt in result.variants %}
+							{
+								"available":"{{vrnt.available}}"
+								,"id":"{{vrnt.id}}"
+								,"title":{{vrnt.title|json}}
+								,"price":"{{vrnt.price}}"
+								,"compare_at_price":{{vrnt.compare_at_price | json}}
+								,"inventory_management":{{vrnt.inventory_management | json}}
+								,"inventory_policy":{{vrnt.inventory_policy | json}}
+								,"inventory_quantity":"{{vrnt.inventory_quantity}}"
+								,"featured_image" : {{vrnt.featured_image | json}}
+                                ,"image" : {{vrnt.image | json}}
+								,"sku":{{vrnt.sku|json}}
+							}
+						{% unless forloop.last %},{% endunless %}
+						{% endfor %}
+
+					]
+                }
+                {% unless forloop.last %},{% endunless %}
+            {% endfor %}
+        ]
+}
+{% endcapture %}
+{% endpaginate %}
+{{ output | strip_newlines }}

@@ -1,0 +1,5 @@
+{%- assign candle_club_message = message | default: 'Candle Cash' -%}
+{%- assign candle_club_notice_class = class | default: '' -%}
+<div class="CandleClubAccessNotice{% if compact %} CandleClubAccessNotice--compact{% endif %}{% if candle_club_notice_class != blank %} {{ candle_club_notice_class }}{% endif %}" aria-live="polite">
+  <span class="CandleClubAccessNotice__label">{{ candle_club_message }}</span>
+</div>

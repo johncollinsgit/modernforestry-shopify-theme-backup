@@ -1,0 +1,29 @@
+{% assign gwSettings = shop.metafields.ssw['settings'] %}
+{% if gwSettings.type == 'json' %}
+	{% assign gwSettings = shop.metafields.ssw['settings'].value %}
+{% endif %}
+{% assign customer_locale = shop.locale | prepend: 'lang_' %}
+{% unless shop.metafields.ssw[customer_locale] %}
+	{% for published_locale in shop.published_locales %}
+		{% if published_locale.primary == true %}
+			{% assign customer_locale = published_locale.iso_code | prepend: 'lang_' %}
+		{% endif %}
+	{% endfor %}
+{% endunless %}
+{% assign ssw_fave_enabled = 0 %}
+{% assign ssw_header_faveicon_enabled = 1 %}
+{% if shop.metafields.ssw['fave_enabled'] %}
+	{% assign ssw_fave_enabled = shop.metafields.ssw['fave_enabled'] | plus: 0 %}
+{% endif %}
+{% if gwSettings.wishlist_on_header %}
+  {% assign ssw_header_faveicon_enabled = gwSettings.wishlist_on_header | plus: 0 %}
+{% endif %}
+{% if ssw_fave_enabled == 1 and ssw_header_faveicon_enabled == 1 %}
+	<a class="ssw-link-fave-menu ssw-link-fave-menu-hide-count" href="/pages/wishlist" aria-label="{{ shop.metafields.ssw[customer_locale].value.my_faves }}" tabindex="0">
+		<i class="ssw-icon-heart-o"></i>
+		<span class="ssw-counter-fave-menu ssw-hide"></span>
+	</a>
+	<script defer>
+		var sswFaveCounterMenuLoaded = true;
+	</script>
+{% endif %}
