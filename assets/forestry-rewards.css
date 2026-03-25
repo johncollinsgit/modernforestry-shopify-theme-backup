@@ -79,65 +79,116 @@
   color: var(--cc-text);
 }
 
-.ForestryRewardsThemeBar {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1rem;
-  margin: 0 0 1.35rem;
-  padding: 0.1rem 0 0.35rem;
-  flex-wrap: wrap;
+.ForestryRewardsThemeControl {
+  position: relative;
+  justify-self: end;
+  align-self: start;
+  z-index: 6;
 }
 
-.ForestryRewardsThemeBar__copy {
-  display: grid;
-  gap: 0.2rem;
-}
-
-.ForestryRewardsThemeBar__title {
-  margin: 0;
-  font-family: var(--heading-font-family);
-  font-size: 0.98rem;
-  line-height: 1.35;
+.ForestryRewardsThemeControl__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  min-height: 36px;
+  padding: 0.45rem 0.78rem;
+  border-radius: 999px;
+  border: 1px solid var(--cc-border);
+  background: rgba(var(--cc-surface-rgb), 0.84);
   color: var(--cc-text-soft);
+  font-family: var(--heading-font-family);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition: border-color 0.22s ease, background 0.22s ease, color 0.22s ease, transform 0.22s ease;
+}
+
+.ForestryRewardsThemeControl__toggle:hover {
+  border-color: rgba(var(--cc-accent-rgb), 0.34);
+  background: rgba(var(--cc-surface-rgb), 0.96);
+  color: var(--cc-text);
+  transform: translateY(-1px);
+}
+
+.ForestryRewardsThemeControl__toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--forestry-rewards-cta-focus-ring);
+}
+
+.ForestryRewardsThemeControl__icon {
+  width: 14px;
+  height: 14px;
+  color: currentColor;
+  opacity: 0.9;
+}
+
+.ForestryRewardsThemeControl__panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: min(18.5rem, calc(100vw - 2.4rem));
+  padding: 0.75rem;
+  border-radius: 16px;
+  border: 1px solid var(--cc-border);
+  background: rgba(var(--cc-surface-rgb), 0.98);
+  box-shadow: 0 16px 34px rgba(var(--cc-text-rgb), 0.12);
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transform: translateY(-6px);
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.24s ease, transform 0.24s ease, visibility 0.24s ease, max-height 0.24s ease;
+}
+
+.ForestryRewardsThemeControl.is-open .ForestryRewardsThemeControl__panel {
+  opacity: 1;
+  max-height: 22rem;
+  transform: translateY(0);
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.ForestryRewardsThemeControl__title {
+  margin: 0 0 0.6rem;
+  color: var(--cc-text-soft);
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
 .ForestryRewardsThemeToggle {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  width: 100%;
+  display: grid;
+  gap: 0.45rem;
 }
 
 .ForestryRewardsThemeButton {
-  flex: 1 1 11.5rem;
+  width: 100%;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0.78rem 1.05rem;
+  justify-content: flex-start;
+  min-height: 40px;
+  padding: 0.62rem 0.78rem;
   border-radius: 999px;
   border: 1px solid var(--cc-border);
   background: rgba(var(--cc-surface-rgb), 0.78);
   color: var(--cc-text-soft);
   font-family: var(--heading-font-family);
-  font-size: 0.74rem;
-  letter-spacing: 0.16em;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  transition: background 0.24s ease, border-color 0.24s ease, color 0.24s ease, transform 0.24s ease, box-shadow 0.24s ease;
+  transition: background 0.24s ease, border-color 0.24s ease, color 0.24s ease, transform 0.24s ease;
 }
 
 .ForestryRewardsThemeButton:hover {
   background: rgba(var(--cc-surface-rgb), 0.96);
   color: var(--cc-text);
-  transform: translateY(-1px);
 }
 
 .ForestryRewardsThemeButton.is-active {
   background: rgba(var(--cc-surface-rgb), 0.98);
   border-color: rgba(var(--cc-accent-rgb), 0.34);
   color: var(--cc-text);
-  box-shadow: 0 14px 28px rgba(var(--cc-text-rgb), 0.08);
 }
 
 .ForestryRewardsThemeButton:focus-visible {
@@ -295,6 +346,16 @@
   align-items: start;
 }
 
+.ForestryRewardsSurface__hero--page {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.9rem;
+  align-items: start;
+}
+
+.ForestryRewardsSurface__hero-main {
+  min-width: 0;
+}
+
 .ForestryRewardsSurface__summary,
 .ForestryRewardsCard,
 .ForestryRewardsFallback {
@@ -339,6 +400,102 @@
   align-items: start;
   justify-content: space-between;
   gap: 1rem;
+}
+
+.ForestryRewardsOpportunitySummary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.85rem;
+  align-items: start;
+}
+
+.ForestryRewardsOpportunitySummary--single {
+  grid-template-columns: 1fr;
+}
+
+.ForestryRewardsOpportunitySummary__main {
+  min-width: 0;
+}
+
+.ForestryRewardsOpportunitySummary__meta {
+  display: grid;
+  gap: 0.55rem;
+  justify-items: end;
+}
+
+.ForestryRewardsOpportunitySummary__meta--toggle-only {
+  gap: 0;
+}
+
+.ForestryRewardsOpportunitySummary__amount {
+  margin: 0.45rem 0 0;
+  font-family: var(--heading-font-family);
+  font-size: clamp(1.22rem, 2vw, 1.65rem);
+  color: var(--heading-color);
+}
+
+.ForestryRewardsOpportunityToggle {
+  width: 2.2rem;
+  height: 2.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--cc-border);
+  background: rgba(var(--cc-surface-alt-rgb), 0.96);
+  color: var(--cc-text-soft);
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.22s ease, background 0.2s ease;
+}
+
+.ForestryRewardsOpportunityToggle:hover {
+  border-color: rgba(var(--cc-accent-rgb), 0.35);
+  color: var(--cc-text);
+  background: rgba(var(--cc-surface-rgb), 1);
+}
+
+.ForestryRewardsOpportunityToggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--forestry-rewards-cta-focus-ring);
+}
+
+.ForestryRewardsOpportunityToggle__icon {
+  width: 1rem;
+  height: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ForestryRewardsOpportunityToggle__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.ForestryRewardsOpportunityToggle[aria-expanded="true"] {
+  border-color: rgba(var(--cc-accent-rgb), 0.35);
+  color: var(--cc-text);
+}
+
+.ForestryRewardsOpportunityToggle[aria-expanded="true"] .ForestryRewardsOpportunityToggle__icon {
+  transform: rotate(180deg);
+}
+
+.ForestryRewardsOpportunityPanel {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  visibility: hidden;
+  transition: max-height 0.32s ease, opacity 0.24s ease, visibility 0.24s ease;
+}
+
+.ForestryRewardsOpportunityPanel.is-open {
+  max-height: 64rem;
+  opacity: 1;
+  visibility: visible;
+}
+
+.ForestryRewardsOpportunityPanel.is-open > .ForestryRewardsCard__description:first-child {
+  margin-top: 0.95rem;
 }
 
 .ForestryRewardsCard__eyebrow,
@@ -842,8 +999,17 @@
     border-radius: 20px;
   }
 
-  .ForestryRewardsThemeBar {
-    align-items: stretch;
+  .ForestryRewardsSurface__hero--page {
+    grid-template-columns: 1fr;
+  }
+
+  .ForestryRewardsThemeControl {
+    justify-self: start;
+  }
+
+  .ForestryRewardsThemeControl__panel {
+    left: 0;
+    right: auto;
   }
 }
 
@@ -853,13 +1019,32 @@
     align-items: flex-start;
   }
 
-  .ForestryRewardsThemeBar {
-    gap: 0.85rem;
+  .ForestryRewardsThemeControl {
+    width: 100%;
   }
 
-  .ForestryRewardsThemeButton {
-    flex-basis: 100%;
+  .ForestryRewardsThemeControl__toggle {
     width: 100%;
+    justify-content: center;
+  }
+
+  .ForestryRewardsThemeControl__panel {
+    left: 0;
+    right: 0;
+    width: 100%;
+  }
+
+  .ForestryRewardsOpportunitySummary {
+    grid-template-columns: 1fr;
+  }
+
+  .ForestryRewardsOpportunitySummary__meta {
+    justify-items: start;
+    width: 100%;
+  }
+
+  .ForestryRewardsOpportunityToggle {
+    margin-top: 0.1rem;
   }
 
   .ForestryRewardsSurface,
@@ -1028,19 +1213,6 @@
   padding: 1.2rem;
 }
 
-.ForestryRewardsTaskCard__header,
-.ForestryRewardsTaskCard__badges {
-  display: flex;
-  align-items: start;
-  justify-content: space-between;
-  gap: 0.8rem;
-}
-
-.ForestryRewardsTaskCard__badges {
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
 .ForestryRewardsTaskCard--locked,
 .ForestryRewardsTaskCard--members_only {
   background: var(--cc-badge);
@@ -1053,7 +1225,19 @@
 .ForestryRewardsTaskCard--completed,
 .ForestryRewardsTaskCard--awarded,
 .ForestryRewardsTaskCard--approved {
-  background: var(--cc-success-soft);
+  background:
+    radial-gradient(circle at top right, rgba(var(--cc-accent-rgb), 0.1), transparent 48%),
+    var(--cc-success-soft);
+  border-color: rgba(var(--cc-accent-rgb), 0.26);
+  box-shadow: inset 0 0 0 1px rgba(var(--cc-accent-rgb), 0.1);
+}
+
+.ForestryRewardsCard--complete {
+  background:
+    radial-gradient(circle at top right, rgba(var(--cc-accent-rgb), 0.09), transparent 45%),
+    rgba(var(--cc-surface-rgb), 0.92);
+  border-color: rgba(var(--cc-accent-rgb), 0.26);
+  box-shadow: inset 0 0 0 1px rgba(var(--cc-accent-rgb), 0.1);
 }
 
 .ForestryRewardsTaskMeta {
@@ -1157,8 +1341,6 @@
 @media screen and (max-width: 640px) {
   .ForestryRewardsGuestCallout,
   .ForestryRewardsReferralCode,
-  .ForestryRewardsTaskCard__header,
-  .ForestryRewardsTaskCard__badges,
   .ForestryRewardsTaskMeta,
   .ForestryRewardsTaskProof__actions,
   .ForestryRewardsHistoryItem {

@@ -310,6 +310,8 @@
       busy: false,
       formOpen: false,
       openTaskHandle: '',
+      openOpportunityId: '',
+      themePanelOpen: false,
       theme: DEFAULT_THEME,
       toast: '',
       toastTone: 'neutral',
@@ -411,19 +413,31 @@
     return next;
   }
 
-  function themeToggleMarkup(root) {
-    const activeTheme = activeRewardsTheme(root);
+  function themeBirdIconMarkup() {
+    return '' +
+      '<svg class="ForestryRewardsThemeControl__icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">' +
+        '<path d="M2.3 8.8c0-2.5 2-4.5 4.5-4.5 1.3 0 2.5.5 3.3 1.4.8.8 1.2 1.8 1.2 2.9 0 2.4-1.9 4.3-4.3 4.3-1.6 0-3-.8-3.8-2.2h2.2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>' +
+        '<path d="M9.8 6.3h3.9l-1.8 1.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>' +
+      '</svg>';
+  }
 
-    return '<div class="ForestryRewardsThemeBar">' +
-      '<div class="ForestryRewardsThemeBar__copy">' +
-        '<p class="ForestryRewardsCard__eyebrow">Theme</p>' +
-        '<p class="ForestryRewardsThemeBar__title">Choose your rewards view</p>' +
-      '</div>' +
-      '<div class="ForestryRewardsThemeToggle" role="group" aria-label="Rewards theme selector">' +
-        THEME_OPTIONS.map(function (option) {
-          const active = option.id === activeTheme;
-          return '<button class="ForestryRewardsThemeButton' + (active ? ' is-active' : '') + '" type="button" data-action="set-theme" data-theme-choice="' + escapeHtml(option.id) + '" aria-pressed="' + (active ? 'true' : 'false') + '">' + escapeHtml(option.label) + '</button>';
-        }).join('') +
+  function themeToggleMarkup(root, uiState) {
+    const activeTheme = activeRewardsTheme(root);
+    const panelOpen = !!(uiState && uiState.themePanelOpen);
+
+    return '<div class="ForestryRewardsThemeControl' + (panelOpen ? ' is-open' : '') + '">' +
+      '<button class="ForestryRewardsThemeControl__toggle" type="button" data-action="toggle-theme-panel" aria-expanded="' + (panelOpen ? 'true' : 'false') + '" aria-haspopup="true">' +
+        themeBirdIconMarkup() +
+        '<span>Theme</span>' +
+      '</button>' +
+      '<div class="ForestryRewardsThemeControl__panel" aria-hidden="' + (panelOpen ? 'false' : 'true') + '">' +
+        '<p class="ForestryRewardsThemeControl__title">Choose your rewards view</p>' +
+        '<div class="ForestryRewardsThemeToggle" role="group" aria-label="Rewards theme selector">' +
+          THEME_OPTIONS.map(function (option) {
+            const active = option.id === activeTheme;
+            return '<button class="ForestryRewardsThemeButton' + (active ? ' is-active' : '') + '" type="button" data-action="set-theme" data-theme-choice="' + escapeHtml(option.id) + '" aria-pressed="' + (active ? 'true' : 'false') + '">' + escapeHtml(option.label) + '</button>';
+          }).join('') +
+        '</div>' +
       '</div>' +
     '</div>';
   }
@@ -1281,6 +1295,10 @@
     const issuance = model.birthdayIssuance;
     const parts = [];
 
+    parts.push('<li><span>Reward type</span><strong>Birthday Candle Cash</strong></li>');
+    parts.push('<li><span>Verification</span><strong>Birthday date capture</strong></li>');
+    parts.push('<li><span>Cadence</span><strong>One reward each birthday cycle</strong></li>');
+
     if (issuance && issuance.reward_value) {
       parts.push('<li><span>Value</span><strong>' + escapeHtml(currencyLabel(issuance.reward_value) || issuance.reward_value) + '</strong></li>');
     }
@@ -1401,6 +1419,10 @@
 
   function visibleTasks(model) {
     return mergeArray(model && model.tasks, []).filter(function (task) {
+      if (cleanString(task && task.handle) === 'birthday-signup') {
+        return false;
+      }
+
       return taskShouldDisplay(task, model);
     });
   }
@@ -1413,22 +1435,6 @@
     }
 
     return 'One-time reward';
-  }
-
-  function taskTone(state) {
-    if (state === 'available') {
-      return 'success';
-    }
-    if (state === 'completed' || state === 'awarded' || state === 'approved') {
-      return 'success';
-    }
-    if (state === 'pending') {
-      return 'soft';
-    }
-    if (state === 'locked' || state === 'members_only') {
-      return 'soft';
-    }
-    return 'neutral';
   }
 
   function taskVerificationMode(task) {
@@ -1487,46 +1493,6 @@
       default:
         return cleanString(taskVerificationMode(task)) ? titleCaseSlug(taskVerificationMode(task)) : 'Reward';
     }
-  }
-
-  function taskStatusText(task, state, model) {
-    if (candleClubTask(task) && model && model.candleClub && model.candleClub.previewOnly) {
-      return 'Coming soon';
-    }
-    if (cleanString(task.handle) === 'email-signup' && model.consentEmail) {
-      return 'Completed';
-    }
-    if (cleanString(task.handle) === 'sms-signup' && model.consentSms) {
-      return 'Completed';
-    }
-    if (taskNeedsInlineEmailSignup(task, model)) {
-      return 'Get $5';
-    }
-    if (taskNeedsInlineSmsSignup(task, model)) {
-      return 'Turn on texts';
-    }
-    if (state === 'login_required') {
-      return 'Sign in';
-    }
-    if (state === 'locked') {
-      return cleanString(task.eligibility && task.eligibility.locked_message) || 'Locked';
-    }
-    if (state === 'members_only') {
-      return cleanString(task.eligibility && task.eligibility.locked_message) || 'Members only';
-    }
-    if (state === 'pending') {
-      return 'Verifying';
-    }
-    if (state === 'completed' || state === 'awarded' || state === 'approved') {
-      return 'Completed';
-    }
-    if (taskIsAutomatic(task)) {
-      return 'Verified automatically';
-    }
-    if (taskIsOnsiteAction(task)) {
-      return 'Ready';
-    }
-    return 'Available';
   }
 
   function taskDetailCopy(task, state, model) {
@@ -1615,7 +1581,7 @@
       return '<a class="Button Button--primary" ' + (isAnchor ? 'href="' + escapeHtml(task.action_url) + '"' : 'href="' + escapeHtml(task.action_url) + '" target="_blank" rel="noopener"') + '>' + escapeHtml(task.button_text || 'Open task') + '</a>';
     }
 
-    return '<span class="ForestryRewardsMuted">Verified automatically</span>';
+    return '<span class="ForestryRewardsMuted">Handled automatically</span>';
   }
 
   function taskProofFormMarkup(task, uiState) {
@@ -1753,7 +1719,29 @@
       return taskSystemActionMarkup(root, model, task);
     }
 
-    return '<span class="ForestryRewardsMuted">Verified automatically</span>';
+    return '<span class="ForestryRewardsMuted">Handled automatically</span>';
+  }
+
+  function taskOpportunityId(task) {
+    return 'task:' + cleanString(task && task.handle);
+  }
+
+  function opportunityIsExpanded(uiState, opportunityId, fallbackExpanded) {
+    const activeOpportunity = cleanString(uiState && uiState.openOpportunityId);
+    if (activeOpportunity) {
+      return activeOpportunity === cleanString(opportunityId);
+    }
+
+    return !!fallbackExpanded;
+  }
+
+  function opportunityChevronMarkup() {
+    return '' +
+      '<span class="ForestryRewardsOpportunityToggle__icon" aria-hidden="true">' +
+        '<svg viewBox="0 0 16 16" focusable="false">' +
+          '<path d="M4.5 6.5 8 10l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>' +
+        '</svg>' +
+      '</span>';
   }
 
   function taskCardMarkup(root, model, task, uiState) {
@@ -1761,25 +1749,39 @@
     const count = positiveInt(task.eligibility && task.eligibility.completed_count) || 0;
     const pending = positiveInt(task.eligibility && task.eligibility.pending_count) || 0;
     const rewardLabel = rewardAmountLabel(task);
-    const rewardBadge = rewardLabel ? badge(rewardLabel, 'neutral') : '';
+    const rewardAmount = cleanString(rewardLabel);
     const repeatable = taskIsRepeatable(task);
     const completed = taskIsCompleted(task, model);
+    const collapsible = cleanString(root && root.dataset && root.dataset.surface) === 'page';
+    const opportunityId = taskOpportunityId(task);
+    const togglePanelId = 'candle-cash-task-panel-' + cleanString(task.handle).replace(/[^a-z0-9_-]+/gi, '-');
+    const summaryClass = 'ForestryRewardsOpportunitySummary' + (collapsible ? '' : ' ForestryRewardsOpportunitySummary--single');
+    const expanded = collapsible
+      ? opportunityIsExpanded(uiState, opportunityId, cleanString(uiState.openTaskHandle) === cleanString(task.handle))
+      : true;
 
     return '<article class="ForestryRewardsTaskCard ForestryRewardsTaskCard--' + escapeHtml(state || 'available') + '" id="candle-cash-task-' + escapeHtml(task.handle) + '" data-task-card="' + escapeHtml(task.handle) + '" data-completed="' + (completed ? 'true' : 'false') + '" data-repeatable="' + (repeatable ? 'true' : 'false') + '">' +
-      '<div class="ForestryRewardsTaskCard__header">' +
-        '<div>' +
+      '<div class="' + summaryClass + '">' +
+        '<div class="ForestryRewardsOpportunitySummary__main">' +
           '<p class="ForestryRewardsCard__eyebrow">' + escapeHtml(taskEyebrow(task)) + '</p>' +
           '<h3 class="Heading u-h4">' + escapeHtml(task.title) + '</h3>' +
+          (rewardAmount ? '<p class="ForestryRewardsOpportunitySummary__amount">' + escapeHtml(rewardAmount) + '</p>' : '') +
         '</div>' +
-        '<div class="ForestryRewardsTaskCard__badges">' + badge(taskStatusText(task, state, model), taskTone(state)) + rewardBadge + '</div>' +
+        (collapsible
+          ? '<div class="ForestryRewardsOpportunitySummary__meta ForestryRewardsOpportunitySummary__meta--toggle-only">' +
+              '<button class="ForestryRewardsOpportunityToggle" type="button" data-action="toggle-opportunity" data-opportunity-id="' + escapeHtml(opportunityId) + '" aria-expanded="' + (expanded ? 'true' : 'false') + '" aria-controls="' + escapeHtml(togglePanelId) + '">' + opportunityChevronMarkup() + '</button>' +
+            '</div>'
+          : '') +
       '</div>' +
-      '<p class="ForestryRewardsCard__description">' + escapeHtml(taskDetailCopy(task, state, model)) + '</p>' +
-      '<div class="ForestryRewardsTaskMeta">' +
-        '<span>' + escapeHtml(count > 0 ? count + ' earned' : (pending > 0 ? 'Waiting on verification' : (taskIsAutomatic(task) ? 'Verified automatically' : 'Ready when you are'))) + '</span>' +
-        '<span>' + escapeHtml(taskRepeatabilityLabel(task)) + '</span>' +
+      '<div class="ForestryRewardsOpportunityPanel' + (expanded ? ' is-open' : '') + '"' + (collapsible ? ' id="' + escapeHtml(togglePanelId) + '"' : '') + '>' +
+        '<p class="ForestryRewardsCard__description">' + escapeHtml(taskDetailCopy(task, state, model)) + '</p>' +
+        '<div class="ForestryRewardsTaskMeta">' +
+          '<span>' + escapeHtml(count > 0 ? count + ' earned' : (pending > 0 ? 'Waiting on verification' : (taskIsAutomatic(task) ? 'Tracks automatically' : 'Ready when you are'))) + '</span>' +
+          '<span>' + escapeHtml(taskRepeatabilityLabel(task)) + '</span>' +
+        '</div>' +
+        '<div class="ForestryRewardsCard__actions">' + taskActionMarkup(root, model, task, uiState) + '</div>' +
+        taskSupplementalMarkup(root, model, task, uiState) +
       '</div>' +
-      '<div class="ForestryRewardsCard__actions">' + taskActionMarkup(root, model, task, uiState) + '</div>' +
-      taskSupplementalMarkup(root, model, task, uiState) +
     '</article>';
   }
 
@@ -2360,11 +2362,38 @@
     '</div>';
   }
 
+  function birthdayOpportunityMarkup(model, uiState) {
+    const viewState = birthdayViewState(model);
+    const expanded = opportunityIsExpanded(uiState, 'birthday', false) || !!(uiState && uiState.formOpen);
+    const completed = viewState === 'applied' || viewState === 'redeemed';
+
+    return '' +
+      '<article class="ForestryRewardsCard ForestryRewardsCard--birthday' + (completed ? ' ForestryRewardsCard--complete' : '') + '" id="candle-cash-birthday" data-opportunity-card="birthday">' +
+        '<div class="ForestryRewardsOpportunitySummary">' +
+          '<div class="ForestryRewardsOpportunitySummary__main">' +
+            '<p class="ForestryRewardsCard__eyebrow">Birthday reward</p>' +
+            '<h3 class="Heading u-h3">' + escapeHtml((model.birthdayIssuance && model.birthdayIssuance.reward_name) || 'Birthday Candle Cash') + '</h3>' +
+            '<p class="ForestryRewardsOpportunitySummary__amount">' + escapeHtml(model.birthdayIssuance && model.birthdayIssuance.reward_value ? currencyLabel(model.birthdayIssuance.reward_value) : '$10') + '</p>' +
+          '</div>' +
+          '<div class="ForestryRewardsOpportunitySummary__meta ForestryRewardsOpportunitySummary__meta--toggle-only">' +
+            '<button class="ForestryRewardsOpportunityToggle" type="button" data-action="toggle-opportunity" data-opportunity-id="birthday" aria-expanded="' + (expanded ? 'true' : 'false') + '" aria-controls="candle-cash-birthday-panel">' + opportunityChevronMarkup() + '</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="ForestryRewardsOpportunityPanel' + (expanded ? ' is-open' : '') + '" id="candle-cash-birthday-panel">' +
+          '<p class="ForestryRewardsCard__description">' + escapeHtml(rewardCardDescription(model, viewState)) + '</p>' +
+          renderBirthdayMeta(model, viewState) +
+          '<div class="ForestryRewardsCard__actions">' + birthdayActionMarkup(model, viewState, uiState) + '</div>' +
+          birthdayFormMarkup(model, uiState) +
+        '</div>' +
+      '</article>';
+  }
+
   function renderCentralSurface(root, model, uiState) {
     const viewState = birthdayViewState(model);
-    const badges = [];
     const title = cleanString(model.copy.title) || cleanString(root.dataset.title) || 'Candle Cash Central';
-    const subtitle = cleanString(model.copy.subtitle) || cleanString(root.dataset.subtitle);
+    const lead = model.profileId
+      ? 'Tap any reward opportunity to reveal details and actions.'
+      : 'Sign in to reveal and activate your Candle Cash opportunities.';
     const earnTasks = visibleTasks(model);
     const utilities = utilityMarkup([
       celebrationMarkup(model, uiState, 'page'),
@@ -2375,54 +2404,21 @@
       ? earnTasks.map(function (task) { return taskCardMarkup(root, model, task, uiState); }).join('')
       : '<div class="ForestryRewardsHistoryEmpty">No active tasks right now.</div>';
 
-    if (model.balanceAmount > 0) {
-      badges.push(badge((currencyLabel(model.balanceAmount || 0) || '$0.00') + ' Candle Cash', 'soft'));
-    }
-    if (viewState === 'activated' || viewState === 'applied') {
-      badges.push(badge('Birthday ready', 'success'));
-    }
-    if (model.otherRewards.length > 0) {
-      badges.push(badge(model.otherRewards.length + ' saved code' + (model.otherRewards.length === 1 ? '' : 's'), 'neutral'));
-    }
-    if (model.referral && model.referral.enabled) {
-      badges.push(badge('Referral rewards live', 'neutral'));
-    }
-
     root.innerHTML = '' +
       '<section class="ForestryRewardsSurface ForestryRewardsSurface--page">' +
         comingSoonNoticeMarkup('page') +
-        themeToggleMarkup(root) +
-        '<div class="ForestryRewardsSurface__hero">' +
-          '<div>' +
-            '<p class="ForestryRewardsEyebrow">' + escapeHtml(title) + '</p>' +
-            '<h2 class="Heading u-h1">' + escapeHtml(summaryHeadline(model, viewState)) + '</h2>' +
-            '<p class="ForestryRewardsLead">' + escapeHtml(subtitle) + '</p>' +
+        '<div class="ForestryRewardsSurface__hero ForestryRewardsSurface__hero--page">' +
+          '<div class="ForestryRewardsSurface__hero-main">' +
+            '<p class="ForestryRewardsEyebrow">Rewards</p>' +
+            '<h2 class="Heading u-h1">' + escapeHtml(title) + '</h2>' +
+            '<p class="ForestryRewardsLead">' + escapeHtml(lead) + '</p>' +
           '</div>' +
-          '<div class="ForestryRewardsSurface__summary">' +
-            '<p class="ForestryRewardsStatLabel">Usable now</p>' +
-            '<p class="ForestryRewardsStatValue">' + escapeHtml(renderMoneySummary(model.otherRewards, model.birthdayIssuance) || currencyLabel(model.balanceAmount || 0) || '$0') + '</p>' +
-            '<p class="ForestryRewardsStatNote">' + escapeHtml(model.profileId ? 'Redeem ' + redeemAmountLabel(model) + ' at a time. Limit ' + redemptionRules(model).maxPerOrderLabel + ' per order.' : 'Sign in and we will show your live balance.') + '</p>' +
-          '</div>' +
+          themeToggleMarkup(root, uiState) +
         '</div>' +
-        '<div class="ForestryRewardsSurface__badges">' + badges.join('') + '</div>' +
         (!model.profileId ? guestCalloutMarkup(root) : '') +
         utilities +
-        centralStatsMarkup(model) +
         '<div class="ForestryRewardsGrid">' +
-          '<article class="ForestryRewardsCard ForestryRewardsCard--birthday" id="candle-cash-birthday">' +
-            '<div class="ForestryRewardsCard__header">' +
-              '<div>' +
-                '<p class="ForestryRewardsCard__eyebrow">Birthday reward</p>' +
-                '<h3 class="Heading u-h3">' + escapeHtml((model.birthdayIssuance && model.birthdayIssuance.reward_name) || 'Birthday Candle Cash') + '</h3>' +
-              '</div>' +
-              '<div class="ForestryRewardsCard__state">' + badge(titleCaseSlug(viewState), viewState === 'activated' || viewState === 'applied' ? 'success' : (viewState === 'expired' ? 'soft' : 'neutral')) + '</div>' +
-            '</div>' +
-            '<p class="ForestryRewardsCard__amount">' + escapeHtml(model.birthdayIssuance && model.birthdayIssuance.reward_value ? currencyLabel(model.birthdayIssuance.reward_value) : '$10') + '</p>' +
-            '<p class="ForestryRewardsCard__description">' + escapeHtml(rewardCardDescription(model, viewState)) + '</p>' +
-            renderBirthdayMeta(model, viewState) +
-            '<div class="ForestryRewardsCard__actions">' + birthdayActionMarkup(model, viewState, uiState) + '</div>' +
-            birthdayFormMarkup(model, uiState) +
-          '</article>' +
+          birthdayOpportunityMarkup(model, uiState) +
           '<aside class="ForestryRewardsStack">' +
             '<div class="ForestryRewardsCard ForestryRewardsCard--helper">' +
               '<p class="ForestryRewardsCard__eyebrow">Checkout helper</p>' +
@@ -2461,18 +2457,6 @@
               (model.otherRewards.length ? model.otherRewards.map(function (reward) { return otherRewardItem(reward, uiState); }).join('') : '<li class="ForestryRewardsList__empty">No other active codes yet.</li>') +
             '</ul>' +
           '</div>' +
-          '<div class="ForestryRewardsHistoryGrid">' +
-            '<article class="ForestryRewardsCard ForestryRewardsCard--history">' +
-              '<p class="ForestryRewardsCard__eyebrow">Task history</p>' +
-              '<h3 class="Heading u-h4">What you have completed</h3>' +
-              '<div class="ForestryRewardsHistoryList">' + historyTasksMarkup(model) + '</div>' +
-            '</article>' +
-            '<article class="ForestryRewardsCard ForestryRewardsCard--history">' +
-              '<p class="ForestryRewardsCard__eyebrow">Reward history</p>' +
-              '<h3 class="Heading u-h4">Recent Candle Cash movement</h3>' +
-              '<div class="ForestryRewardsHistoryList">' + historyLedgerMarkup(model) + '</div>' +
-            '</article>' +
-          '</div>' +
           '<section class="ForestryRewardsSection ForestryRewardsSection--faq">' +
             '<div class="ForestryRewardsSection__header">' +
               '<div><p class="ForestryRewardsCard__eyebrow">A few helpful notes</p><h3 class="Heading u-h4">How Candle Cash works</h3></div>' +
@@ -2486,6 +2470,7 @@
 
   function renderAccountSurface(root, model, uiState) {
     const viewState = birthdayViewState(model);
+    const birthdayComplete = viewState === 'applied' || viewState === 'redeemed';
     const tasksPreview = visibleTasks(model).slice(0, 4);
     const rewardsUrl = cleanString(root.dataset.rewardsUrl || '/pages/rewards');
     const utilities = utilityMarkup([
@@ -2497,7 +2482,7 @@
     root.innerHTML = '' +
       '<section class="ForestryRewardsSurface ForestryRewardsSurface--account">' +
         comingSoonNoticeMarkup('account') +
-        themeToggleMarkup(root) +
+        themeToggleMarkup(root, uiState) +
         '<div class="ForestryRewardsSurface__hero">' +
           '<div>' +
             '<p class="ForestryRewardsEyebrow">Your Rewards</p>' +
@@ -2512,10 +2497,9 @@
         '</div>' +
         utilities +
         '<div class="ForestryRewardsGrid">' +
-          '<article class="ForestryRewardsCard ForestryRewardsCard--birthday">' +
+          '<article class="ForestryRewardsCard ForestryRewardsCard--birthday' + (birthdayComplete ? ' ForestryRewardsCard--complete' : '') + '">' +
             '<div class="ForestryRewardsCard__header">' +
               '<div><p class="ForestryRewardsCard__eyebrow">Birthday reward</p><h3 class="Heading u-h4">' + escapeHtml((model.birthdayIssuance && model.birthdayIssuance.reward_name) || 'Birthday Candle Cash') + '</h3></div>' +
-              '<div class="ForestryRewardsCard__state">' + badge(titleCaseSlug(viewState), taskTone(viewState)) + '</div>' +
             '</div>' +
             '<p class="ForestryRewardsCard__description">' + escapeHtml(rewardCardDescription(model, viewState)) + '</p>' +
             '<div class="ForestryRewardsCard__actions">' + birthdayActionMarkup(model, viewState, uiState) + '</div>' +
@@ -2724,7 +2708,7 @@
     root.innerHTML = '' +
       '<section class="ForestryRewardsSurface ForestryRewardsSurface--order">' +
         comingSoonNoticeMarkup('order') +
-        themeToggleMarkup(root) +
+        themeToggleMarkup(root, uiState) +
         celebrationMarkup(model, uiState, 'order') +
         '<div class="ForestryRewardsSurface__utility">' +
           '<div>' +
@@ -3417,7 +3401,13 @@
       return;
     }
 
-    setRootState(root, { formOpen: false, busy: false, toast: 'Birthday saved. We will keep your reward ready here.', toastTone: 'success' });
+    setRootState(root, {
+      formOpen: false,
+      openOpportunityId: 'birthday',
+      busy: false,
+      toast: 'Birthday saved. We will keep your reward ready here.',
+      toastTone: 'success',
+    });
     invalidateRewardsScope(root);
     await refreshRelatedRoots(root, { force: true });
     rerender(root);
@@ -3475,7 +3465,12 @@
       state: 'already_claimed',
     });
 
-    setRootState(root, { busy: false, toast: 'Reward unlocked and ready to use!', toastTone: 'success' });
+    setRootState(root, {
+      openOpportunityId: 'birthday',
+      busy: false,
+      toast: 'Reward unlocked and ready to use!',
+      toastTone: 'success',
+    });
     invalidateRewardsScope(root);
     await refreshRelatedRoots(root, { force: true });
     rerender(root);
@@ -4148,13 +4143,59 @@
     const action = cleanString(target.getAttribute('data-action'));
 
     if (action === 'set-theme') {
+      setRootState(root, { themePanelOpen: false });
       syncMountedThemes(cleanString(target.getAttribute('data-theme-choice')));
       return;
     }
 
-    if (action === 'toggle-birthday-form') {
+    if (action === 'toggle-theme-panel') {
       setRootState(root, {
-        formOpen: !rootState(root).formOpen,
+        themePanelOpen: !rootState(root).themePanelOpen,
+      });
+      rerender(root);
+      return;
+    }
+
+    if (action === 'toggle-opportunity') {
+      const opportunityId = cleanString(target.getAttribute('data-opportunity-id'));
+      if (!opportunityId) {
+        return;
+      }
+
+      const state = rootState(root);
+      const currentlyOpen = cleanString(state.openOpportunityId) === opportunityId;
+      const taskOpportunity = opportunityId.indexOf('task:') === 0 ? cleanString(opportunityId.slice(5)) : '';
+      const patch = {
+        openOpportunityId: currentlyOpen ? '' : opportunityId,
+        themePanelOpen: false,
+      };
+
+      if (taskOpportunity) {
+        patch.formOpen = false;
+        if (currentlyOpen && cleanString(state.openTaskHandle) === taskOpportunity) {
+          patch.openTaskHandle = '';
+        }
+      } else {
+        patch.openTaskHandle = '';
+        if (opportunityId !== 'birthday') {
+          patch.formOpen = false;
+        } else if (currentlyOpen && state.formOpen) {
+          patch.formOpen = false;
+        }
+      }
+
+      setRootState(root, patch);
+      rerender(root);
+      return;
+    }
+
+    if (action === 'toggle-birthday-form') {
+      const state = rootState(root);
+      setRootState(root, {
+        formOpen: !state.formOpen,
+        openOpportunityId: 'birthday',
+        openTaskHandle: '',
+        themePanelOpen: false,
         toast: '',
         toastTone: 'neutral',
       });
@@ -4204,8 +4245,13 @@
 
     if (action === 'toggle-task-form') {
       const handle = cleanString(target.getAttribute('data-task-handle'));
+      const state = rootState(root);
+      const nextOpenTaskHandle = state.openTaskHandle === handle ? '' : handle;
       setRootState(root, {
-        openTaskHandle: rootState(root).openTaskHandle === handle ? '' : handle,
+        openTaskHandle: nextOpenTaskHandle,
+        openOpportunityId: taskOpportunityId({ handle: handle }),
+        formOpen: false,
+        themePanelOpen: false,
         toast: '',
         toastTone: 'neutral',
       });
@@ -4243,6 +4289,28 @@
       event.preventDefault();
       handleAction(root, target);
     });
+
+    root.addEventListener('click', function (event) {
+      if (!rootState(root).themePanelOpen) {
+        return;
+      }
+
+      if (event.target && event.target.closest && event.target.closest('.ForestryRewardsThemeControl')) {
+        return;
+      }
+
+      setRootState(root, { themePanelOpen: false });
+      rerender(root);
+    });
+
+    root.addEventListener('keydown', function (event) {
+      if (event.key !== 'Escape' || !rootState(root).themePanelOpen) {
+        return;
+      }
+
+      setRootState(root, { themePanelOpen: false });
+      rerender(root);
+    });
   }
 
   function observeDrawer(root) {
@@ -4273,7 +4341,10 @@
     if ((root.dataset.surface || '') === 'page') {
       const requestedTask = requestedTaskHandleFromUrl();
       if (requestedTask) {
-        setRootState(root, { openTaskHandle: requestedTask });
+        setRootState(root, {
+          openTaskHandle: requestedTask,
+          openOpportunityId: taskOpportunityId({ handle: requestedTask }),
+        });
       }
     }
     registerEvents(root);
