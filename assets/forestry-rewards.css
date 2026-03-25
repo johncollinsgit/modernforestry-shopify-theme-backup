@@ -404,7 +404,7 @@
 
 .ForestryRewardsOpportunitySummary {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: 1fr;
   gap: 0.85rem;
   align-items: start;
 }
@@ -417,16 +417,6 @@
   min-width: 0;
 }
 
-.ForestryRewardsOpportunitySummary__meta {
-  display: grid;
-  gap: 0.55rem;
-  justify-items: end;
-}
-
-.ForestryRewardsOpportunitySummary__meta--toggle-only {
-  gap: 0;
-}
-
 .ForestryRewardsOpportunitySummary__amount {
   margin: 0.45rem 0 0;
   font-family: var(--heading-font-family);
@@ -434,53 +424,7 @@
   color: var(--heading-color);
 }
 
-.ForestryRewardsOpportunityToggle {
-  width: 2.2rem;
-  height: 2.2rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  border: 1px solid var(--cc-border);
-  background: rgba(var(--cc-surface-alt-rgb), 0.96);
-  color: var(--cc-text-soft);
-  transition: border-color 0.2s ease, color 0.2s ease, transform 0.22s ease, background 0.2s ease;
-}
-
-.ForestryRewardsOpportunityToggle:hover {
-  border-color: rgba(var(--cc-accent-rgb), 0.35);
-  color: var(--cc-text);
-  background: rgba(var(--cc-surface-rgb), 1);
-}
-
-.ForestryRewardsOpportunityToggle:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 4px var(--forestry-rewards-cta-focus-ring);
-}
-
-.ForestryRewardsOpportunityToggle__icon {
-  width: 1rem;
-  height: 1rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.ForestryRewardsOpportunityToggle__icon svg {
-  width: 100%;
-  height: 100%;
-}
-
-.ForestryRewardsOpportunityToggle[aria-expanded="true"] {
-  border-color: rgba(var(--cc-accent-rgb), 0.35);
-  color: var(--cc-text);
-}
-
-.ForestryRewardsOpportunityToggle[aria-expanded="true"] .ForestryRewardsOpportunityToggle__icon {
-  transform: rotate(180deg);
-}
-
-.ForestryRewardsOpportunityPanel {
+.reward-card .reward-details {
   max-height: 0;
   opacity: 0;
   overflow: hidden;
@@ -488,14 +432,27 @@
   transition: max-height 0.32s ease, opacity 0.24s ease, visibility 0.24s ease;
 }
 
-.ForestryRewardsOpportunityPanel.is-open {
+.reward-card.is-open .reward-details {
   max-height: 64rem;
   opacity: 1;
   visibility: visible;
 }
 
-.ForestryRewardsOpportunityPanel.is-open > .ForestryRewardsCard__description:first-child {
+.reward-card.is-open .reward-details > .ForestryRewardsCard__description:first-child {
   margin-top: 0.95rem;
+}
+
+.ForestryRewardsSurface--page .reward-card {
+  cursor: pointer;
+}
+
+.ForestryRewardsSurface--page .reward-card:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--forestry-rewards-cta-focus-ring);
+}
+
+.ForestryRewardsSurface--page .reward-card :is(a, button, input, textarea, select, label) {
+  cursor: auto;
 }
 
 .ForestryRewardsCard__eyebrow,
@@ -1032,19 +989,6 @@
     left: 0;
     right: 0;
     width: 100%;
-  }
-
-  .ForestryRewardsOpportunitySummary {
-    grid-template-columns: 1fr;
-  }
-
-  .ForestryRewardsOpportunitySummary__meta {
-    justify-items: start;
-    width: 100%;
-  }
-
-  .ForestryRewardsOpportunityToggle {
-    margin-top: 0.1rem;
   }
 
   .ForestryRewardsSurface,

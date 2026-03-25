@@ -1735,15 +1735,6 @@
     return !!fallbackExpanded;
   }
 
-  function opportunityChevronMarkup() {
-    return '' +
-      '<span class="ForestryRewardsOpportunityToggle__icon" aria-hidden="true">' +
-        '<svg viewBox="0 0 16 16" focusable="false">' +
-          '<path d="M4.5 6.5 8 10l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>' +
-        '</svg>' +
-      '</span>';
-  }
-
   function taskCardMarkup(root, model, task, uiState) {
     const state = taskResolvedState(task, model);
     const count = positiveInt(task.eligibility && task.eligibility.completed_count) || 0;
@@ -1755,25 +1746,21 @@
     const collapsible = cleanString(root && root.dataset && root.dataset.surface) === 'page';
     const opportunityId = taskOpportunityId(task);
     const togglePanelId = 'candle-cash-task-panel-' + cleanString(task.handle).replace(/[^a-z0-9_-]+/gi, '-');
-    const summaryClass = 'ForestryRewardsOpportunitySummary' + (collapsible ? '' : ' ForestryRewardsOpportunitySummary--single');
+    const summaryClass = 'ForestryRewardsOpportunitySummary ForestryRewardsOpportunitySummary--single reward-summary';
     const expanded = collapsible
       ? opportunityIsExpanded(uiState, opportunityId, cleanString(uiState.openTaskHandle) === cleanString(task.handle))
       : true;
+    const cardClass = 'ForestryRewardsTaskCard ForestryRewardsTaskCard--' + escapeHtml(state || 'available') + ' reward-card' + (expanded ? ' is-open' : '');
 
-    return '<article class="ForestryRewardsTaskCard ForestryRewardsTaskCard--' + escapeHtml(state || 'available') + '" id="candle-cash-task-' + escapeHtml(task.handle) + '" data-task-card="' + escapeHtml(task.handle) + '" data-completed="' + (completed ? 'true' : 'false') + '" data-repeatable="' + (repeatable ? 'true' : 'false') + '">' +
+    return '<article class="' + cardClass + '" id="candle-cash-task-' + escapeHtml(task.handle) + '" data-task-card="' + escapeHtml(task.handle) + '" data-opportunity-id="' + escapeHtml(opportunityId) + '" data-completed="' + (completed ? 'true' : 'false') + '" data-repeatable="' + (repeatable ? 'true' : 'false') + '"' + (collapsible ? ' role="button" tabindex="0" aria-expanded="' + (expanded ? 'true' : 'false') + '" aria-controls="' + escapeHtml(togglePanelId) + '"' : '') + '>' +
       '<div class="' + summaryClass + '">' +
         '<div class="ForestryRewardsOpportunitySummary__main">' +
           '<p class="ForestryRewardsCard__eyebrow">' + escapeHtml(taskEyebrow(task)) + '</p>' +
           '<h3 class="Heading u-h4">' + escapeHtml(task.title) + '</h3>' +
           (rewardAmount ? '<p class="ForestryRewardsOpportunitySummary__amount">' + escapeHtml(rewardAmount) + '</p>' : '') +
         '</div>' +
-        (collapsible
-          ? '<div class="ForestryRewardsOpportunitySummary__meta ForestryRewardsOpportunitySummary__meta--toggle-only">' +
-              '<button class="ForestryRewardsOpportunityToggle" type="button" data-action="toggle-opportunity" data-opportunity-id="' + escapeHtml(opportunityId) + '" aria-expanded="' + (expanded ? 'true' : 'false') + '" aria-controls="' + escapeHtml(togglePanelId) + '">' + opportunityChevronMarkup() + '</button>' +
-            '</div>'
-          : '') +
       '</div>' +
-      '<div class="ForestryRewardsOpportunityPanel' + (expanded ? ' is-open' : '') + '"' + (collapsible ? ' id="' + escapeHtml(togglePanelId) + '"' : '') + '>' +
+      '<div class="ForestryRewardsOpportunityPanel reward-details"' + (collapsible ? ' id="' + escapeHtml(togglePanelId) + '"' : '') + '>' +
         '<p class="ForestryRewardsCard__description">' + escapeHtml(taskDetailCopy(task, state, model)) + '</p>' +
         '<div class="ForestryRewardsTaskMeta">' +
           '<span>' + escapeHtml(count > 0 ? count + ' earned' : (pending > 0 ? 'Waiting on verification' : (taskIsAutomatic(task) ? 'Tracks automatically' : 'Ready when you are'))) + '</span>' +
@@ -2366,20 +2353,18 @@
     const viewState = birthdayViewState(model);
     const expanded = opportunityIsExpanded(uiState, 'birthday', false) || !!(uiState && uiState.formOpen);
     const completed = viewState === 'applied' || viewState === 'redeemed';
+    const cardClass = 'ForestryRewardsCard ForestryRewardsCard--birthday' + (completed ? ' ForestryRewardsCard--complete' : '') + ' reward-card' + (expanded ? ' is-open' : '');
 
     return '' +
-      '<article class="ForestryRewardsCard ForestryRewardsCard--birthday' + (completed ? ' ForestryRewardsCard--complete' : '') + '" id="candle-cash-birthday" data-opportunity-card="birthday">' +
-        '<div class="ForestryRewardsOpportunitySummary">' +
+      '<article class="' + cardClass + '" id="candle-cash-birthday" data-opportunity-card="birthday" data-opportunity-id="birthday" role="button" tabindex="0" aria-expanded="' + (expanded ? 'true' : 'false') + '" aria-controls="candle-cash-birthday-panel">' +
+        '<div class="ForestryRewardsOpportunitySummary ForestryRewardsOpportunitySummary--single reward-summary">' +
           '<div class="ForestryRewardsOpportunitySummary__main">' +
             '<p class="ForestryRewardsCard__eyebrow">Birthday reward</p>' +
             '<h3 class="Heading u-h3">' + escapeHtml((model.birthdayIssuance && model.birthdayIssuance.reward_name) || 'Birthday Candle Cash') + '</h3>' +
             '<p class="ForestryRewardsOpportunitySummary__amount">' + escapeHtml(model.birthdayIssuance && model.birthdayIssuance.reward_value ? currencyLabel(model.birthdayIssuance.reward_value) : '$10') + '</p>' +
           '</div>' +
-          '<div class="ForestryRewardsOpportunitySummary__meta ForestryRewardsOpportunitySummary__meta--toggle-only">' +
-            '<button class="ForestryRewardsOpportunityToggle" type="button" data-action="toggle-opportunity" data-opportunity-id="birthday" aria-expanded="' + (expanded ? 'true' : 'false') + '" aria-controls="candle-cash-birthday-panel">' + opportunityChevronMarkup() + '</button>' +
-          '</div>' +
         '</div>' +
-        '<div class="ForestryRewardsOpportunityPanel' + (expanded ? ' is-open' : '') + '" id="candle-cash-birthday-panel">' +
+        '<div class="ForestryRewardsOpportunityPanel reward-details" id="candle-cash-birthday-panel">' +
           '<p class="ForestryRewardsCard__description">' + escapeHtml(rewardCardDescription(model, viewState)) + '</p>' +
           renderBirthdayMeta(model, viewState) +
           '<div class="ForestryRewardsCard__actions">' + birthdayActionMarkup(model, viewState, uiState) + '</div>' +
@@ -4139,6 +4124,24 @@
     }
   }
 
+  function toggleOpportunityCard(root, opportunityId) {
+    const nextOpportunityId = cleanString(opportunityId);
+    if (!nextOpportunityId) {
+      return;
+    }
+
+    const state = rootState(root);
+    const currentlyOpen = cleanString(state.openOpportunityId) === nextOpportunityId;
+
+    setRootState(root, {
+      openOpportunityId: currentlyOpen ? '' : nextOpportunityId,
+      openTaskHandle: '',
+      formOpen: !currentlyOpen && nextOpportunityId === 'birthday' ? state.formOpen : false,
+      themePanelOpen: false,
+    });
+    rerender(root);
+  }
+
   async function handleAction(root, target) {
     const action = cleanString(target.getAttribute('data-action'));
 
@@ -4152,39 +4155,6 @@
       setRootState(root, {
         themePanelOpen: !rootState(root).themePanelOpen,
       });
-      rerender(root);
-      return;
-    }
-
-    if (action === 'toggle-opportunity') {
-      const opportunityId = cleanString(target.getAttribute('data-opportunity-id'));
-      if (!opportunityId) {
-        return;
-      }
-
-      const state = rootState(root);
-      const currentlyOpen = cleanString(state.openOpportunityId) === opportunityId;
-      const taskOpportunity = opportunityId.indexOf('task:') === 0 ? cleanString(opportunityId.slice(5)) : '';
-      const patch = {
-        openOpportunityId: currentlyOpen ? '' : opportunityId,
-        themePanelOpen: false,
-      };
-
-      if (taskOpportunity) {
-        patch.formOpen = false;
-        if (currentlyOpen && cleanString(state.openTaskHandle) === taskOpportunity) {
-          patch.openTaskHandle = '';
-        }
-      } else {
-        patch.openTaskHandle = '';
-        if (opportunityId !== 'birthday') {
-          patch.formOpen = false;
-        } else if (currentlyOpen && state.formOpen) {
-          patch.formOpen = false;
-        }
-      }
-
-      setRootState(root, patch);
       rerender(root);
       return;
     }
@@ -4291,6 +4261,23 @@
     });
 
     root.addEventListener('click', function (event) {
+      if (cleanString(root.dataset.surface) !== 'page') {
+        return;
+      }
+
+      if (event.target && event.target.closest && event.target.closest('a, button, input, textarea, select, label')) {
+        return;
+      }
+
+      const card = event.target && event.target.closest ? event.target.closest('.reward-card[data-opportunity-id]') : null;
+      if (!card || !root.contains(card)) {
+        return;
+      }
+
+      toggleOpportunityCard(root, card.getAttribute('data-opportunity-id'));
+    });
+
+    root.addEventListener('click', function (event) {
       if (!rootState(root).themePanelOpen) {
         return;
       }
@@ -4301,6 +4288,24 @@
 
       setRootState(root, { themePanelOpen: false });
       rerender(root);
+    });
+
+    root.addEventListener('keydown', function (event) {
+      if (cleanString(root.dataset.surface) !== 'page') {
+        return;
+      }
+
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+
+      const card = event.target && event.target.closest ? event.target.closest('.reward-card[data-opportunity-id]') : null;
+      if (!card || !root.contains(card) || event.target !== card) {
+        return;
+      }
+
+      event.preventDefault();
+      toggleOpportunityCard(root, card.getAttribute('data-opportunity-id'));
     });
 
     root.addEventListener('keydown', function (event) {
