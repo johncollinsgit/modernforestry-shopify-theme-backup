@@ -151,7 +151,8 @@ Roll back immediately if any of the following occur:
 - Operational storefront result:
   - `modernforestry.myshopify.com` serves the live theme `review-cutover-staging-20260323` (`159310446851`)
   - Headless browser verification on `modernforestry.myshopify.com` shows no Growave runtime requests and no Growave app block markup in the rendered DOM
-  - `https://theforestrystudio.com` still serves stale storefront HTML that reports the older `Prestige` theme (`136487764227`) and still includes `socialshopwave-helper-v2`, `ssw-empty.js`, and `GW_BUNDLE_URL`
+  - `https://theforestrystudio.com` is Cloudflare-fronted and still serves stale storefront HTML that reports the older `Prestige` theme (`136487764227`) and still includes `socialshopwave-helper-v2`, `ssw-empty.js`, and `GW_BUNDLE_URL`
+  - The custom-domain response headers still report Shopify live theme `159310446851`, so the remaining mismatch is at the public-domain edge/body path rather than in the checked-in live theme files
 - Conclusion:
   - The checked-in theme and Shopify live theme assignment are cut over cleanly
-  - Final alpha sign-off is blocked by the custom domain still serving stale old-theme HTML, which now appears to be a storefront-domain routing/cache issue outside this repo
+  - Final alpha sign-off is blocked by the custom domain still serving stale old-theme HTML, which now appears to be a Cloudflare/custom-domain routing, cache, or rewrite issue outside this repo

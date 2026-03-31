@@ -11,7 +11,8 @@ This repository is a **backup + version history** for the live Shopify theme.
 Unless explicitly noted in a release note/PR, the source of truth is the **live Shopify theme** in the store admin.
 
 - Store: `modernforestry.myshopify.com`
-- Primary theme tracked here: `Prestige` (`#136487764227`)
+- Primary live theme tracked here: `review-cutover-staging-20260323` (`#159310446851`)
+- Historical pre-cutover theme still visible on the stale custom-domain path: `Prestige` (`#136487764227`)
 
 ## Standard Theme Structure
 This repo keeps Shopify's standard theme folders so it remains compatible with Shopify GitHub integration:
@@ -31,7 +32,7 @@ cd /path/to/modernforestry-live-theme
 shopify auth login --store modernforestry.myshopify.com
 
 # 2) Pull current live theme snapshot
-shopify theme pull --store modernforestry.myshopify.com --theme 136487764227
+shopify theme pull --store modernforestry.myshopify.com --theme 159310446851
 
 # 3) Initialize git (if not already initialized)
 git init -b main
@@ -62,7 +63,7 @@ git push -u origin main
 Use this whenever you want GitHub to reflect the latest live theme edits.
 
 ```bash
-shopify theme pull --store modernforestry.myshopify.com --theme 136487764227
+shopify theme pull --store modernforestry.myshopify.com --theme 159310446851
 git add .
 git commit -m "Backup: live theme snapshot YYYY-MM-DD"
 git push
@@ -76,7 +77,7 @@ From repo root:
 
 Optional overrides:
 ```bash
-SHOPIFY_STORE=modernforestry.myshopify.com SHOPIFY_THEME_ID=136487764227 ./backup-live-theme.sh
+SHOPIFY_STORE=modernforestry.myshopify.com SHOPIFY_THEME_ID=159310446851 ./backup-live-theme.sh
 ```
 
 ## Branch Strategy (Simple)
@@ -97,7 +98,7 @@ In Shopify Admin:
 After connection, merchant/admin theme edits can be tracked through the connected GitHub workflow.
 
 ## Tiny Ongoing Workflow (2 Minutes)
-1. Pull latest live theme: `shopify theme pull --store modernforestry.myshopify.com --theme 136487764227`
+1. Pull latest live theme: `shopify theme pull --store modernforestry.myshopify.com --theme 159310446851`
 2. Commit snapshot: `git add . && git commit -m "Backup: live snapshot YYYY-MM-DD"`
 3. Push: `git push`
 4. If needed, restore from an older commit by re-pushing that version to Shopify.
@@ -137,8 +138,8 @@ Current live state as of 2026-03-31:
 - The Backstage-owned review and wishlist proxy contract is live and verified.
 - Guest wishlist add/status/remove works against the live app proxy with `guest_token`.
 - Shopify admin marks `review-cutover-staging-20260323` (`159310446851`) as the live theme, and `modernforestry.myshopify.com` is serving that theme without Growave runtime output.
-- The remaining storefront blocker is `https://theforestrystudio.com`, which is still serving stale HTML from the older `Prestige` theme (`136487764227`) and therefore still shows Growave loader output.
-- This remaining issue is now a custom-domain routing/cache blocker outside the checked-in theme files.
+- `theforestrystudio.com` is fronted by Cloudflare (`meadow.ns.cloudflare.com`, `randy.ns.cloudflare.com`) and still serves stale HTML from the older `Prestige` theme (`136487764227`) even while Shopify response headers report live theme `159310446851`.
+- The remaining issue is therefore not in the checked-in theme files; it is an operational custom-domain edge/cache or rewrite problem that must be purged or corrected outside this repo before public-domain sign-off.
 
 Rollback:
 - Revert/push the previous theme snapshot and restore the prior flag state if storefront smoke fails.
