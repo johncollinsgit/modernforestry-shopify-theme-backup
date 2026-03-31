@@ -139,7 +139,9 @@ Current live state as of 2026-03-31:
 - Guest wishlist add/status/remove works against the live app proxy with `guest_token`.
 - Shopify admin marks `review-cutover-staging-20260323` (`159310446851`) as the live theme, and `modernforestry.myshopify.com` is serving that theme without Growave runtime output.
 - `theforestrystudio.com` is fronted by Cloudflare (`meadow.ns.cloudflare.com`, `randy.ns.cloudflare.com`) and still serves stale HTML from the older `Prestige` theme (`136487764227`) even while Shopify response headers report live theme `159310446851`.
-- The remaining issue is therefore not in the checked-in theme files; it is an operational custom-domain edge/cache or rewrite problem that must be purged or corrected outside this repo before public-domain sign-off.
+- That stale body persists under cache-busting query params, `Cache-Control: no-cache`, and a forced-host request directly to Shopify's edge IP (`curl --resolve theforestrystudio.com:443:23.227.38.65 ...`).
+- The remaining issue is therefore not in the checked-in theme files and is not explained by a simple browser cache. It is an operational custom-host Shopify render/cache/routing problem that must be purged or corrected outside this repo before public-domain sign-off.
+- Exact next action: purge or bypass the custom-domain cache layer and re-test `theforestrystudio.com`; if the body still reports theme `136487764227`, escalate to Shopify support with the host-specific mismatch evidence.
 
 Rollback:
 - Revert/push the previous theme snapshot and restore the prior flag state if storefront smoke fails.

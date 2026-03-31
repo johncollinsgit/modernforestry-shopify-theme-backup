@@ -152,7 +152,9 @@ Roll back immediately if any of the following occur:
   - `modernforestry.myshopify.com` serves the live theme `review-cutover-staging-20260323` (`159310446851`)
   - Headless browser verification on `modernforestry.myshopify.com` shows no Growave runtime requests and no Growave app block markup in the rendered DOM
   - `https://theforestrystudio.com` is Cloudflare-fronted and still serves stale storefront HTML that reports the older `Prestige` theme (`136487764227`) and still includes `socialshopwave-helper-v2`, `ssw-empty.js`, and `GW_BUNDLE_URL`
-  - The custom-domain response headers still report Shopify live theme `159310446851`, so the remaining mismatch is at the public-domain edge/body path rather than in the checked-in live theme files
+  - The stale custom-domain body persists under cache-busting query params, `Cache-Control: no-cache`, and a forced-host request directly to Shopify's edge IP (`curl --resolve theforestrystudio.com:443:23.227.38.65 ...`)
+  - The custom-domain response headers still report Shopify live theme `159310446851`, so the remaining mismatch is now best described as a custom-host Shopify render/cache/routing problem rather than a checked-in live-theme problem
 - Conclusion:
   - The checked-in theme and Shopify live theme assignment are cut over cleanly
-  - Final alpha sign-off is blocked by the custom domain still serving stale old-theme HTML, which now appears to be a Cloudflare/custom-domain routing, cache, or rewrite issue outside this repo
+  - Final alpha sign-off is blocked by the custom domain still serving stale old-theme HTML, which now appears to be an external custom-host Shopify render/cache/routing issue outside this repo
+  - Exact next action: purge/bypass any custom-domain cache layer and re-test `theforestrystudio.com`; if the body still reports theme `136487764227`, escalate to Shopify support with the host-specific mismatch evidence because the custom host is not rendering the live theme body even though Shopify reports live theme `159310446851`
