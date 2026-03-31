@@ -98,7 +98,7 @@
                     {%- if button_1_is_candle_club and candle_club_actionable == false -%}
                       {% render 'candle-club-coming-soon', compact: true, class: 'ButtonGroup__Item' %}
                     {%- else -%}
-                      <a href="{{ block.settings.button_1_link }}" class="ButtonGroup__Item Button">{{ block.settings.button_1_text | escape }}</a>
+                      <a href="{{ block.settings.button_1_link }}" class="ButtonGroup__Item Button Button--primary">{{ block.settings.button_1_text | escape }}</a>
                     {%- endif -%}
                   {%- endif -%}
 
@@ -106,7 +106,7 @@
                     {%- if button_2_is_candle_club and candle_club_actionable == false -%}
                       {% render 'candle-club-coming-soon', compact: true, class: 'ButtonGroup__Item' %}
                     {%- else -%}
-                      <a href="{{ block.settings.button_2_link }}" class="ButtonGroup__Item Button">{{ block.settings.button_2_text | escape }}</a>
+                      <a href="{{ block.settings.button_2_link }}" class="ButtonGroup__Item Button Button--primary">{{ block.settings.button_2_text | escape }}</a>
                     {%- endif -%}
                   {%- endif -%}
                 </div>
@@ -152,6 +152,12 @@
 </section>
 
 <style>
+  #section-{{ section.id }} {
+    --button-text-color: {{ section.settings.button_color }};
+    --button-background: {{ section.settings.button_background }};
+    --button-background-hover: {{ section.settings.button_background }};
+  }
+
   #section-{{ section.id }} .Heading,
    #section-{{ section.id }} .flickity-page-dots {
     color: {{ section.settings.text_color }};
