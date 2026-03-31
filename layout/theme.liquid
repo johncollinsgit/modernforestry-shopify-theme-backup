@@ -26,7 +26,181 @@
     {% render 'css-variables' %}
 
     {% unless request.design_mode %}{% include 'wlm-head' %}{% endunless %}
-{{ content_for_header }}
+    <script>
+      (function () {
+        var blockedPatterns = ['img0.socialshopwave.com', 'static.growave.io', 'growave.io', 'ssw-empty.js'];
+        var nativeCreateElement = Document.prototype.createElement;
+        var nativeSetAttribute = Element.prototype.setAttribute;
+        var nativeAppendChild = Node.prototype.appendChild;
+        var nativeInsertBefore = Node.prototype.insertBefore;
+        var nativeReplaceChild = Node.prototype.replaceChild;
+        var scriptSrcDescriptor = (function () {
+          var proto = window.HTMLScriptElement && window.HTMLScriptElement.prototype;
+
+          while (proto) {
+            var descriptor = Object.getOwnPropertyDescriptor(proto, 'src');
+
+            if (descriptor) {
+              return descriptor;
+            }
+
+            proto = Object.getPrototypeOf(proto);
+          }
+
+          return null;
+        })();
+
+        document.cookie = 'GW_DISABLED=true; path=/; max-age=31536000; SameSite=Lax';
+
+        function isBlockedUrl(url) {
+          if (!url) {
+            return false;
+          }
+
+          return blockedPatterns.some(function (pattern) {
+            return String(url).indexOf(pattern) !== -1;
+          });
+        }
+
+        function markScriptBlocked(node, candidateUrl) {
+          if (!node || node.tagName !== 'SCRIPT' || !isBlockedUrl(candidateUrl)) {
+            return false;
+          }
+
+          node.type = 'javascript/blocked';
+          nativeSetAttribute.call(node, 'data-forestry-blocked-src', String(candidateUrl));
+          node.removeAttribute('src');
+
+          return true;
+        }
+
+        function installScriptGuard(node) {
+          if (!node || node.tagName !== 'SCRIPT' || node.__forestryGrowaveGuardInstalled) {
+            return node;
+          }
+
+          node.__forestryGrowaveGuardInstalled = true;
+
+          var nativeNodeSetAttribute = node.setAttribute;
+
+          node.setAttribute = function (name, value) {
+            if (String(name).toLowerCase() === 'src' && markScriptBlocked(this, value)) {
+              return;
+            }
+
+            return nativeNodeSetAttribute.call(this, name, value);
+          };
+
+          Object.defineProperty(node, 'src', {
+            configurable: true,
+            enumerable: true,
+            get: function () {
+              return this.getAttribute('src') || this.getAttribute('data-forestry-blocked-src') || '';
+            },
+            set: function (value) {
+              if (markScriptBlocked(this, value)) {
+                return value;
+              }
+
+              if (scriptSrcDescriptor && typeof scriptSrcDescriptor.set === 'function') {
+                return scriptSrcDescriptor.set.call(this, value);
+              }
+
+              return nativeSetAttribute.call(this, 'src', value);
+            }
+          });
+
+          return node;
+        }
+
+        function sanitizeScriptNode(node) {
+          if (!node || node.tagName !== 'SCRIPT') {
+            return false;
+          }
+
+          installScriptGuard(node);
+
+          return markScriptBlocked(node, node.getAttribute('src') || node.getAttribute('data-forestry-blocked-src') || node.src);
+        }
+
+        Document.prototype.createElement = function (tagName, options) {
+          var node;
+
+          if (typeof options === 'undefined') {
+            node = nativeCreateElement.call(this, tagName);
+          } else {
+            node = nativeCreateElement.call(this, tagName, options);
+          }
+
+          if (String(tagName).toLowerCase() === 'script') {
+            installScriptGuard(node);
+          }
+
+          return node;
+        };
+
+        Element.prototype.setAttribute = function (name, value) {
+          if (this.tagName === 'SCRIPT' && String(name).toLowerCase() === 'src' && markScriptBlocked(this, value)) {
+            return;
+          }
+
+          return nativeSetAttribute.call(this, name, value);
+        };
+
+        Node.prototype.appendChild = function (node) {
+          if (sanitizeScriptNode(node)) {
+            return node;
+          }
+
+          return nativeAppendChild.call(this, node);
+        };
+
+        Node.prototype.insertBefore = function (newNode, referenceNode) {
+          if (sanitizeScriptNode(newNode)) {
+            return newNode;
+          }
+
+          return nativeInsertBefore.call(this, newNode, referenceNode);
+        };
+
+        Node.prototype.replaceChild = function (newNode, oldNode) {
+          if (sanitizeScriptNode(newNode)) {
+            return newNode;
+          }
+
+          return nativeReplaceChild.call(this, newNode, oldNode);
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+          [
+            '[id*="4000763c184adcdbd8"]',
+            '.gw-widget-placeholder-LC-wrapper',
+            '.gw-widget-placeholder-RC-wrapper',
+            '.gw-widget-placeholder-BR-wrapper',
+            '.gw-widget-placeholder-BL-wrapper',
+            '.gw-wl-drawer-widget-placeholder',
+            '.gw-reviews-drawer-widget-placeholder',
+            '.gw-reviews-modal-widget-placeholder',
+            '#ssw-widget-review-bar',
+            '#ssw-review-widget-content',
+            '#ssw-fave-side-bar',
+            '#ssw-fave-side-button'
+          ].forEach(function (selector) {
+            document.querySelectorAll(selector).forEach(function (node) {
+              node.remove();
+            });
+          });
+        });
+      })();
+    </script>
+    {%- capture forestry_content_for_header -%}
+      {{ content_for_header }}
+    {%- endcapture -%}
+    {%- assign forestry_content_for_header = forestry_content_for_header
+      | replace: ',"https:\/\/img0.socialshopwave.com\/ssw-empty.js?shop=modernforestry.myshopify.com"', ''
+      | replace: 'https:\/\/img0.socialshopwave.com\/ssw-empty.js?shop=modernforestry.myshopify.com', ''
+    -%}
+{{ forestry_content_for_header }}
 
     <link rel="stylesheet" href="{{ 'theme.css' | asset_url }}">
     <link rel="stylesheet" href="{{ 'forestry-rewards.css' | asset_url }}">

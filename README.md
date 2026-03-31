@@ -133,6 +133,13 @@ Recommended rollout flow:
 4. Promote/push the same theme changes to the live theme.
 5. If Growave runtime still appears after the theme update, remove any remaining Shopify-side Growave app embeds/ScriptTags operationally.
 
+Current live state as of 2026-03-31:
+- The Backstage-owned review and wishlist proxy contract is live and verified.
+- Guest wishlist add/status/remove works against the live app proxy with `guest_token`.
+- Shopify admin marks `review-cutover-staging-20260323` (`159310446851`) as the live theme, and `modernforestry.myshopify.com` is serving that theme without Growave runtime output.
+- The remaining storefront blocker is `https://theforestrystudio.com`, which is still serving stale HTML from the older `Prestige` theme (`136487764227`) and therefore still shows Growave loader output.
+- This remaining issue is now a custom-domain routing/cache blocker outside the checked-in theme files.
+
 Rollback:
 - Revert/push the previous theme snapshot and restore the prior flag state if storefront smoke fails.
 - Backstage review/wishlist tables remain canonical even during a temporary storefront rollback.

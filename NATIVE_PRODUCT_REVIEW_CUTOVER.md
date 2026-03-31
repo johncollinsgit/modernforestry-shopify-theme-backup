@@ -1,7 +1,7 @@
 # Native Shopify Reviews + Wishlist Cutover
 
 Last verified: 2026-03-31
-Live theme: `Prestige` (`136487764227`)
+Shopify-admin live theme: `review-cutover-staging-20260323` (`159310446851`)
 Preview theme: `review-cutover-staging-20260323` (`159310446851`)
 Storefront host: `https://theforestrystudio.com`
 
@@ -138,13 +138,20 @@ Roll back immediately if any of the following occur:
 
 ## Verification notes from 2026-03-31
 
-- The preview theme `review-cutover-staging-20260323` was updated with:
-  - Growave app embed removed from `settings_data.json`
-  - Growave product app block removed from `templates/product.json`
-  - native review + wishlist JS/CSS hardening already in place
-- Preview HTML checks after push no longer show:
-  - `socialshopwave-helper-v2`
-  - `GW_BUNDLE_URL`
-  - `growave_critical:*`
-  - `ssw-empty.js`
-- The remaining production blockers before final storefront sign-off are backend deployment/live contract alignment and, if needed after theme promotion, operational cleanup of any residual Shopify-side Growave ScriptTags/app embeds.
+- App/backend cutover is live:
+  - `/apps/forestry/product-reviews/status` returns `task.button_text = "Write a review"`
+  - `/apps/forestry/product-reviews/status` returns `task.reward_amount = "1.00"`
+  - `/apps/forestry/wishlist/add` succeeds for guests with `guest_token`
+  - `/apps/forestry/wishlist/status` and `/apps/forestry/wishlist/remove` return promptly on the live store
+- Theme work completed:
+  - Growave app embed was removed from `settings_data.json`
+  - Growave product app block was removed from `templates/product.json`
+  - Native review + wishlist JS/CSS hardening remains in place
+  - `layout/theme.liquid` now strips the `ssw-empty.js` loader entry from `content_for_header` and blocks late Growave script injection
+- Operational storefront result:
+  - `modernforestry.myshopify.com` serves the live theme `review-cutover-staging-20260323` (`159310446851`)
+  - Headless browser verification on `modernforestry.myshopify.com` shows no Growave runtime requests and no Growave app block markup in the rendered DOM
+  - `https://theforestrystudio.com` still serves stale storefront HTML that reports the older `Prestige` theme (`136487764227`) and still includes `socialshopwave-helper-v2`, `ssw-empty.js`, and `GW_BUNDLE_URL`
+- Conclusion:
+  - The checked-in theme and Shopify live theme assignment are cut over cleanly
+  - Final alpha sign-off is blocked by the custom domain still serving stale old-theme HTML, which now appears to be a storefront-domain routing/cache issue outside this repo
