@@ -354,7 +354,14 @@
             {%- for block in section.blocks -%}
               {%- case block.type -%}
                 {%- when '@app' -%}
-                  {%- unless candle_club_locked -%}
+                  {%- assign forestry_block_type = block.type | downcase -%}
+                  {%- assign forestry_skip_app_block = false -%}
+                  {%- if forestry_block_type contains 'growave' and forestry_block_type contains 'fave' -%}
+                    {%- if settings.native_wishlist_enabled or settings.growave_wishlist_enabled == false -%}
+                      {%- assign forestry_skip_app_block = true -%}
+                    {%- endif -%}
+                  {%- endif -%}
+                  {%- unless candle_club_locked or forestry_skip_app_block -%}
                     {%- render block -%}
                   {%- endunless -%}
 
@@ -364,6 +371,9 @@
                     {%- render 'forestry-product-review-summary', product: product, customer: customer -%}
                   {%- elsif settings.growave_reviews_enabled and block.settings.show_product_rating == false -%}
                     {%- render 'ssw-widget-avg-rate-listing', product: product -%}
+                  {%- endif -%}
+                  {%- if settings.native_wishlist_enabled -%}
+                    {%- render 'forestry-wishlist-root', product: product, customer: customer -%}
                   {%- endif -%}
 
                 {%- when 'description' -%}

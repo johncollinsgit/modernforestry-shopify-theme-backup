@@ -4,6 +4,7 @@
     data-forestry-product-review-summary
     data-forestry-product-review-key="{{ product.id }}"
     data-product-id="{{ product.id }}"
+    data-product-variant-id="{{ product.selected_or_first_available_variant.id }}"
     data-product-handle="{{ product.handle | escape }}"
     data-product-title="{{ product.title | escape }}"
     data-product-url="{{ product.url | escape }}"
@@ -14,6 +15,7 @@
     data-customer-last-name="{{ customer.last_name | escape }}"
     data-login-url="{{ routes.account_login_url }}"
     data-endpoint-product-review-status="/apps/forestry/product-reviews/status"
+    data-endpoint-product-review-submit="/apps/forestry/product-reviews/submit"
   >
     <div class="ForestryProductReviewSummary__loading">
       <span class="ForestryProductReviewSummary__dots" aria-hidden="true"><span></span><span></span><span></span></span>

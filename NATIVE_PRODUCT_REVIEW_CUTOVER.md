@@ -1,7 +1,8 @@
-# Native Shopify Product Reviews Cutover
+# Native Shopify Reviews + Wishlist Cutover
 
-Last verified: 2026-03-23
+Last verified: 2026-03-31
 Live theme: `Prestige` (`136487764227`)
+Preview theme: `review-cutover-staging-20260323` (`159310446851`)
 Storefront host: `https://theforestrystudio.com`
 
 ## Flag states
@@ -14,17 +15,13 @@ No code deploy is required for rollback. Changing the two theme settings is suff
 
 ## Launch order
 
-1. Confirm backend historical-review patch is already deployed and app-proxy status returns `200`.
-2. Confirm live theme is on the flag-capable review implementation.
-3. Optional pre-cutover smoke in dual mode:
-   - `native_reviews_enabled=true`
-   - `growave_reviews_enabled=true`
-4. Flip to full native mode:
-   - `native_reviews_enabled=true`
-   - `growave_reviews_enabled=false`
-5. Run the storefront smoke matrix below on the published theme.
-6. Run one manual QA-safe submit and one duplicate-submit attempt.
-7. Monitor review status/submit signals for 30-60 minutes.
+1. Confirm backend review/wishlist contract deploy is live and app-proxy requests return `200`.
+2. Push the theme changes to the preview theme first.
+3. Verify preview HTML no longer contains Growave helper markup or `ssw-empty.js`.
+4. Run the storefront smoke matrix below on the preview theme.
+5. Run one manual QA-safe review submit and one guest-token wishlist flow.
+6. Promote/push the same theme state to the live theme.
+7. Monitor review/wishlist signals for 30-60 minutes.
 8. Roll back immediately if any rollback trigger is hit.
 
 ## Smoke-test matrix
@@ -50,6 +47,8 @@ Each smoke-test product passes only if all of the following are true:
 - Growave surfaces do not render in native-only mode.
 - Native status request returns `200` from `/apps/forestry/product-reviews/status`.
 - Response `meta.auth_mode` is `app_proxy`.
+- Guest wishlist status/add/remove works through `/apps/forestry/wishlist/*` with `guest_token`.
+- Preview/live HTML does not contain `socialshopwave-helper-v2`, `GW_BUNDLE_URL`, or `ssw-empty.js`.
 
 ## Manual submit check
 
@@ -101,6 +100,8 @@ Launch-window watch items:
 - repeated app-proxy failures under normal browsing
 - submit succeeds in UI but no persisted review appears after refresh
 - duplicate submit increments count or creates a second reward
+- guest wishlist add/remove fails or gets stuck in loading state
+- any remaining Growave helper/app snippet markup returns in preview or live HTML
 
 ## Rollback triggers
 
@@ -134,3 +135,16 @@ Roll back immediately if any of the following occur:
   - `fire-pit-wax-melt-warmer`
   - `winter-flight`
   - `spring-flight`
+
+## Verification notes from 2026-03-31
+
+- The preview theme `review-cutover-staging-20260323` was updated with:
+  - Growave app embed removed from `settings_data.json`
+  - Growave product app block removed from `templates/product.json`
+  - native review + wishlist JS/CSS hardening already in place
+- Preview HTML checks after push no longer show:
+  - `socialshopwave-helper-v2`
+  - `GW_BUNDLE_URL`
+  - `growave_critical:*`
+  - `ssw-empty.js`
+- The remaining production blockers before final storefront sign-off are backend deployment/live contract alignment and, if needed after theme promotion, operational cleanup of any residual Shopify-side Growave ScriptTags/app embeds.

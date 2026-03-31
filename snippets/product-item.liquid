@@ -200,6 +200,10 @@
         {%- if show_price_on_hover == false and color_swatch_list != blank -%}
           {{- color_swatch_list -}}
         {%- endif -%}
+
+        {%- if settings.native_wishlist_enabled -%}
+          {%- render 'forestry-wishlist-root', product: product, customer: customer, compact: true -%}
+        {%- endif -%}
       </div>
     {%- endif -%}
   </div>

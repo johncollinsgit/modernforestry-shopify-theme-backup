@@ -105,3 +105,34 @@ After connection, merchant/admin theme edits can be tracked through the connecte
 ## Notes
 - Keep this repo focused on backup and safe rollback.
 - Avoid adding build tooling unless intentionally moving to a development-first workflow.
+
+## Native Reviews + Wishlist Cutover
+
+Modern Forestry now uses Forestry-owned native reviews and wishlist storefront widgets backed by the Backstage app proxy.
+
+Current expectations:
+- Reviews:
+  - `/apps/forestry/product-reviews/status`
+  - `/apps/forestry/product-reviews/submit`
+- Wishlist:
+  - `/apps/forestry/wishlist/status`
+  - `/apps/forestry/wishlist/add`
+  - `/apps/forestry/wishlist/remove`
+  - `/apps/forestry/wishlist/lists/create`
+
+Theme/runtime rules:
+- `native_reviews_enabled=true`
+- `native_wishlist_enabled=true`
+- Growave review/wishlist UI must remain disabled or removed from theme-rendered markup.
+- Growave is historical import input only, not a runtime storefront dependency.
+
+Recommended rollout flow:
+1. Push app/backend changes to production and confirm app-proxy health.
+2. Push theme changes to an unpublished preview theme and smoke-test review/wishlist UX there first.
+3. Verify the preview HTML no longer contains Growave helper output or `ssw-empty.js`.
+4. Promote/push the same theme changes to the live theme.
+5. If Growave runtime still appears after the theme update, remove any remaining Shopify-side Growave app embeds/ScriptTags operationally.
+
+Rollback:
+- Revert/push the previous theme snapshot and restore the prior flag state if storefront smoke fails.
+- Backstage review/wishlist tables remain canonical even during a temporary storefront rollback.

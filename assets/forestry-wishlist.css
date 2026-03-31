@@ -1,0 +1,236 @@
+.ForestryWishlistRoot {
+  margin-top: 14px;
+}
+
+.ForestryWishlistRoot__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+}
+
+.ForestryWishlistRoot--compact {
+  margin-top: 12px;
+}
+
+.ForestryWishlistRoot__button--compact {
+  width: 100%;
+  justify-content: center;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.ForestryWishlistRoot__icon {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+}
+
+.ForestryWishlistRoot__icon .Icon {
+  width: 18px;
+  height: 18px;
+}
+
+.ForestryWishlistRoot__icon--filled {
+  display: none;
+}
+
+.ForestryWishlistRoot[data-in-wishlist="true"] .ForestryWishlistRoot__icon--outline {
+  display: none;
+}
+
+.ForestryWishlistRoot[data-in-wishlist="true"] .ForestryWishlistRoot__icon--filled {
+  display: inline-flex;
+}
+
+.ForestryWishlistRoot__note {
+  margin: 8px 0 0;
+  min-height: 18px;
+}
+
+.ForestryWishlistRoot--compact .ForestryWishlistRoot__note {
+  display: none;
+}
+
+.ForestryWishlistRoot__note--danger {
+  color: #a94442;
+}
+
+.ForestryWishlistRoot__note--success {
+  color: #2f6f3e;
+}
+
+.ForestryWishlistHeaderIcon {
+  position: relative;
+}
+
+.ForestryWishlistHeaderIcon__Count {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #c67a2d;
+  color: #fff;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.ForestryWishlistHeaderIcon__Count.is-hidden {
+  display: none;
+}
+
+.ForestryWishlistDrawer__content {
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+
+.ForestryWishlistDrawer__notice {
+  margin: 0 0 14px;
+}
+
+.ForestryWishlistDrawer__empty {
+  margin: 0;
+}
+
+.ForestryWishlistDrawer__summary,
+.ForestryWishlistDrawer__identity,
+.ForestryWishlistDrawer__lists,
+.ForestryWishlistDrawer__createList {
+  margin-bottom: 18px;
+}
+
+.ForestryWishlistDrawer__summary p,
+.ForestryWishlistDrawer__identity p,
+.ForestryWishlistDrawer__lists p,
+.ForestryWishlistDrawer__createListLabel {
+  margin: 0;
+}
+
+.ForestryWishlistDrawer__listsHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.ForestryWishlistDrawer__listPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ForestryWishlistDrawer__listPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  background: #fff;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.ForestryWishlistDrawer__listPill.is-active {
+  background: #171717;
+  border-color: #171717;
+  color: #fff;
+}
+
+.ForestryWishlistDrawer__listPillCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ForestryWishlistDrawer__listPill.is-active .ForestryWishlistDrawer__listPillCount {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.ForestryWishlistDrawer__createListLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ForestryWishlistDrawer__createListRow {
+  display: flex;
+  gap: 10px;
+}
+
+.ForestryWishlistDrawer__createListRow .Input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ForestryWishlistDrawer__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ForestryWishlistDrawer__item {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 12px 0;
+}
+
+.ForestryWishlistDrawer__item:first-child {
+  padding-top: 0;
+}
+
+.ForestryWishlistDrawer__itemTitle {
+  margin: 0;
+}
+
+.ForestryWishlistDrawer__itemMeta {
+  margin-top: 4px;
+}
+
+.ForestryWishlistDrawer__itemActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.ForestryWishlistDrawer__cartButton {
+  min-width: 120px;
+}
+
+.ForestryWishlistDrawer__remove {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.ForestryWishlistDrawer__login {
+  margin-top: 14px;
+}
+
+@media screen and (max-width: 640px) {
+  .ForestryWishlistDrawer__createListRow {
+    flex-direction: column;
+  }
+
+  .ForestryWishlistDrawer__cartButton {
+    width: 100%;
+  }
+}

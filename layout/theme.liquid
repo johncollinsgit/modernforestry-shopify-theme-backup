@@ -33,6 +33,9 @@
     {%- if settings.native_reviews_enabled and request.page_type == 'product' -%}
       <link rel="stylesheet" href="{{ 'forestry-product-reviews.css' | asset_url }}">
     {%- endif -%}
+    {%- if settings.native_wishlist_enabled -%}
+      <link rel="stylesheet" href="{{ 'forestry-wishlist.css' | asset_url }}">
+    {%- endif -%}
     {%- unless settings.growave_reviews_enabled -%}
       <style>
         #ssw-widget-review-bar,
@@ -46,6 +49,23 @@
         }
       </style>
     {%- endunless -%}
+    {%- if settings.native_wishlist_enabled or settings.growave_wishlist_enabled == false -%}
+      <style>
+        #ssw-fave-list-widget,
+        #ssw-fave-side-bar,
+        #ssw-fave-side-button,
+        #ssw-fave-page-side-button,
+        .ssw-faveappbtn,
+        .ssw-fave-btn,
+        .ssw-wishlist-element,
+        .ssw-fave-wrapper,
+        .ssw-wishlist-link,
+        [data-name="favePopup"] {
+          display: none !important;
+          visibility: hidden !important;
+        }
+      </style>
+    {%- endif -%}
 
     <script>
       {%- if request.page_type == 'policy' -%}
@@ -130,6 +150,9 @@
     {%- if settings.native_reviews_enabled -%}
       <script src="{{ 'forestry-product-reviews.js' | asset_url }}" defer></script>
     {%- endif -%}
+    {%- if settings.native_wishlist_enabled -%}
+      <script src="{{ 'forestry-wishlist.js' | asset_url }}" defer></script>
+    {%- endif -%}
 
     <script>
       (function () {
@@ -204,6 +227,9 @@
 
     {%- if template != 'cart' -%}
       {% render 'cart-drawer' %}
+    {%- endif -%}
+    {%- if settings.native_wishlist_enabled -%}
+      {% render 'forestry-wishlist-drawer', customer: customer %}
     {%- endif -%}
 
     <div class="PageContainer">

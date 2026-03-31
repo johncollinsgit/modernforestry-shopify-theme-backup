@@ -1,0 +1,39 @@
+{%- if settings.native_wishlist_enabled -%}
+  {%- assign forestry_wishlist_marketing_profile_id = customer.metafields.custom.marketing_profile_id.value | default: '' -%}
+  <div
+    id="sidebar-wishlist"
+    class="Drawer Drawer--fromRight ForestryWishlistDrawer"
+    aria-hidden="true"
+    data-forestry-wishlist-drawer
+    data-marketing-profile-id="{{ forestry_wishlist_marketing_profile_id }}"
+    data-customer-email="{{ customer.email | escape }}"
+    data-customer-phone="{{ customer.phone | escape }}"
+    data-shopify-customer-id="{{ customer.id }}"
+    data-customer-first-name="{{ customer.first_name | escape }}"
+    data-customer-last-name="{{ customer.last_name | escape }}"
+    data-login-url="{{ routes.account_login_url }}"
+    data-endpoint-wishlist-status="/apps/forestry/wishlist/status"
+    data-endpoint-wishlist-add="/apps/forestry/wishlist/add"
+    data-endpoint-wishlist-create-list="/apps/forestry/wishlist/lists/create"
+    data-endpoint-wishlist-remove="/apps/forestry/wishlist/remove"
+    data-wishlist-limit="50"
+  >
+    <div class="Drawer__Header Drawer__Header--bordered Drawer__Container">
+      <span class="Drawer__Title Heading u-h4">
+        Wishlist (<span data-forestry-wishlist-count>0</span>)
+      </span>
+
+      <button class="Drawer__Close Icon-Wrapper--clickable" data-action="close-drawer" data-drawer-id="sidebar-wishlist" aria-label="Close wishlist">
+        {%- render 'icon' with 'close' -%}
+      </button>
+    </div>
+
+    <div class="Drawer__Content">
+      <div class="Drawer__Main" data-scrollable>
+        <div class="Drawer__Container ForestryWishlistDrawer__content" data-forestry-wishlist-drawer-content>
+          <p class="Text--subdued">Loading wishlist...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+{%- endif -%}

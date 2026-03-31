@@ -39,6 +39,8 @@
     "show_element_staggering": false,
     "native_reviews_enabled": true,
     "growave_reviews_enabled": false,
+    "native_wishlist_enabled": true,
+    "growave_wishlist_enabled": false,
     "search_mode": "product",
     "product_show_price_on_hover": false,
     "product_show_secondary_image": true,
@@ -138,11 +140,6 @@
     },
     "content_for_index": [],
     "blocks": {
-      "4000763c184adcdbd8": {
-        "type": "shopify://apps/growave-loyalty-wishlist-3/blocks/block.embed.socialshopwave-helper/b3d2efbe-110a-4e27-84a8-1f2ed63996a4",
-        "disabled": false,
-        "settings": {}
-      },
       "534977871531306417": {
         "type": "shopify://apps/tnc-terms-and-conditions-cbox/blocks/app-embed/2b45c8fb-5ee2-4392-8a72-b663da1d38ad",
         "disabled": false,

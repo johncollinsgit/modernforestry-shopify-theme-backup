@@ -347,6 +347,25 @@
     ]
   },
   {
+    "name": "Storefront wishlist",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "native_wishlist_enabled",
+        "label": "Enable Forestry native wishlist",
+        "info": "Uses Forestry app proxy wishlist status/add/remove endpoints on storefront surfaces.",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "growave_wishlist_enabled",
+        "label": "Enable Growave wishlist surfaces",
+        "info": "Turn this off after native wishlist is validated in production.",
+        "default": true
+      }
+    ]
+  },
+  {
     "name": "Products grid",
     "settings": [
       {
