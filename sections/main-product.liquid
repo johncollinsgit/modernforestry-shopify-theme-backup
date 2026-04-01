@@ -368,13 +368,25 @@
                 {%- when 'product_meta' -%}
                   {%- render 'product-meta', form: form, block: block, product: product -%}
                   {%- comment -%}Forestry-owned reviews and wishlist mount directly on the PDP meta block.{%- endcomment -%}
-                  {%- if settings.native_reviews_enabled -%}
-                    {%- render 'forestry-product-review-summary', product: product, customer: customer -%}
-                  {%- elsif settings.growave_reviews_enabled and block.settings.show_product_rating == false -%}
-                    {%- render 'ssw-widget-avg-rate-listing', product: product -%}
-                  {%- endif -%}
-                  {%- if settings.native_wishlist_enabled -%}
-                    {%- render 'forestry-wishlist-root', product: product, customer: customer -%}
+                  {%- assign forestry_show_reviews = settings.native_reviews_enabled or (settings.growave_reviews_enabled and block.settings.show_product_rating == false) -%}
+                  {%- assign forestry_show_wishlist = settings.native_wishlist_enabled -%}
+                  {%- if forestry_show_reviews or forestry_show_wishlist -%}
+                    <div class="ForestryMetaRow">
+                      {%- if forestry_show_reviews -%}
+                        <div class="ForestryMetaRow__reviews">
+                          {%- if settings.native_reviews_enabled -%}
+                            {%- render 'forestry-product-review-summary', product: product, customer: customer -%}
+                          {%- elsif settings.growave_reviews_enabled and block.settings.show_product_rating == false -%}
+                            {%- render 'ssw-widget-avg-rate-listing', product: product -%}
+                          {%- endif -%}
+                        </div>
+                      {%- endif -%}
+                      {%- if forestry_show_wishlist -%}
+                        <div class="ForestryMetaRow__wishlist">
+                          {%- render 'forestry-wishlist-root', product: product, customer: customer -%}
+                        </div>
+                      {%- endif -%}
+                    </div>
                   {%- endif -%}
 
                 {%- when 'description' -%}

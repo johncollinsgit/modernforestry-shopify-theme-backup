@@ -33,6 +33,23 @@
   #section-{{ section.id }} .flickity-page-dots {
     color: {{ section.settings.text_color }};
   }
+
+  #section-{{ section.id }} .CollectionItem__Link {
+    color: {{ section.settings.button_color }};
+    border-color: {{ section.settings.text_color }};
+  }
+
+  #section-{{ section.id }} .CollectionItem__Link::before {
+    background-color: {{ section.settings.text_color }};
+  }
+
+  {%- if settings.show_button_transition -%}
+    @media (-moz-touch-enabled: 0), (hover: hover) {
+      #section-{{ section.id }} .CollectionItem__Link:hover {
+        color: {{ section.settings.text_color }};
+      }
+    }
+  {%- endif -%}
 </style>
 
 {% schema %}

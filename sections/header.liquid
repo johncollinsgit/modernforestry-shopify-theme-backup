@@ -423,15 +423,16 @@ HEADER CONTENT
               </li>
             {%- endif -%}
 
-            {%- if forestry_native_wishlist_enabled -%}
-              <li class="HorizontalList__Item">
-                <a
-                  href="{{ routes.account_url }}"
-                  class="Heading Link Link--primary Text--subdued u-h8 ForestryWishlistHeaderTrigger"
-                  data-action="open-drawer"
-                  data-drawer-id="sidebar-wishlist"
-                  aria-label="Open wishlist"
-                >
+                {%- if forestry_native_wishlist_enabled -%}
+                  <li class="HorizontalList__Item">
+                    <a
+                      href="#sidebar-wishlist"
+                      class="Heading Link Link--primary Text--subdued u-h8 ForestryWishlistHeaderTrigger"
+                      data-action="open-drawer"
+                      data-drawer-id="sidebar-wishlist"
+                      aria-label="Open wishlist"
+                      role="button"
+                    >
                   Wishlist (<span data-forestry-wishlist-count>0</span>)
                 </a>
               </li>
@@ -464,11 +465,12 @@ HEADER CONTENT
 
       {%- if forestry_native_wishlist_enabled -%}
         <a
-          href="{{ routes.account_url }}"
+          href="#sidebar-wishlist"
           class="Header__Icon Icon-Wrapper Icon-Wrapper--clickable ForestryWishlistHeaderIcon {% unless section.settings.show_icons or use_sidebar_menu %}hidden-desk{% endunless %}"
           data-action="open-drawer"
           data-drawer-id="sidebar-wishlist"
           aria-label="Open wishlist"
+          role="button"
         >
           {%- render 'icon' with 'heart' -%}
           <span class="ForestryWishlistHeaderIcon__Count is-hidden" data-forestry-wishlist-count>0</span>

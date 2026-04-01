@@ -119,6 +119,72 @@ img {
   vertical-align: top;
 }
 
+:root {
+  --forestry-image-radius: 14px;
+}
+
+.ArticleItem__ImageWrapper,
+.Article__ImageWrapper,
+.CartItem__ImageWrapper,
+.CollectionItem__ImageWrapper,
+.FeatureText__ImageWrapper,
+.PageHeader__ImageWrapper,
+.ProductItem__ImageWrapper,
+.ProductMeta__ImageWrapper,
+.ShopTheLook__ImageWrapper,
+.Timeline__ImageWrapper,
+.VariantSelector__ImageWrapper {
+  border-radius: var(--forestry-image-radius);
+  overflow: hidden;
+}
+
+.ProductItem__ImageWrapper .AspectRatio,
+.ProductMeta__ImageWrapper .AspectRatio,
+.CollectionItem__ImageWrapper .CollectionItem__Image,
+.ShopTheLook__ImageWrapper .AspectRatio,
+.ArticleItem__ImageWrapper .ArticleItem__Image,
+.FeatureText__ImageWrapper .FeatureText__Image,
+.Timeline__ImageWrapper .Timeline__Image {
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.Product__Slideshow .AspectRatio,
+.Product__Gallery .AspectRatio,
+.FeaturedProduct .AspectRatio,
+.Product__Gallery .Product__SlideshowMobile .Slideshow__Slide .AspectRatio {
+  border-radius: var(--forestry-image-radius);
+  overflow: hidden;
+}
+
+.CollectionItem__Wrapper {
+  border-radius: var(--forestry-image-radius);
+  overflow: hidden;
+}
+
+.ImageHero__ImageWrapper {
+  border-radius: 0;
+}
+
+.ForestryMetaRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.ForestryMetaRow__reviews,
+.ForestryMetaRow__wishlist {
+  min-width: 0;
+}
+
+@media screen and (max-width: 900px) {
+  .ForestryMetaRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+}
+
 svg:not(:root) {
   overflow: hidden;
 }

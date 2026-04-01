@@ -198,6 +198,11 @@
   margin: 0;
 }
 
+.ForestryWishlistDrawer__item img {
+  border-radius: var(--forestry-image-radius, 14px);
+  display: block;
+}
+
 .ForestryWishlistDrawer__itemMeta {
   margin-top: 4px;
 }
