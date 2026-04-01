@@ -1423,6 +1423,10 @@
         return false;
       }
 
+      if (cleanString(task && task.handle).indexOf('candle-club') === 0 && !(model.candleClub && model.candleClub.member)) {
+        return false;
+      }
+
       return taskShouldDisplay(task, model);
     });
   }
@@ -1539,9 +1543,7 @@
         : 'Google review matching is ready. Add the review link in admin to make this task actionable.';
     }
     if (task.handle === 'product-review') {
-      return task.action_url
-        ? 'Leave your review through the connected review flow and we will add Candle Cash automatically.'
-        : 'This review reward stays hidden until the verified review integration is connected.';
+      return 'Leave a product review on theforestrystudio.com';
     }
     if (task.handle === 'second-order') {
       return 'This one lands automatically after your second order is complete.';
@@ -1574,6 +1576,10 @@
 
     if (task.handle === 'google-review' && task.action_url) {
       return '<button class="Button Button--primary" type="button" data-action="start-google-review" data-task-handle="' + escapeHtml(task.handle) + '" data-open-url="' + escapeHtml(task.action_url) + '"' + (rootState(root).busy ? ' disabled aria-disabled="true"' : '') + '>' + escapeHtml(task.button_text || 'Leave a review') + '</button>';
+    }
+
+    if (task.handle === 'product-review') {
+      return '<button class="Button Button--primary" type="button" data-action="open-product-review-drawer" data-task-handle="' + escapeHtml(task.handle) + '"' + (rootState(root).busy ? ' disabled aria-disabled="true"' : '') + '>Leave a product review</button>';
     }
 
     if (task.action_url) {
@@ -1926,6 +1932,7 @@
   function referralCardMarkup(root, model) {
     const loginUrl = cleanString(root.dataset.loginUrl) || '/account/login';
     const referral = model.referral || {};
+    const referralLink = cleanString(referral.link || (referral.code ? window.location.origin + '/?ref=' + encodeURIComponent(referral.code) : ''));
 
     if (!model.profileId) {
       return '<article class="ForestryRewardsCard ForestryRewardsCard--referral" id="candle-cash-referrals">' +
@@ -1942,17 +1949,16 @@
           '<p class="ForestryRewardsCard__eyebrow">Referral rewards</p>' +
           '<h3 class="Heading u-h3">' + escapeHtml(referral.headline || 'Share Candle Cash with a friend') + '</h3>' +
         '</div>' +
-        '<div class="ForestryRewardsCard__state">' + badge('Best growth move', 'soft') + '</div>' +
       '</div>' +
       '<p class="ForestryRewardsCard__description">' + escapeHtml(referral.copy || 'Share your link and earn Candle Cash when a friend places a qualifying first order.') + '</p>' +
       '<div class="ForestryRewardsReferralSplit">' +
-        '<div><span>You earn</span><strong>' + escapeHtml(currencyLabel(referral.referrer_reward_amount || 0) || '$0') + '</strong></div>' +
-        '<div><span>Friend earns</span><strong>' + escapeHtml(currencyLabel(referral.referred_reward_amount || 0) || '$0') + '</strong></div>' +
+        '<div><span>You earn</span><strong>$5</strong></div>' +
+        '<div><span>Friend earns</span><strong>$10</strong></div>' +
       '</div>' +
       '<div class="ForestryRewardsReferralCode">' +
-        '<code>' + escapeHtml(referral.code || '') + '</code>' +
-        '<button class="Button Button--secondary" type="button" data-action="copy-referral" data-referral-value="' + escapeHtml(referral.link || referral.code || '') + '">Copy link</button>' +
-        '<button class="Button Button--secondary" type="button" data-action="share-referral" data-referral-value="' + escapeHtml(referral.link || '') + '">Share</button>' +
+        '<code>' + escapeHtml(referralLink || referral.code || '') + '</code>' +
+        '<button class="Button Button--secondary" type="button" data-action="copy-referral" data-referral-value="' + escapeHtml(referralLink || referral.code || '') + '">Copy link</button>' +
+        '<button class="Button Button--secondary" type="button" data-action="share-referral" data-referral-value="' + escapeHtml(referralLink || referral.code || '') + '">Share</button>' +
       '</div>' +
       '<div class="ForestryRewardsReferralFoot">' + escapeHtml((referral.count || 0) + ' referral' + ((referral.count || 0) === 1 ? '' : 's') + ' tracked so far') + '</div>' +
     '</article>';
@@ -3732,7 +3738,15 @@
       showToast(root, successMessage, 'success');
     } catch (error) {
       showToast(root, 'Could not copy that yet. You can still use it manually.', 'warning');
+      return;
     }
+
+    logRewardEvent(root, {
+      event_type: 'referral_link_copied',
+      request_key: 'referral-copy:' + Date.now(),
+      reward_kind: 'referral',
+      surface: root.dataset.surface || 'page',
+    });
   }
 
   async function shareReferral(root, value) {
@@ -3750,6 +3764,12 @@
           url: shareValue,
         });
         showToast(root, 'Referral link ready to share.', 'success');
+        logRewardEvent(root, {
+          event_type: 'referral_shared',
+          request_key: 'referral-share:' + Date.now(),
+          reward_kind: 'referral',
+          surface: root.dataset.surface || 'page',
+        });
         return;
       }
     } catch (error) {
@@ -3757,6 +3777,12 @@
     }
 
     await copyValue(root, shareValue, 'Referral link copied.');
+    logRewardEvent(root, {
+      event_type: 'referral_shared_copy_fallback',
+      request_key: 'referral-share:' + Date.now() + ':copy',
+      reward_kind: 'referral',
+      surface: root.dataset.surface || 'page',
+    });
   }
 
   function openTaskDestination(url) {
@@ -4210,6 +4236,22 @@
 
     if (action === 'share-referral') {
       await shareReferral(root, cleanString(target.getAttribute('data-referral-value')));
+      return;
+    }
+
+    if (action === 'open-product-review-drawer') {
+      const toggle = document.querySelector('[data-action=\"forestry-review-open-drawer\"]') || document.querySelector('[data-action=\"forestry-sitewide-reviews-toggle\"]');
+      if (toggle && typeof toggle.click === 'function') {
+        toggle.click();
+        logRewardEvent(root, {
+          event_type: 'product_review_drawer_opened',
+          request_key: 'product-review-open:' + Date.now(),
+          reward_kind: 'product_review',
+          surface: root.dataset.surface || 'page',
+        });
+      } else {
+        openTaskDestination('#forestry-sitewide-reviews-panel');
+      }
       return;
     }
 

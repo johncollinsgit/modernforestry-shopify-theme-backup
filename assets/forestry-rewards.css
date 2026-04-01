@@ -4367,3 +4367,15 @@
     width: min(100%, 280px);
   }
 }
+
+@media screen and (max-width: 1023px) {
+  .ForestryRewardsCard--birthday {
+    display: none !important;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .ForestryRewardsCard--birthday {
+    display: block;
+  }
+}

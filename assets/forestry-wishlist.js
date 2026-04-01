@@ -719,6 +719,9 @@
       return positiveInt(list && list.id) === selectedListId;
     }) || null;
     const inWishlist = bool(productState.in_wishlist);
+    if (inWishlist && !runtime.pendingProduct) {
+      return '';
+    }
 
     return '' +
       '<div class="ForestryWishlistDrawer__composer">' +
@@ -1439,15 +1442,7 @@
         tone: 'success',
       });
     }
-    runtime.pendingProduct = {
-      root: context.root,
-      product: context.product,
-      state: {
-        in_wishlist: true,
-        wishlist_item_id: result.data && result.data.product ? result.data.product.wishlist_item_id : null,
-        wishlist_list_id: result.data && result.data.product ? result.data.product.wishlist_list_id : listId,
-      },
-    };
+    runtime.pendingProduct = null;
     renderAll();
   }
 
