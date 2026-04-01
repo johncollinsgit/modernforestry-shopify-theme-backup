@@ -4,6 +4,7 @@
   const COUNT_SELECTOR = '[data-forestry-product-review-count]';
   const RATING_SELECTOR = '[data-forestry-product-review-rating]';
   const SHELL_SELECTOR = '[data-forestry-product-review-shell]';
+  const SITEWIDE_SELECTOR = '[data-forestry-sitewide-reviews]';
   const ROOT_LOCK_CLASS = 'forestry-product-reviews-open';
   const RUNTIME_KEY = '__forestryProductReviewsRuntime';
   const REQUEST_TIMEOUT_MS = 10000;
@@ -13,6 +14,7 @@
     payloads: new Map(),
     ui: new Map(),
     observer: null,
+    sitewide: null,
   };
 
   window[RUNTIME_KEY] = runtime;
@@ -145,6 +147,32 @@
         review: null,
       },
       sort_options: [],
+      reviews: [],
+    };
+  }
+
+  function emptySitewidePayload() {
+    return {
+      summary: {
+        average_rating: 0,
+        review_count: 0,
+        rating_label: 'No reviews yet',
+      },
+      viewer: {
+        profile_id: null,
+        state: 'guest_ready',
+      },
+      sort_options: [
+        { value: 'most_recent', label: 'Most Recent' },
+        { value: 'highest_rating', label: 'Highest Rating' },
+        { value: 'lowest_rating', label: 'Lowest Rating' },
+      ],
+      current_sort: 'most_recent',
+      pagination: {
+        limit: 24,
+        has_more: false,
+        returned: 0,
+      },
       reviews: [],
     };
   }
@@ -375,7 +403,7 @@
       return new Date(review.approved_at || review.published_at || review.submitted_at || 0).getTime() || 0;
     }
 
-    if (sortValue === 'newest') {
+    if (sortValue === 'newest' || sortValue === 'most_recent') {
       return reviews.sort(function (left, right) {
         return reviewDate(right) - reviewDate(left);
       });
@@ -461,10 +489,15 @@
     return '<div class="ForestryProductReviews__media">' + media + '</div>';
   }
 
-  function reviewCardMarkup(review) {
+  function reviewCardMarkup(review, options) {
+    const settings = Object.assign({
+      showProduct: false,
+    }, options || {});
     const title = clean(review.title);
     const reviewerName = clean(review.reviewer_name) || 'Verified customer';
     const bylineBits = [reviewerName];
+    const productTitle = clean(review.product_title) || clean(review.product_handle).replace(/-/g, ' ');
+    const productUrl = clean(review.product_url) || (clean(review.product_handle) ? '/products/' + clean(review.product_handle) : '');
 
     if (review.is_verified_buyer || review.verified_purchase) {
       bylineBits.push('Verified purchaser');
@@ -479,6 +512,7 @@
             '<p class="ForestryProductReviews__cardDate Text--subdued">' + escapeHtml(shortDate(review.approved_at || review.published_at || review.submitted_at) || 'Recently') + '</p>' +
           '</div>' +
         '</header>' +
+        (settings.showProduct && productTitle ? '<p class="ForestryProductReviews__cardProduct"><a href="' + escapeHtml(productUrl || '#') + '" class="Link Link--primary">' + escapeHtml(productTitle) + '</a></p>' : '') +
         (title ? '<h3 class="ForestryProductReviews__cardTitle Heading u-h6">' + escapeHtml(title) + '</h3>' : '') +
         '<div class="ForestryProductReviews__cardBody">' + escapeHtml(review.body || '') + '</div>' +
         reviewMediaMarkup(review) +
@@ -1439,6 +1473,364 @@
     document.querySelectorAll(SUMMARY_SELECTOR + ',' + PANEL_SELECTOR + ',' + RATING_SELECTOR).forEach(function (root) {
       root.dataset.productVariantId = variantId;
     });
+
+    document.querySelectorAll(SITEWIDE_SELECTOR).forEach(function (root) {
+      root.dataset.currentProductVariantId = variantId;
+    });
+  }
+
+  function floatingReviewState() {
+    if (!runtime.sitewide) {
+      runtime.sitewide = {
+        node: null,
+        open: false,
+        scope: 'sitewide',
+        sitewideSort: 'most_recent',
+        productData: null,
+        sitewideData: null,
+        productLoading: false,
+        sitewideLoading: false,
+        lastFocused: null,
+      };
+    }
+
+    return runtime.sitewide;
+  }
+
+  function reviewRequest(node, endpoint, params, fallbackData) {
+    if (!endpoint) {
+      return Promise.resolve({
+        ok: false,
+        data: fallbackData,
+        error: {
+          code: 'missing_endpoint',
+          message: 'Review endpoint is missing.',
+        },
+      });
+    }
+
+    const url = new URL(endpoint, window.location.origin);
+    Object.keys(params || {}).forEach(function (field) {
+      const value = params[field];
+      if (value != null && clean(value) !== '') {
+        url.searchParams.set(field, clean(value));
+      }
+    });
+
+    const controller = typeof AbortController === 'function' ? new AbortController() : null;
+    const timeoutId = controller
+      ? window.setTimeout(function () {
+          controller.abort();
+        }, REQUEST_TIMEOUT_MS)
+      : null;
+
+    return fetch(url.toString(), Object.assign({
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: { Accept: 'application/json' },
+    }, controller ? { signal: controller.signal } : {})).then(async function (response) {
+      const text = await response.text();
+      let payload = null;
+
+      if (text) {
+        try {
+          payload = JSON.parse(text);
+        } catch (error) {
+          payload = null;
+        }
+      }
+
+      if (response.ok && payload && payload.ok) {
+        return {
+          ok: true,
+          data: payload.data || fallbackData,
+          error: null,
+        };
+      }
+
+      return {
+        ok: false,
+        data: payload && payload.data ? payload.data : fallbackData,
+        error: (payload && payload.error) || {
+          code: response.status === 404 ? 'not_ready' : 'request_failed',
+          message: response.status === 404 ? 'Reviews are still connecting.' : 'The review request could not be completed.',
+        },
+      };
+    }).catch(function (error) {
+      return {
+        ok: false,
+        data: fallbackData,
+        error: {
+          code: error && error.name === 'AbortError' ? 'network_timeout' : 'network_error',
+          message: error && error.name === 'AbortError'
+            ? 'Review request timed out.'
+            : (error && error.message ? error.message : 'Network request failed.'),
+        },
+      };
+    }).finally(function () {
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
+    });
+  }
+
+  function floatingReviewHasProduct(node) {
+    return !!clean(node && node.dataset && node.dataset.currentProductId);
+  }
+
+  function floatingReviewQuery(node) {
+    return {
+      email: clean(node && node.dataset && node.dataset.customerEmail),
+      phone: clean(node && node.dataset && node.dataset.customerPhone),
+      shopify_customer_id: clean(node && node.dataset && node.dataset.shopifyCustomerId),
+    };
+  }
+
+  function floatingProductQuery(node) {
+    const query = floatingReviewQuery(node);
+    query.product_id = clean(node && node.dataset && node.dataset.currentProductId);
+    query.variant_id = clean(node && node.dataset && node.dataset.currentProductVariantId);
+    query.product_handle = clean(node && node.dataset && node.dataset.currentProductHandle);
+    query.product_title = clean(node && node.dataset && node.dataset.currentProductTitle);
+    query.product_url = clean(node && node.dataset && node.dataset.currentProductUrl);
+    return query;
+  }
+
+  function floatingSitewideQuery(node) {
+    const state = floatingReviewState();
+    const query = floatingReviewQuery(node);
+    query.limit = positiveInt(clean(node && node.dataset && node.dataset.reviewLimit)) || 24;
+    query.sort = clean(state.sitewideSort) || 'most_recent';
+    return query;
+  }
+
+  function normalizedReviewDate(review) {
+    return new Date(review.approved_at || review.published_at || review.submitted_at || 0).getTime() || 0;
+  }
+
+  function sortedFloatingReviews(reviews, sortValue) {
+    const items = Array.isArray(reviews) ? reviews.slice() : [];
+    const sort = clean(sortValue) || 'most_recent';
+
+    if (sort === 'highest_rating') {
+      return items.sort(function (left, right) {
+        if ((right.rating || 0) !== (left.rating || 0)) {
+          return (right.rating || 0) - (left.rating || 0);
+        }
+
+        return normalizedReviewDate(right) - normalizedReviewDate(left);
+      });
+    }
+
+    if (sort === 'lowest_rating') {
+      return items.sort(function (left, right) {
+        if ((left.rating || 0) !== (right.rating || 0)) {
+          return (left.rating || 0) - (right.rating || 0);
+        }
+
+        return normalizedReviewDate(right) - normalizedReviewDate(left);
+      });
+    }
+
+    return items.sort(function (left, right) {
+      return normalizedReviewDate(right) - normalizedReviewDate(left);
+    });
+  }
+
+  function floatingReviewContentMarkup(node) {
+    const state = floatingReviewState();
+    const showingProduct = state.scope === 'product' && floatingReviewHasProduct(node);
+    const loading = showingProduct ? state.productLoading : state.sitewideLoading;
+    const payload = showingProduct
+      ? (state.productData || emptyPayload())
+      : (state.sitewideData || emptySitewidePayload());
+    const snapshot = summarySnapshot(payload);
+    const reviewSort = showingProduct ? 'most_recent' : (clean(state.sitewideSort) || clean(payload.current_sort) || 'most_recent');
+    const reviews = sortedFloatingReviews(payload.reviews, reviewSort);
+    const currentProductTitle = clean(node.dataset.currentProductTitle) || 'This product';
+
+    if (loading && !reviews.length) {
+      return '<p class="Text--subdued">Loading reviews...</p>';
+    }
+
+    return '' +
+      '<div class="ForestryFloatingDrawer__panelHeader">' +
+        '<div>' +
+          '<p class="ForestryFloatingDrawer__panelEyebrow">Reviews</p>' +
+          '<h3 class="ForestryFloatingDrawer__panelTitle Heading u-h4">' + escapeHtml(showingProduct ? currentProductTitle : 'Latest from the studio') + '</h3>' +
+          '<p class="ForestryFloatingDrawer__panelSubtitle">' + escapeHtml(snapshot.count > 0 ? ((snapshot.average ? snapshot.average.toFixed(1) : '0.0') + ' from ' + reviewCountLabel(snapshot.count)) : 'No reviews yet') + '</p>' +
+        '</div>' +
+        '<button type="button" class="ForestryFloatingDrawer__close" data-action="forestry-sitewide-reviews-close" aria-label="Close reviews">Close</button>' +
+      '</div>' +
+      (!showingProduct ? '' +
+        '<label class="ForestryProductReviews__sortLabel ForestryProductReviews__sortLabel--floating">' +
+          '<span>Sort</span>' +
+          '<select data-action="forestry-sitewide-reviews-sort">' +
+            (Array.isArray(payload.sort_options) ? payload.sort_options : []).map(function (option) {
+              const value = clean(option && option.value);
+              return '<option value="' + escapeHtml(value) + '"' + (value === reviewSort ? ' selected' : '') + '>' + escapeHtml(clean(option && option.label) || value) + '</option>';
+            }).join('') +
+          '</select>' +
+        '</label>' : '') +
+      (reviews.length
+        ? '<div class="ForestryProductReviews__cards ForestryProductReviews__cards--floating">' + reviews.map(function (review) {
+            return reviewCardMarkup(review, {
+              showProduct: !showingProduct,
+            });
+          }).join('') + '</div>'
+        : '<div class="ForestryProductReviews__empty"><p class="Heading u-h6">No reviews yet</p><p class="Text--subdued">' + escapeHtml(showingProduct ? 'This product has not been reviewed yet.' : 'Sitewide reviews will appear here as soon as they are approved.') + '</p></div>') +
+      (showingProduct && floatingReviewHasProduct(node)
+        ? '<div class="ForestryFloatingDrawer__panelFooter"><button type="button" class="Button Button--secondary" data-action="forestry-sitewide-reviews-show-all">See all reviews</button></div>'
+        : '') +
+      (!showingProduct && floatingReviewHasProduct(node)
+        ? '<div class="ForestryFloatingDrawer__panelFooter"><button type="button" class="Button Button--secondary" data-action="forestry-sitewide-reviews-show-product">Back to this product</button></div>'
+        : '');
+  }
+
+  function renderFloatingReviews() {
+    const state = floatingReviewState();
+    const node = state.node;
+    if (!node) {
+      return;
+    }
+
+    const panel = node.querySelector('.ForestryFloatingDrawer__panel');
+    const content = node.querySelector('[data-forestry-sitewide-reviews-content]');
+    const tab = node.querySelector('[data-action="forestry-sitewide-reviews-toggle"]');
+    const scrim = node.querySelector('.ForestryFloatingDrawer__scrim');
+    const count = node.querySelector('[data-forestry-sitewide-review-count]');
+    const payload = state.scope === 'product' && floatingReviewHasProduct(node)
+      ? (state.productData || emptyPayload())
+      : (state.sitewideData || emptySitewidePayload());
+    const snapshot = summarySnapshot(payload);
+
+    node.classList.toggle('is-open', !!state.open);
+    if (tab) {
+      tab.setAttribute('aria-expanded', state.open ? 'true' : 'false');
+    }
+    if (panel) {
+      panel.setAttribute('aria-hidden', state.open ? 'false' : 'true');
+    }
+    if (scrim) {
+      scrim.hidden = !state.open;
+    }
+    if (count) {
+      count.textContent = String(snapshot.count || 0);
+    }
+    if (content) {
+      content.innerHTML = floatingReviewContentMarkup(node);
+    }
+  }
+
+  async function hydrateFloatingProductReviews() {
+    const state = floatingReviewState();
+    const node = state.node;
+    if (!node || !floatingReviewHasProduct(node)) {
+      return;
+    }
+
+    state.productLoading = true;
+    renderFloatingReviews();
+
+    const result = await reviewRequest(
+      node,
+      clean(node.dataset.endpointProductReviewStatus),
+      floatingProductQuery(node),
+      emptyPayload()
+    );
+
+    state.productLoading = false;
+    state.productData = result.data || emptyPayload();
+    renderFloatingReviews();
+  }
+
+  async function hydrateFloatingSitewideReviews() {
+    const state = floatingReviewState();
+    const node = state.node;
+    if (!node) {
+      return;
+    }
+
+    state.sitewideLoading = true;
+    renderFloatingReviews();
+
+    const result = await reviewRequest(
+      node,
+      clean(node.dataset.endpointProductReviewSitewideStatus),
+      floatingSitewideQuery(node),
+      emptySitewidePayload()
+    );
+
+    state.sitewideLoading = false;
+    state.sitewideData = result.data || emptySitewidePayload();
+    renderFloatingReviews();
+  }
+
+  function closeFloatingReviews(restoreFocus) {
+    const state = floatingReviewState();
+    if (!state.node) {
+      return;
+    }
+
+    state.open = false;
+    renderFloatingReviews();
+
+    if (restoreFocus !== false && state.lastFocused && typeof state.lastFocused.focus === 'function') {
+      state.lastFocused.focus();
+    }
+  }
+
+  async function openFloatingReviews(scope, trigger) {
+    const state = floatingReviewState();
+    const node = state.node;
+    if (!node) {
+      return;
+    }
+
+    state.lastFocused = trigger || document.activeElement;
+    state.scope = clean(scope) || state.scope || clean(node.dataset.defaultScope) || (floatingReviewHasProduct(node) ? 'product' : 'sitewide');
+    state.open = true;
+    document.dispatchEvent(new CustomEvent('forestry:floating-drawer-open', {
+      detail: { kind: 'reviews' },
+    }));
+    renderFloatingReviews();
+
+    if (state.scope === 'product' && floatingReviewHasProduct(node) && !state.productData) {
+      await hydrateFloatingProductReviews();
+    }
+
+    if (state.scope !== 'product' && !state.sitewideData) {
+      await hydrateFloatingSitewideReviews();
+    }
+
+    window.requestAnimationFrame(function () {
+      const panel = node.querySelector('.ForestryFloatingDrawer__panel');
+      if (panel) {
+        panel.focus();
+      }
+    });
+  }
+
+  async function bootFloatingReviews() {
+    const node = document.querySelector(SITEWIDE_SELECTOR);
+    const state = floatingReviewState();
+    state.node = node || null;
+    state.scope = node
+      ? (clean(node.dataset.defaultScope) || (floatingReviewHasProduct(node) ? 'product' : 'sitewide'))
+      : 'sitewide';
+
+    if (!node) {
+      return;
+    }
+
+    renderFloatingReviews();
+
+    if (state.scope === 'product' && floatingReviewHasProduct(node)) {
+      await hydrateFloatingProductReviews();
+      return;
+    }
+
+    await hydrateFloatingSitewideReviews();
   }
 
   function keyFromEventNode(node) {
@@ -1447,6 +1839,39 @@
   }
 
   document.addEventListener('click', function (event) {
+    const floatingToggle = event.target.closest('[data-action="forestry-sitewide-reviews-toggle"]');
+    if (floatingToggle) {
+      event.preventDefault();
+      const state = floatingReviewState();
+      if (state.open) {
+        closeFloatingReviews();
+      } else {
+        openFloatingReviews(clean(state.node && state.node.dataset && state.node.dataset.defaultScope) || state.scope, floatingToggle);
+      }
+      return;
+    }
+
+    const floatingClose = event.target.closest('[data-action="forestry-sitewide-reviews-close"]');
+    if (floatingClose) {
+      event.preventDefault();
+      closeFloatingReviews();
+      return;
+    }
+
+    const showAllReviews = event.target.closest('[data-action="forestry-sitewide-reviews-show-all"]');
+    if (showAllReviews) {
+      event.preventDefault();
+      openFloatingReviews('sitewide', showAllReviews);
+      return;
+    }
+
+    const showProductReviews = event.target.closest('[data-action="forestry-sitewide-reviews-show-product"]');
+    if (showProductReviews) {
+      event.preventDefault();
+      openFloatingReviews('product', showProductReviews);
+      return;
+    }
+
     const openDrawerButton = event.target.closest('[data-action="forestry-review-open-drawer"]');
     if (openDrawerButton) {
       event.preventDefault();
@@ -1541,6 +1966,14 @@
   });
 
   document.addEventListener('change', function (event) {
+    const floatingSortField = event.target.closest('[data-action="forestry-sitewide-reviews-sort"]');
+    if (floatingSortField) {
+      const state = floatingReviewState();
+      state.sitewideSort = clean(floatingSortField.value) || 'most_recent';
+      hydrateFloatingSitewideReviews();
+      return;
+    }
+
     const sortField = event.target.closest('[data-action="forestry-review-sort"]');
     if (sortField) {
       const key = keyFromEventNode(sortField);
@@ -1579,6 +2012,12 @@
       return;
     }
 
+    const floatingState = floatingReviewState();
+    if (floatingState.open) {
+      closeFloatingReviews();
+      return;
+    }
+
     Array.from(runtime.ui.entries()).forEach(function (entry) {
       const key = entry[0];
       const state = entry[1];
@@ -1590,6 +2029,13 @@
   });
 
   document.addEventListener('variant:changed', syncVariantContext);
+  document.addEventListener('forestry:floating-drawer-open', function (event) {
+    const detail = event && event.detail ? event.detail : {};
+    if (clean(detail.kind) !== 'reviews') {
+      closeFloatingReviews(false);
+    }
+  });
 
   document.querySelectorAll(SUMMARY_SELECTOR + ',' + PANEL_SELECTOR + ',' + RATING_SELECTOR).forEach(boot);
+  bootFloatingReviews();
 })();

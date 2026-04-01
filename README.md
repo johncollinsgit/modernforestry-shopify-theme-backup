@@ -114,6 +114,7 @@ Modern Forestry now uses Forestry-owned native reviews and wishlist storefront w
 Current expectations:
 - Reviews:
   - `/apps/forestry/product-reviews/status`
+  - `/apps/forestry/product-reviews/sitewide`
   - `/apps/forestry/product-reviews/submit`
 - Wishlist:
   - `/apps/forestry/wishlist/status`
@@ -124,6 +125,8 @@ Current expectations:
 Theme/runtime rules:
 - `native_reviews_enabled=true`
 - `native_wishlist_enabled=true`
+- The floating left drawer stack is the persistent storefront entry point for reviews and wishlist.
+- On product pages, the reviews drawer opens to the current product first and exposes a `See all reviews` action into the sitewide feed.
 - Growave review/wishlist UI must remain disabled or removed from theme-rendered markup.
 - Growave is historical import input only, not a runtime storefront dependency.
 

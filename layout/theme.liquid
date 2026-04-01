@@ -204,7 +204,7 @@
 
     <link rel="stylesheet" href="{{ 'theme.css' | asset_url }}">
     <link rel="stylesheet" href="{{ 'forestry-rewards.css' | asset_url }}">
-    {%- if settings.native_reviews_enabled and request.page_type == 'product' -%}
+    {%- if settings.native_reviews_enabled -%}
       <link rel="stylesheet" href="{{ 'forestry-product-reviews.css' | asset_url }}">
     {%- endif -%}
     {%- if settings.native_wishlist_enabled -%}
@@ -404,6 +404,9 @@
     {%- endif -%}
     {%- if settings.native_wishlist_enabled -%}
       {% render 'forestry-wishlist-drawer', customer: customer %}
+    {%- endif -%}
+    {%- if settings.native_reviews_enabled or settings.native_wishlist_enabled -%}
+      {% render 'forestry-floating-sidebars', customer: customer, product: product %}
     {%- endif -%}
 
     <div class="PageContainer">

@@ -10,12 +10,15 @@
   const runtime = window[RUNTIME_KEY] || {
     roots: [],
     drawers: [],
+    floatingDrawer: null,
     primaryNode: null,
     payload: null,
     productState: new Map(),
     ui: new WeakMap(),
     loading: false,
     loaded: false,
+    floatingOpen: false,
+    floatingLastFocused: null,
     pendingListId: null,
     notice: {
       message: '',
@@ -587,6 +590,11 @@
   }
 
   function openDrawer(drawerId) {
+    if (runtime.floatingDrawer) {
+      openFloatingDrawer();
+      return;
+    }
+
     const id = clean(drawerId || 'sidebar-wishlist');
     const trigger = document.querySelector('[data-action="open-drawer"][data-drawer-id="' + escapeSelector(id) + '"]');
     if (trigger) {
@@ -724,6 +732,39 @@
       createListFormMarkup(payload);
   }
 
+  function floatingDrawerMarkup(drawer, payload) {
+    const viewerState = clean(payload.viewer && payload.viewer.state);
+    const items = Array.isArray(payload.items) ? payload.items : [];
+    const notice = globalNoticeMarkup();
+    const listUi = listSwitcherMarkup(payload);
+    const listForm = createListFormMarkup(payload);
+    const currentList = activeList(payload);
+
+    return '' +
+      '<div class="ForestryFloatingDrawer__panelHeader">' +
+        '<div>' +
+          '<p class="ForestryFloatingDrawer__panelEyebrow">Wishlist</p>' +
+          '<h3 class="ForestryFloatingDrawer__panelTitle Heading u-h4">Saved for later</h3>' +
+          '<p class="ForestryFloatingDrawer__panelSubtitle">' + escapeHtml(String(parseCount(payload.summary && payload.summary.active_count))) + ' saved product' + (parseCount(payload.summary && payload.summary.active_count) === 1 ? '' : 's') + '</p>' +
+        '</div>' +
+        '<button type="button" class="ForestryFloatingDrawer__close" data-action="forestry-wishlist-floating-close" aria-label="Close wishlist">Close</button>' +
+      '</div>' +
+      notice +
+      listUi +
+      (!items.length
+        ? ((viewerState === 'guest_ready' ? guestDrawerMarkup(drawer) : '') + emptyDrawerMarkup(payload))
+        : '' +
+          '<div class="ForestryWishlistDrawer__summary">' +
+            '<p class="Heading u-h6">' + escapeHtml(currentList ? currentList.name : 'Saved Items') + '</p>' +
+            '<p class="Text--subdued">' + escapeHtml(String(items.length)) + ' saved product' + (items.length === 1 ? '' : 's') + ' ready for later.</p>' +
+          '</div>' +
+          '<ul class="ForestryWishlistDrawer__list">' +
+            items.map(drawerItemMarkup).join('') +
+          '</ul>') +
+      listForm +
+      (viewerState === 'guest_ready' ? maybeLoginPrompt(drawer) : '');
+  }
+
   function renderRoot(root) {
     const button = root.querySelector('[data-action="forestry-wishlist-toggle"]');
     const label = root.querySelector('[data-forestry-wishlist-button-label]');
@@ -782,6 +823,11 @@
       return;
     }
 
+    if (drawer.hasAttribute('data-forestry-wishlist-floating')) {
+      container.innerHTML = floatingDrawerMarkup(drawer, payload);
+      return;
+    }
+
     if (!items.length) {
       container.innerHTML =
         notice +
@@ -809,6 +855,62 @@
     updateCountBadges();
     runtime.roots.forEach(renderRoot);
     runtime.drawers.forEach(renderDrawer);
+    renderFloatingDrawerChrome();
+  }
+
+  function renderFloatingDrawerChrome() {
+    const drawer = runtime.floatingDrawer;
+    if (!drawer) {
+      return;
+    }
+
+    const tab = drawer.querySelector('[data-action="forestry-wishlist-floating-toggle"]');
+    const panel = drawer.querySelector('.ForestryFloatingDrawer__panel');
+    const scrim = drawer.querySelector('.ForestryFloatingDrawer__scrim');
+
+    drawer.classList.toggle('is-open', runtime.floatingOpen);
+    if (tab) {
+      tab.setAttribute('aria-expanded', runtime.floatingOpen ? 'true' : 'false');
+    }
+    if (panel) {
+      panel.setAttribute('aria-hidden', runtime.floatingOpen ? 'false' : 'true');
+    }
+    if (scrim) {
+      scrim.hidden = !runtime.floatingOpen;
+    }
+  }
+
+  function openFloatingDrawer(trigger) {
+    if (!runtime.floatingDrawer) {
+      return;
+    }
+
+    runtime.floatingLastFocused = trigger || document.activeElement;
+    runtime.floatingOpen = true;
+    document.dispatchEvent(new CustomEvent('forestry:floating-drawer-open', {
+      detail: { kind: 'wishlist' },
+    }));
+    renderAll();
+
+    window.requestAnimationFrame(function () {
+      const panel = runtime.floatingDrawer && runtime.floatingDrawer.querySelector('.ForestryFloatingDrawer__panel');
+      if (panel) {
+        panel.focus();
+      }
+    });
+  }
+
+  function closeFloatingDrawer(restoreFocus) {
+    if (!runtime.floatingDrawer) {
+      return;
+    }
+
+    runtime.floatingOpen = false;
+    renderAll();
+
+    if (restoreFocus !== false && runtime.floatingLastFocused && typeof runtime.floatingLastFocused.focus === 'function') {
+      runtime.floatingLastFocused.focus();
+    }
   }
 
   function endpointForAction(node, action) {
@@ -1214,11 +1316,16 @@
   function discover() {
     runtime.roots = Array.from(document.querySelectorAll(ROOT_SELECTOR));
     runtime.drawers = Array.from(document.querySelectorAll(DRAWER_SELECTOR));
+    runtime.floatingDrawer = runtime.drawers.find(function (drawer) {
+      return drawer.hasAttribute('data-forestry-wishlist-floating');
+    }) || null;
     runtime.primaryNode = runtime.roots[0] || runtime.drawers[0] || null;
     runtime.payload = emptyPayload();
     runtime.productState.clear();
     runtime.loading = false;
     runtime.loaded = false;
+    runtime.floatingOpen = false;
+    runtime.floatingLastFocused = null;
     runtime.notice = { message: '', tone: 'neutral' };
   }
 
@@ -1233,6 +1340,24 @@
   }
 
   document.addEventListener('click', function (event) {
+    const floatingToggle = event.target.closest('[data-action="forestry-wishlist-floating-toggle"]');
+    if (floatingToggle) {
+      event.preventDefault();
+      if (runtime.floatingOpen) {
+        closeFloatingDrawer();
+      } else {
+        openFloatingDrawer(floatingToggle);
+      }
+      return;
+    }
+
+    const floatingClose = event.target.closest('[data-action="forestry-wishlist-floating-close"]');
+    if (floatingClose) {
+      event.preventDefault();
+      closeFloatingDrawer();
+      return;
+    }
+
     const toggle = event.target.closest('[data-action="forestry-wishlist-toggle"]');
     if (toggle) {
       event.preventDefault();
@@ -1275,6 +1400,17 @@
   });
 
   document.addEventListener('variant:changed', syncVariantContext);
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && runtime.floatingOpen) {
+      closeFloatingDrawer();
+    }
+  });
+  document.addEventListener('forestry:floating-drawer-open', function (event) {
+    const detail = event && event.detail ? event.detail : {};
+    if (clean(detail.kind) !== 'wishlist') {
+      closeFloatingDrawer(false);
+    }
+  });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);

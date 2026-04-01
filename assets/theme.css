@@ -185,6 +185,161 @@ img {
   }
 }
 
+.ForestryFloatingDrawerStack {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.ForestryFloatingDrawer {
+  position: relative;
+  pointer-events: auto;
+}
+
+.ForestryFloatingDrawer__tab {
+  position: relative;
+  left: 0;
+  z-index: 62;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  min-width: 132px;
+  padding: 0 16px 0 18px;
+  border: 0;
+  border-radius: 0 16px 16px 0;
+  background: #171717;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.ForestryFloatingDrawer__tab:focus-visible,
+.ForestryFloatingDrawer__close:focus-visible {
+  outline: 2px solid #c67a2d;
+  outline-offset: 3px;
+}
+
+.ForestryFloatingDrawer__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.ForestryFloatingDrawer__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(17, 17, 17, 0.18);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.22s ease, visibility 0.22s ease;
+}
+
+.ForestryFloatingDrawer__panel {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  z-index: 61;
+  width: min(360px, calc(100vw - 56px));
+  max-height: min(72vh, 640px);
+  min-height: 240px;
+  overflow: auto;
+  background: #fffaf6;
+  border-radius: 0 20px 20px 0;
+  border: 1px solid rgba(23, 23, 23, 0.08);
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.2);
+  transform: translate(-104%, -50%);
+  transition: transform 0.24s ease;
+}
+
+.ForestryFloatingDrawer__panelBody {
+  padding: 20px 18px 18px;
+}
+
+.ForestryFloatingDrawer__panelHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.ForestryFloatingDrawer__panelEyebrow {
+  margin: 0 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(var(--text-color-rgb), 0.56);
+}
+
+.ForestryFloatingDrawer__panelTitle {
+  margin: 0;
+}
+
+.ForestryFloatingDrawer__panelSubtitle {
+  margin: 10px 0 0;
+  color: rgba(var(--text-color-rgb), 0.72);
+}
+
+.ForestryFloatingDrawer__close {
+  flex: 0 0 auto;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(23, 23, 23, 0.08);
+  color: inherit;
+  cursor: pointer;
+}
+
+.ForestryFloatingDrawer.is-open .ForestryFloatingDrawer__scrim {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.ForestryFloatingDrawer.is-open .ForestryFloatingDrawer__panel {
+  transform: translate(0, -50%);
+}
+
+@media screen and (max-width: 767px) {
+  .ForestryFloatingDrawerStack {
+    top: auto;
+    bottom: 18px;
+    transform: none;
+  }
+
+  .ForestryFloatingDrawer__panel {
+    top: auto;
+    bottom: 18px;
+    transform: translateX(-104%);
+    max-height: min(76vh, 620px);
+  }
+
+  .ForestryFloatingDrawer.is-open .ForestryFloatingDrawer__panel {
+    transform: translateX(0);
+  }
+}
+
 svg:not(:root) {
   overflow: hidden;
 }

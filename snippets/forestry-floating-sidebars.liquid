@@ -1,0 +1,94 @@
+{%- assign forestry_floating_marketing_profile_id = customer.metafields.custom.marketing_profile_id.value | default: '' -%}
+{%- assign forestry_floating_is_product_page = request.page_type == 'product' and product != blank -%}
+
+<div class="ForestryFloatingDrawerStack" data-forestry-floating-drawer-stack aria-label="Sitewide reviews and wishlist drawers">
+  {%- if settings.native_reviews_enabled -%}
+    <section
+      class="ForestryFloatingDrawer ForestryFloatingDrawer--reviews"
+      data-forestry-sitewide-reviews
+      data-default-scope="{% if forestry_floating_is_product_page %}product{% else %}sitewide{% endif %}"
+      data-review-limit="24"
+      data-current-product-id="{% if forestry_floating_is_product_page %}{{ product.id }}{% endif %}"
+      data-current-product-variant-id="{% if forestry_floating_is_product_page %}{{ product.selected_or_first_available_variant.id }}{% endif %}"
+      data-current-product-handle="{% if forestry_floating_is_product_page %}{{ product.handle | escape }}{% endif %}"
+      data-current-product-title="{% if forestry_floating_is_product_page %}{{ product.title | escape }}{% endif %}"
+      data-current-product-url="{% if forestry_floating_is_product_page %}{{ product.url | escape }}{% endif %}"
+      data-customer-email="{{ customer.email | escape }}"
+      data-customer-phone="{{ customer.phone | escape }}"
+      data-shopify-customer-id="{{ customer.id }}"
+      data-customer-first-name="{{ customer.first_name | escape }}"
+      data-customer-last-name="{{ customer.last_name | escape }}"
+      data-login-url="{{ routes.account_login_url }}"
+      data-endpoint-product-review-status="/apps/forestry/product-reviews/status"
+      data-endpoint-product-review-sitewide-status="/apps/forestry/product-reviews/sitewide"
+    >
+      <button
+        type="button"
+        class="ForestryFloatingDrawer__tab"
+        data-action="forestry-sitewide-reviews-toggle"
+        aria-expanded="false"
+        aria-controls="forestry-sitewide-reviews-panel"
+      >
+        <span>Reviews</span>
+        <span class="ForestryFloatingDrawer__count" data-forestry-sitewide-review-count>0</span>
+      </button>
+
+      <div class="ForestryFloatingDrawer__scrim" data-action="forestry-sitewide-reviews-close" hidden></div>
+
+      <aside
+        id="forestry-sitewide-reviews-panel"
+        class="ForestryFloatingDrawer__panel"
+        aria-hidden="true"
+        tabindex="-1"
+      >
+        <div class="ForestryFloatingDrawer__panelBody" data-forestry-sitewide-reviews-content>
+          <p class="Text--subdued">Loading reviews...</p>
+        </div>
+      </aside>
+    </section>
+  {%- endif -%}
+
+  {%- if settings.native_wishlist_enabled -%}
+    <section
+      class="ForestryFloatingDrawer ForestryFloatingDrawer--wishlist"
+      data-forestry-wishlist-drawer
+      data-forestry-wishlist-floating
+      data-marketing-profile-id="{{ forestry_floating_marketing_profile_id }}"
+      data-customer-email="{{ customer.email | escape }}"
+      data-customer-phone="{{ customer.phone | escape }}"
+      data-shopify-customer-id="{{ customer.id }}"
+      data-customer-first-name="{{ customer.first_name | escape }}"
+      data-customer-last-name="{{ customer.last_name | escape }}"
+      data-login-url="{{ routes.account_login_url }}"
+      data-endpoint-wishlist-status="/apps/forestry/wishlist/status"
+      data-endpoint-wishlist-add="/apps/forestry/wishlist/add"
+      data-endpoint-wishlist-create-list="/apps/forestry/wishlist/lists/create"
+      data-endpoint-wishlist-remove="/apps/forestry/wishlist/remove"
+      data-wishlist-limit="50"
+    >
+      <button
+        type="button"
+        class="ForestryFloatingDrawer__tab"
+        data-action="forestry-wishlist-floating-toggle"
+        aria-expanded="false"
+        aria-controls="forestry-sitewide-wishlist-panel"
+      >
+        <span>Wishlist</span>
+        <span class="ForestryFloatingDrawer__count" data-forestry-wishlist-count>0</span>
+      </button>
+
+      <div class="ForestryFloatingDrawer__scrim" data-action="forestry-wishlist-floating-close" hidden></div>
+
+      <aside
+        id="forestry-sitewide-wishlist-panel"
+        class="ForestryFloatingDrawer__panel"
+        aria-hidden="true"
+        tabindex="-1"
+      >
+        <div class="ForestryFloatingDrawer__panelBody ForestryWishlistDrawer__content" data-forestry-wishlist-drawer-content>
+          <p class="Text--subdued">Loading wishlist...</p>
+        </div>
+      </aside>
+    </section>
+  {%- endif -%}
+</div>
