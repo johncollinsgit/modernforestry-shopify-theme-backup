@@ -390,6 +390,10 @@
   min-width: 0;
 }
 
+.ForestryRewardsSurface__lower {
+  margin-top: 1.5rem;
+}
+
 .ForestryRewardsCard,
 .ForestryRewardsFallback {
   padding: 1.4rem;
