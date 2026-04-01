@@ -107,6 +107,15 @@ After connection, merchant/admin theme edits can be tracked through the connecte
 - Keep this repo focused on backup and safe rollback.
 - Avoid adding build tooling unless intentionally moving to a development-first workflow.
 
+## Latest live change (2026-04-01)
+- Theme `review-cutover-staging-20260323` (`#159310446851`) updated and pushed.
+- Birthday reward card is desktop-only (hidden <1024px).
+- Referral card: no “Best growth move” pill; copy now “You earn $5 / Friend earns $10”; copy/share use native share when available and log analytics; builds a referral URL if only code exists.
+- Product-review task: copy set to “Leave a product review on theforestrystudio.com”; CTA opens the onsite review drawer with anchor fallback; analytics event logged.
+- Candle Club tasks gated to active Candle Club members only.
+- Fallback referral amounts in `forestry-rewards-root.liquid` set to 5 / 10.
+- Known warning (pre-existing): Shopify reports `templates/search.json` referencing missing `main-search` section. Not introduced by this change.
+
 ## Native Reviews + Wishlist Cutover
 
 Modern Forestry now uses Forestry-owned native reviews and wishlist storefront widgets backed by the Backstage app proxy.
