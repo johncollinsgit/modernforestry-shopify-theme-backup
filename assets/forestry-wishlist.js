@@ -25,6 +25,7 @@
     overlayCloseListener: null,
     pendingListId: null,
     pendingProduct: null,
+    createListOpen: false,
     notice: {
       message: '',
       tone: 'neutral',
@@ -872,17 +873,43 @@
       '</div>';
   }
 
-  function createListFormMarkup(payload) {
+  function createListFormMarkup(payload, isOpen, formId) {
     const listCount = parseCount(payload.summary && payload.summary.list_count);
 
     return '' +
-      '<form class="ForestryWishlistDrawer__createList" data-action="forestry-wishlist-create-list-form">' +
+      '<form' +
+        ' id="' + escapeHtml(formId || 'forestry-wishlist-create-form') + '"' +
+        ' class="ForestryWishlistDrawer__createList"' +
+        ' data-action="forestry-wishlist-create-list-form"' +
+        (isOpen ? '' : ' hidden') +
+      '>' +
         '<label class="ForestryWishlistDrawer__createListLabel" for="forestry-wishlist-create-list-input">Create a new list</label>' +
         '<div class="ForestryWishlistDrawer__createListRow">' +
           '<input id="forestry-wishlist-create-list-input" class="Input" type="text" name="name" maxlength="160" placeholder="' + escapeHtml(listCount > 0 ? 'Weekend restock ideas' : 'My first wishlist') + '">' +
           '<button type="submit" class="Button Button--secondary">Add list</button>' +
         '</div>' +
       '</form>';
+  }
+
+  function createListBlockMarkup(payload) {
+    const listCount = parseCount(payload.summary && payload.summary.list_count);
+    const isOpen = !!(runtime.createListOpen || listCount === 0);
+    const formId = 'forestry-wishlist-create-form';
+
+    return '' +
+      '<div class="ForestryWishlistDrawer__createBlock">' +
+        '<button' +
+          ' type="button"' +
+          ' class="ForestryWishlistDrawer__createToggle Link Link--primary"' +
+          ' data-action="forestry-wishlist-toggle-create"' +
+          ' aria-controls="' + escapeHtml(formId) + '"' +
+          ' aria-expanded="' + (isOpen ? 'true' : 'false') + '"' +
+        '>' +
+          '<span class="ForestryWishlistDrawer__createToggleIcon" aria-hidden="true">' + (isOpen ? '−' : '+') + '</span>' +
+          '<span>' + (isOpen ? 'Hide create list' : 'Create a new list') + '</span>' +
+        '</button>' +
+        createListFormMarkup(payload, isOpen, formId) +
+      '</div>';
   }
 
   function drawerItemMarkup(item) {
@@ -952,7 +979,7 @@
     const items = Array.isArray(payload.items) ? payload.items : [];
     const notice = globalNoticeMarkup();
     const listUi = listSwitcherMarkup(payload);
-    const listForm = createListFormMarkup(payload);
+    const createBlock = createListBlockMarkup(payload);
     const currentList = activeList(payload);
 
     return '' +
@@ -965,6 +992,7 @@
         '<button type="button" class="ForestryFloatingDrawer__close" data-action="forestry-wishlist-floating-close" aria-label="Close wishlist">Close</button>' +
       '</div>' +
       notice +
+      createBlock +
       listUi +
       (!items.length
         ? ((viewerState === 'guest_ready' ? guestDrawerMarkup(drawer) : '') + emptyDrawerMarkup(payload))
@@ -976,7 +1004,6 @@
           '<ul class="ForestryWishlistDrawer__list">' +
             items.map(drawerItemMarkup).join('') +
           '</ul>') +
-      listForm +
       (viewerState === 'guest_ready' ? maybeLoginPrompt(drawer) : '');
   }
 
@@ -1030,7 +1057,7 @@
     const items = Array.isArray(payload.items) ? payload.items : [];
     const notice = globalNoticeMarkup();
     const listUi = listSwitcherMarkup(payload);
-    const listForm = createListFormMarkup(payload);
+    const createBlock = createListBlockMarkup(payload);
     const currentList = activeList(payload);
 
     if (runtime.loading && !runtime.loaded) {
@@ -1046,16 +1073,17 @@
     if (!items.length) {
       container.innerHTML =
         notice +
+        createBlock +
         productComposerMarkup(payload) +
         listUi +
         (viewerState === 'guest_ready' ? guestDrawerMarkup(drawer) : '') +
-        emptyDrawerMarkup(payload) +
-        createListFormMarkup(payload);
+        emptyDrawerMarkup(payload);
       return;
     }
 
     container.innerHTML =
       notice +
+      createBlock +
       productComposerMarkup(payload) +
       listUi +
       '<div class="ForestryWishlistDrawer__summary">' +
@@ -1065,7 +1093,6 @@
       '<ul class="ForestryWishlistDrawer__list">' +
         items.map(drawerItemMarkup).join('') +
       '</ul>' +
-      listForm +
       (viewerState === 'guest_ready' ? maybeLoginPrompt(drawer) : '');
   }
 
@@ -1519,6 +1546,7 @@
     }
 
     mergePayload(result.data);
+    runtime.createListOpen = false;
     if (runtime.pendingProduct) {
       runtime.pendingListId = positiveInt(result.data && result.data.list && result.data.list.id) || runtime.pendingListId;
     }
@@ -1641,6 +1669,7 @@
     runtime.drawerObserver = null;
     runtime.overlayCloseListener = null;
     runtime.pendingProduct = null;
+    runtime.createListOpen = false;
   }
 
   function boot() {
@@ -1735,6 +1764,24 @@
     if (cartButton) {
       event.preventDefault();
       addToCart(cartButton);
+      return;
+    }
+
+    const toggleCreate = event.target.closest('[data-action="forestry-wishlist-toggle-create"]');
+    if (toggleCreate) {
+      event.preventDefault();
+      runtime.createListOpen = !runtime.createListOpen;
+      renderAll();
+      if (runtime.createListOpen) {
+        window.requestAnimationFrame(function () {
+          const form = document.getElementById('forestry-wishlist-create-form');
+          const input = form && form.querySelector('input[name="name"]');
+          if (input && typeof input.focus === 'function') {
+            input.focus();
+          }
+        });
+      }
+      return;
     }
   });
 
