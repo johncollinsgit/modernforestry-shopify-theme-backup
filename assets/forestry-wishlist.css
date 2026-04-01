@@ -100,15 +100,44 @@
 .ForestryWishlistDrawer__summary,
 .ForestryWishlistDrawer__identity,
 .ForestryWishlistDrawer__lists,
-.ForestryWishlistDrawer__createList {
+.ForestryWishlistDrawer__createList,
+.ForestryWishlistDrawer__composer {
   margin-bottom: 18px;
 }
 
 .ForestryWishlistDrawer__summary p,
 .ForestryWishlistDrawer__identity p,
 .ForestryWishlistDrawer__lists p,
-.ForestryWishlistDrawer__createListLabel {
+.ForestryWishlistDrawer__createListLabel,
+.ForestryWishlistDrawer__composer p,
+.ForestryWishlistDrawer__composerTitle {
   margin: 0;
+}
+
+.ForestryWishlistDrawer__composer {
+  padding: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 18px;
+  background: rgba(255, 250, 246, 0.9);
+}
+
+.ForestryWishlistDrawer__composerHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ForestryWishlistDrawer__composerEyebrow {
+  margin-bottom: 8px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ForestryWishlistDrawer__targetPills,
+.ForestryWishlistDrawer__composerActions {
+  margin-top: 14px;
 }
 
 .ForestryWishlistDrawer__listsHeader {
@@ -231,6 +260,7 @@
 }
 
 @media screen and (max-width: 640px) {
+  .ForestryWishlistDrawer__composerHeader,
   .ForestryWishlistDrawer__createListRow {
     flex-direction: column;
   }

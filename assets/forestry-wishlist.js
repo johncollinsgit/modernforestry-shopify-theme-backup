@@ -19,7 +19,12 @@
     loaded: false,
     floatingOpen: false,
     floatingLastFocused: null,
+    drawerOpen: false,
+    drawerLastFocused: null,
+    drawerObserver: null,
+    overlayCloseListener: null,
     pendingListId: null,
+    pendingProduct: null,
     notice: {
       message: '',
       tone: 'neutral',
@@ -560,12 +565,17 @@
     return Array.from(document.querySelectorAll('[data-action="forestry-wishlist-floating-toggle"]'));
   }
 
+  function wishlistDrawerTriggers() {
+    return Array.from(document.querySelectorAll('[data-action="open-drawer"][data-drawer-id="sidebar-wishlist"]'))
+      .concat(wishlistLauncherButtons());
+  }
+
   function syncWishlistLauncherState() {
     const drawer = document.getElementById('sidebar-wishlist');
     const isOpen = !!(drawer && drawer.getAttribute('aria-hidden') === 'false');
     const stack = floatingStack();
 
-    wishlistLauncherButtons().forEach(function (button) {
+    wishlistDrawerTriggers().forEach(function (button) {
       button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
 
@@ -638,25 +648,180 @@
     return positiveInt(list && list.id);
   }
 
-  function openDrawer(drawerId) {
-    if (runtime.floatingDrawer) {
-      openFloatingDrawer();
-      return;
+  function currentProductRoot() {
+    return runtime.roots.find(function (root) {
+      return !!clean(root && root.dataset && root.dataset.productId) && !root.classList.contains('ForestryWishlistRoot--compact');
+    }) || null;
+  }
+
+  function drawerProductContext() {
+    if (runtime.pendingProduct && clean(runtime.pendingProduct.product && runtime.pendingProduct.product.product_id)) {
+      return runtime.pendingProduct;
     }
 
-    const id = clean(drawerId || 'sidebar-wishlist');
-    const trigger = document.querySelector('[data-action="open-drawer"][data-drawer-id="' + escapeSelector(id) + '"]');
-    if (trigger) {
-      trigger.click();
-      return;
+    const root = currentProductRoot();
+    if (!root) {
+      return null;
     }
 
-    const drawer = document.getElementById(id);
+    return {
+      root: root,
+      product: productFromRoot(root),
+      state: productStateFor(root),
+    };
+  }
+
+  function selectedTargetListId(payload, context) {
+    return positiveInt(
+      runtime.pendingListId ||
+      (context && context.state && context.state.wishlist_list_id) ||
+      activeListId(payload) ||
+      positiveInt(payload && payload.default_list && payload.default_list.id)
+    );
+  }
+
+  function listTargetPillsMarkup(payload, selectedListId) {
+    const lists = Array.isArray(payload && payload.lists) ? payload.lists : [];
+    if (!lists.length) {
+      return '';
+    }
+
+    return lists.map(function (list) {
+      const listId = positiveInt(list.id);
+      const active = listId && selectedListId === listId;
+      return '' +
+        '<button' +
+          ' type="button"' +
+          ' class="ForestryWishlistDrawer__listPill' + (active ? ' is-active' : '') + '"' +
+          ' data-action="forestry-wishlist-select-target-list"' +
+          ' data-wishlist-list-id="' + escapeHtml(listId) + '"' +
+        '>' +
+          '<span>' + escapeHtml(list.name) + '</span>' +
+          '<span class="ForestryWishlistDrawer__listPillCount">' + escapeHtml(String(parseCount(list.item_count))) + '</span>' +
+        '</button>';
+    }).join('');
+  }
+
+  function productComposerMarkup(payload) {
+    const context = drawerProductContext();
+    if (!context || !clean(context.product && context.product.product_id)) {
+      return '';
+    }
+
+    const product = context.product;
+    const productState = context.state || {
+      in_wishlist: false,
+      wishlist_list_id: null,
+    };
+    const selectedListId = selectedTargetListId(payload, context);
+    const selectedList = (Array.isArray(payload.lists) ? payload.lists : []).find(function (list) {
+      return positiveInt(list && list.id) === selectedListId;
+    }) || null;
+    const inWishlist = bool(productState.in_wishlist);
+
+    return '' +
+      '<div class="ForestryWishlistDrawer__composer">' +
+        '<div class="ForestryWishlistDrawer__composerHeader">' +
+          '<div>' +
+            '<p class="ForestryWishlistDrawer__composerEyebrow">Current product</p>' +
+            '<h3 class="ForestryWishlistDrawer__composerTitle Heading u-h5">' + escapeHtml(product.product_title || 'This product') + '</h3>' +
+            '<p class="Text--subdued">' + escapeHtml(inWishlist
+              ? ('Already saved' + (selectedList ? ' in ' + selectedList.name : '') + '.')
+              : 'Choose which wishlist to save this product into.') + '</p>' +
+          '</div>' +
+          (clean(product.product_url)
+            ? '<a class="Link Link--primary" href="' + escapeHtml(product.product_url) + '">View product</a>'
+            : '') +
+        '</div>' +
+        '<div class="ForestryWishlistDrawer__targetPills">' +
+          listTargetPillsMarkup(payload, selectedListId) +
+        '</div>' +
+        '<div class="ForestryWishlistDrawer__composerActions">' +
+          '<button' +
+            ' type="button"' +
+            ' class="Button Button--secondary"' +
+            ' data-action="forestry-wishlist-confirm-add"' +
+            ' data-product-id="' + escapeHtml(product.product_id) + '"' +
+            ' data-product-variant-id="' + escapeHtml(product.product_variant_id) + '"' +
+            ' data-product-handle="' + escapeHtml(product.product_handle) + '"' +
+            ' data-product-title="' + escapeHtml(product.product_title) + '"' +
+            ' data-product-url="' + escapeHtml(product.product_url) + '"' +
+            (inWishlist ? ' disabled aria-disabled="true"' : '') +
+          '>' + escapeHtml(inWishlist ? 'Saved to wishlist' : 'Add to selected wishlist') + '</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function closeSidebarDrawer(restoreFocus) {
+    const drawer = document.getElementById('sidebar-wishlist');
+    const overlay = document.querySelector('.PageOverlay');
+
     if (drawer) {
-      drawer.setAttribute('aria-hidden', 'false');
-      document.documentElement.classList.add('no-mobile-sticky');
+      drawer.setAttribute('aria-hidden', 'true');
+    }
+    document.documentElement.classList.remove('no-scroll');
+    document.documentElement.classList.remove('no-mobile-sticky');
+    runtime.drawerOpen = false;
+
+    if (overlay) {
+      overlay.classList.remove('is-visible');
+      if (runtime.overlayCloseListener) {
+        overlay.removeEventListener('click', runtime.overlayCloseListener);
+      }
     }
 
+    syncWishlistLauncherState();
+
+    if (restoreFocus !== false && runtime.drawerLastFocused && typeof runtime.drawerLastFocused.focus === 'function') {
+      runtime.drawerLastFocused.focus();
+    }
+  }
+
+  function openSidebarDrawer(trigger) {
+    const drawer = document.getElementById('sidebar-wishlist');
+    const overlay = document.querySelector('.PageOverlay');
+    if (!drawer) {
+      return;
+    }
+
+    runtime.drawerLastFocused = trigger || document.activeElement;
+    drawer.setAttribute('aria-hidden', 'false');
+    document.documentElement.classList.add('no-scroll');
+    document.documentElement.classList.add('no-mobile-sticky');
+    runtime.drawerOpen = true;
+
+    if (overlay) {
+      overlay.classList.add('is-visible');
+      if (runtime.overlayCloseListener) {
+        overlay.removeEventListener('click', runtime.overlayCloseListener);
+      }
+      runtime.overlayCloseListener = function () {
+        closeSidebarDrawer();
+      };
+      overlay.addEventListener('click', runtime.overlayCloseListener);
+    }
+
+    syncWishlistLauncherState();
+    renderAll();
+
+    window.requestAnimationFrame(function () {
+      const closeButton = drawer.querySelector('[data-action="close-drawer"][data-drawer-id="sidebar-wishlist"]');
+      if (closeButton) {
+        closeButton.focus();
+      }
+    });
+  }
+
+  function openDrawer(drawerId, trigger) {
+    if (runtime.floatingDrawer) {
+      openFloatingDrawer(trigger);
+      return;
+    }
+
+    if (clean(drawerId || 'sidebar-wishlist') === 'sidebar-wishlist') {
+      openSidebarDrawer(trigger);
+      return;
+    }
     syncWishlistLauncherState();
   }
 
@@ -779,8 +944,7 @@
   function emptyDrawerMarkup(payload) {
     return '' +
       '<p class="ForestryWishlistDrawer__empty Heading u-h6">No saved products yet</p>' +
-      '<p class="Text--subdued">Tap the heart on any product page to save it here.</p>' +
-      createListFormMarkup(payload);
+      '<p class="Text--subdued">Tap the heart on any product page to save it here.</p>';
   }
 
   function floatingDrawerMarkup(drawer, payload) {
@@ -882,14 +1046,17 @@
     if (!items.length) {
       container.innerHTML =
         notice +
+        productComposerMarkup(payload) +
         listUi +
         (viewerState === 'guest_ready' ? guestDrawerMarkup(drawer) : '') +
-        emptyDrawerMarkup(payload);
+        emptyDrawerMarkup(payload) +
+        createListFormMarkup(payload);
       return;
     }
 
     container.innerHTML =
       notice +
+      productComposerMarkup(payload) +
       listUi +
       '<div class="ForestryWishlistDrawer__summary">' +
         '<p class="Heading u-h6">' + escapeHtml(currentList ? currentList.name : 'Saved Items') + '</p>' +
@@ -1126,6 +1293,23 @@
       return;
     }
 
+    if (!removing) {
+      runtime.pendingProduct = {
+        root: root,
+        product: product,
+        state: productState,
+      };
+      runtime.pendingListId = positiveInt(productState.wishlist_list_id) || activeListId() || positiveInt(currentPayload().default_list && currentPayload().default_list.id);
+      setRootUi(root, {
+        busy: false,
+        message: 'Choose a wishlist in the drawer.',
+        tone: 'neutral',
+      });
+      openDrawer('sidebar-wishlist', root.querySelector('[data-action="forestry-wishlist-toggle"]') || root);
+      renderAll();
+      return;
+    }
+
     setRootUi(root, {
       busy: true,
       message: '',
@@ -1161,9 +1345,6 @@
 
     mergePayload(result.data);
     const message = successMessage(result.data && result.data.state);
-    if (!removing) {
-      openDrawer('sidebar-wishlist');
-    }
     setRootUi(root, {
       busy: false,
       message: message,
@@ -1172,6 +1353,73 @@
     runtime.notice = {
       message: '',
       tone: 'neutral',
+    };
+    renderAll();
+  }
+
+  async function confirmPendingAdd(button) {
+    const drawer = document.getElementById('sidebar-wishlist') || runtime.drawers[0] || runtime.primaryNode;
+    const context = drawerProductContext();
+    if (!drawer || !context || !clean(context.product && context.product.product_id)) {
+      return;
+    }
+
+    const endpoint = endpointForAction(drawer, 'add');
+    if (!endpoint) {
+      runtime.notice = {
+        message: 'Wishlist endpoint is missing.',
+        tone: 'danger',
+      };
+      renderAll();
+      return;
+    }
+
+    const listId = positiveInt(runtime.pendingListId || button.dataset && button.dataset.wishlistListId || activeListId() || currentPayload().default_list && currentPayload().default_list.id);
+    button.disabled = true;
+
+    const result = await postAction(drawer, endpoint, payloadForAction(drawer, context.product, 'add', {
+      wishlist_list_id: listId,
+    }));
+
+    button.disabled = false;
+
+    if (!result.ok) {
+      const message = failureMessage(result.error);
+      runtime.notice = {
+        message: message,
+        tone: 'danger',
+      };
+      if (context.root) {
+        setRootUi(context.root, {
+          busy: false,
+          message: message,
+          tone: 'danger',
+        });
+      }
+      renderAll();
+      return;
+    }
+
+    mergePayload(result.data);
+    runtime.notice = {
+      message: successMessage(result.data && result.data.state),
+      tone: 'success',
+    };
+    if (context.root) {
+      setRootUi(context.root, {
+        busy: false,
+        message: successMessage(result.data && result.data.state),
+        tone: 'success',
+      });
+    }
+    runtime.pendingProduct = {
+      root: context.root,
+      product: context.product,
+      state: {
+        in_wishlist: true,
+        wishlist_item_id: result.data && result.data.product ? result.data.product.wishlist_item_id : null,
+        wishlist_list_id: result.data && result.data.product ? result.data.product.wishlist_list_id : listId,
+      },
     };
     renderAll();
   }
@@ -1271,6 +1519,9 @@
     }
 
     mergePayload(result.data);
+    if (runtime.pendingProduct) {
+      runtime.pendingListId = positiveInt(result.data && result.data.list && result.data.list.id) || runtime.pendingListId;
+    }
     runtime.notice = {
       message: 'Created a new wishlist list.',
       tone: 'success',
@@ -1362,6 +1613,9 @@
     runtime.roots.forEach(function (root) {
       root.dataset.productVariantId = variantId;
     });
+    if (runtime.pendingProduct && runtime.pendingProduct.product) {
+      runtime.pendingProduct.product.product_variant_id = variantId;
+    }
   }
 
   function discover() {
@@ -1381,8 +1635,12 @@
     runtime.loaded = false;
     runtime.floatingOpen = false;
     runtime.floatingLastFocused = null;
+    runtime.drawerOpen = false;
+    runtime.drawerLastFocused = null;
     runtime.notice = { message: '', tone: 'neutral' };
     runtime.drawerObserver = null;
+    runtime.overlayCloseListener = null;
+    runtime.pendingProduct = null;
   }
 
   function boot() {
@@ -1420,6 +1678,20 @@
       return;
     }
 
+    const drawerOpenTrigger = event.target.closest('[data-action="open-drawer"][data-drawer-id="sidebar-wishlist"]');
+    if (drawerOpenTrigger) {
+      event.preventDefault();
+      openSidebarDrawer(drawerOpenTrigger);
+      return;
+    }
+
+    const drawerCloseTrigger = event.target.closest('[data-action="close-drawer"][data-drawer-id="sidebar-wishlist"]');
+    if (drawerCloseTrigger) {
+      event.preventDefault();
+      closeSidebarDrawer();
+      return;
+    }
+
     const toggle = event.target.closest('[data-action="forestry-wishlist-toggle"]');
     if (toggle) {
       event.preventDefault();
@@ -1444,6 +1716,21 @@
       return;
     }
 
+    const targetListButton = event.target.closest('[data-action="forestry-wishlist-select-target-list"]');
+    if (targetListButton) {
+      event.preventDefault();
+      runtime.pendingListId = positiveInt(targetListButton.dataset && targetListButton.dataset.wishlistListId) || runtime.pendingListId;
+      renderAll();
+      return;
+    }
+
+    const confirmAddButton = event.target.closest('[data-action="forestry-wishlist-confirm-add"]');
+    if (confirmAddButton) {
+      event.preventDefault();
+      confirmPendingAdd(confirmAddButton);
+      return;
+    }
+
     const cartButton = event.target.closest('[data-action="forestry-wishlist-add-to-cart"]');
     if (cartButton) {
       event.preventDefault();
@@ -1463,8 +1750,15 @@
 
   document.addEventListener('variant:changed', syncVariantContext);
   document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape' && runtime.floatingOpen) {
-      closeFloatingDrawer();
+    if (event.key === 'Escape') {
+      if (runtime.floatingOpen) {
+        closeFloatingDrawer();
+        return;
+      }
+
+      if (runtime.drawerOpen) {
+        closeSidebarDrawer();
+      }
     }
   });
   document.addEventListener('forestry:floating-drawer-open', function (event) {
