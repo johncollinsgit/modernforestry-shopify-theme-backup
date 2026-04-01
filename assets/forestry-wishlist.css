@@ -243,6 +243,11 @@
   gap: 10px;
 }
 
+.ForestryWishlistDrawer__createListRow .Input::placeholder {
+  color: #9a9a9a;
+  opacity: 1;
+}
+
 .ForestryWishlistDrawer__createListRow .Input {
   flex: 1 1 auto;
   min-width: 0;

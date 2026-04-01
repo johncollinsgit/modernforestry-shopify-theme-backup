@@ -888,7 +888,7 @@
       '>' +
         '<label class="ForestryWishlistDrawer__createListLabel" for="forestry-wishlist-create-list-input">Create a new list</label>' +
         '<div class="ForestryWishlistDrawer__createListRow">' +
-          '<input id="forestry-wishlist-create-list-input" class="Input" type="text" name="name" maxlength="160" placeholder="' + escapeHtml(listCount > 0 ? 'Weekend restock ideas' : 'My first wishlist') + '">' +
+          '<input id="forestry-wishlist-create-list-input" class="Input" type="text" name="name" maxlength="160" placeholder="' + escapeHtml('Christmas wishlist') + '">' +
           '<button type="submit" class="Button Button--secondary">Add list</button>' +
         '</div>' +
       '</form>';
