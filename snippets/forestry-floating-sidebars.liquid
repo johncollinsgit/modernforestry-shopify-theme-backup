@@ -50,45 +50,20 @@
 
   {%- if settings.native_wishlist_enabled -%}
     <section
-      class="ForestryFloatingDrawer ForestryFloatingDrawer--wishlist"
-      data-forestry-wishlist-drawer
-      data-forestry-wishlist-floating
-      data-marketing-profile-id="{{ forestry_floating_marketing_profile_id }}"
-      data-customer-email="{{ customer.email | escape }}"
-      data-customer-phone="{{ customer.phone | escape }}"
-      data-shopify-customer-id="{{ customer.id }}"
-      data-customer-first-name="{{ customer.first_name | escape }}"
-      data-customer-last-name="{{ customer.last_name | escape }}"
-      data-login-url="{{ routes.account_login_url }}"
-      data-endpoint-wishlist-status="/apps/forestry/wishlist/status"
-      data-endpoint-wishlist-add="/apps/forestry/wishlist/add"
-      data-endpoint-wishlist-create-list="/apps/forestry/wishlist/lists/create"
-      data-endpoint-wishlist-remove="/apps/forestry/wishlist/remove"
-      data-wishlist-limit="50"
+      class="ForestryFloatingDrawer ForestryFloatingDrawer--wishlistLauncher"
+      data-forestry-wishlist-launcher
     >
       <button
         type="button"
         class="ForestryFloatingDrawer__tab"
         data-action="forestry-wishlist-floating-toggle"
         aria-expanded="false"
-        aria-controls="forestry-sitewide-wishlist-panel"
+        aria-controls="sidebar-wishlist"
+        aria-haspopup="dialog"
       >
         <span>Wishlist</span>
         <span class="ForestryFloatingDrawer__count" data-forestry-wishlist-count>0</span>
       </button>
-
-      <div class="ForestryFloatingDrawer__scrim" data-action="forestry-wishlist-floating-close" hidden></div>
-
-      <aside
-        id="forestry-sitewide-wishlist-panel"
-        class="ForestryFloatingDrawer__panel"
-        aria-hidden="true"
-        tabindex="-1"
-      >
-        <div class="ForestryFloatingDrawer__panelBody ForestryWishlistDrawer__content" data-forestry-wishlist-drawer-content>
-          <p class="Text--subdued">Loading wishlist...</p>
-        </div>
-      </aside>
     </section>
   {%- endif -%}
 </div>

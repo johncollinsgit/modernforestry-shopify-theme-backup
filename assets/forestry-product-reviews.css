@@ -26,6 +26,21 @@
   gap: 10px;
 }
 
+.ForestryProductReviews__summaryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ForestryProductReviewSummary__link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
 .ForestryProductReviewSummary__dots {
   display: inline-flex;
   gap: 4px;
@@ -65,6 +80,28 @@
 html.forestry-product-reviews-open,
 html.forestry-product-reviews-open body {
   overflow: hidden;
+}
+
+.ForestryProductReviewsCallout {
+  padding: 20px;
+  border: 1px solid rgba(23, 23, 23, 0.08);
+  border-radius: 18px;
+  background: rgba(255, 250, 246, 0.88);
+}
+
+.ForestryProductReviewsCallout p {
+  margin: 0;
+}
+
+.ForestryProductReviewsCallout p + p {
+  margin-top: 8px;
+}
+
+.ForestryProductReviewsCallout__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 .ForestryProductReviews__launcher {
@@ -564,6 +601,7 @@ html.forestry-product-reviews-open body {
 }
 
 @media screen and (max-width: 640px) {
+  .ForestryProductReviews__summaryRow,
   .ForestryProductReviewSummary__button {
     align-items: flex-start;
     flex-direction: column;

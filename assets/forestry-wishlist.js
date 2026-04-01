@@ -552,6 +552,55 @@
     });
   }
 
+  function floatingStack() {
+    return document.querySelector('[data-forestry-floating-drawer-stack]');
+  }
+
+  function wishlistLauncherButtons() {
+    return Array.from(document.querySelectorAll('[data-action="forestry-wishlist-floating-toggle"]'));
+  }
+
+  function syncWishlistLauncherState() {
+    const drawer = document.getElementById('sidebar-wishlist');
+    const isOpen = !!(drawer && drawer.getAttribute('aria-hidden') === 'false');
+    const stack = floatingStack();
+
+    wishlistLauncherButtons().forEach(function (button) {
+      button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    if (stack) {
+      if (isOpen) {
+        stack.dataset.wishlistOpen = 'true';
+      } else {
+        delete stack.dataset.wishlistOpen;
+      }
+    }
+  }
+
+  function observeWishlistDrawer() {
+    if (runtime.drawerObserver && typeof runtime.drawerObserver.disconnect === 'function') {
+      runtime.drawerObserver.disconnect();
+    }
+
+    runtime.drawerObserver = null;
+
+    const drawer = document.getElementById('sidebar-wishlist');
+    if (!drawer || typeof MutationObserver !== 'function') {
+      syncWishlistLauncherState();
+      return;
+    }
+
+    runtime.drawerObserver = new MutationObserver(function () {
+      syncWishlistLauncherState();
+    });
+    runtime.drawerObserver.observe(drawer, {
+      attributes: true,
+      attributeFilter: ['aria-hidden'],
+    });
+    syncWishlistLauncherState();
+  }
+
   function loginUrlFor(node) {
     const loginUrl = clean(node && node.dataset && node.dataset.loginUrl) || '/account/login';
     const url = new URL(loginUrl, window.location.origin);
@@ -607,6 +656,8 @@
       drawer.setAttribute('aria-hidden', 'false');
       document.documentElement.classList.add('no-mobile-sticky');
     }
+
+    syncWishlistLauncherState();
   }
 
   function maybeLoginPrompt(drawer) {
@@ -1314,6 +1365,10 @@
   }
 
   function discover() {
+    if (runtime.drawerObserver && typeof runtime.drawerObserver.disconnect === 'function') {
+      runtime.drawerObserver.disconnect();
+    }
+
     runtime.roots = Array.from(document.querySelectorAll(ROOT_SELECTOR));
     runtime.drawers = Array.from(document.querySelectorAll(DRAWER_SELECTOR));
     runtime.floatingDrawer = runtime.drawers.find(function (drawer) {
@@ -1327,14 +1382,17 @@
     runtime.floatingOpen = false;
     runtime.floatingLastFocused = null;
     runtime.notice = { message: '', tone: 'neutral' };
+    runtime.drawerObserver = null;
   }
 
   function boot() {
     discover();
     if (!runtime.primaryNode) {
+      syncWishlistLauncherState();
       return;
     }
 
+    observeWishlistDrawer();
     renderAll();
     hydrateStatus();
   }
@@ -1343,10 +1401,14 @@
     const floatingToggle = event.target.closest('[data-action="forestry-wishlist-floating-toggle"]');
     if (floatingToggle) {
       event.preventDefault();
-      if (runtime.floatingOpen) {
-        closeFloatingDrawer();
+      if (runtime.floatingDrawer) {
+        if (runtime.floatingOpen) {
+          closeFloatingDrawer();
+        } else {
+          openFloatingDrawer(floatingToggle);
+        }
       } else {
-        openFloatingDrawer(floatingToggle);
+        openDrawer(clean(floatingToggle.getAttribute('aria-controls')) || 'sidebar-wishlist');
       }
       return;
     }

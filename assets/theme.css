@@ -190,10 +190,10 @@ img {
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 60;
+  z-index: 110;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   pointer-events: none;
 }
 
@@ -205,7 +205,7 @@ img {
 .ForestryFloatingDrawer__tab {
   position: relative;
   left: 0;
-  z-index: 62;
+  z-index: 112;
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
@@ -213,15 +213,31 @@ img {
   min-height: 56px;
   min-width: 132px;
   padding: 0 16px 0 18px;
-  border: 0;
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 0 16px 16px 0;
-  background: #171717;
-  color: #fff;
+  background: rgba(17, 17, 17, 0.18);
+  color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
   font-size: 13px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+  transition: transform 0.34s ease, opacity 0.34s ease, background-color 0.34s ease, box-shadow 0.34s ease, border-color 0.34s ease;
+}
+
+.ForestryFloatingDrawer__tab:hover,
+.ForestryFloatingDrawer__tab:focus-visible,
+.ForestryFloatingDrawer__tab[aria-expanded="true"] {
+  background: rgba(17, 17, 17, 0.82);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
+}
+
+@supports ((-webkit-backdrop-filter: blur(8px)) or (backdrop-filter: blur(8px))) {
+  .ForestryFloatingDrawer__tab {
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
 }
 
 .ForestryFloatingDrawer__tab:focus-visible,
@@ -238,7 +254,7 @@ img {
   height: 24px;
   padding: 0 8px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.14);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0;
@@ -247,8 +263,8 @@ img {
 .ForestryFloatingDrawer__scrim {
   position: fixed;
   inset: 0;
-  z-index: 60;
-  background: rgba(17, 17, 17, 0.18);
+  z-index: 108;
+  background: rgba(17, 17, 17, 0.16);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -259,7 +275,7 @@ img {
   position: fixed;
   left: 0;
   top: 50%;
-  z-index: 61;
+  z-index: 111;
   width: min(360px, calc(100vw - 56px));
   max-height: min(72vh, 640px);
   min-height: 240px;
@@ -268,8 +284,8 @@ img {
   border-radius: 0 20px 20px 0;
   border: 1px solid rgba(23, 23, 23, 0.08);
   box-shadow: 0 24px 56px rgba(0, 0, 0, 0.2);
-  transform: translate(-104%, -50%);
-  transition: transform 0.24s ease;
+  transform: translate(-108%, -50%);
+  transition: transform 0.3s ease;
 }
 
 .ForestryFloatingDrawer__panelBody {
@@ -311,10 +327,22 @@ img {
   cursor: pointer;
 }
 
+.ForestryFloatingDrawerStack[data-reviews-open=true] .ForestryFloatingDrawer__tab,
+.ForestryFloatingDrawerStack[data-wishlist-open=true] .ForestryFloatingDrawer__tab {
+  opacity: 0.24;
+  transform: translateX(-58%);
+  pointer-events: none;
+}
+
 .ForestryFloatingDrawer.is-open .ForestryFloatingDrawer__scrim {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
+}
+
+.ForestryFloatingDrawer.is-open .ForestryFloatingDrawer__tab {
+  opacity: 0;
+  transform: translateX(-110%);
 }
 
 .ForestryFloatingDrawer.is-open .ForestryFloatingDrawer__panel {
@@ -333,6 +361,15 @@ img {
     bottom: 18px;
     transform: translateX(-104%);
     max-height: min(76vh, 620px);
+  }
+
+  .ForestryFloatingDrawerStack[data-reviews-open=true] .ForestryFloatingDrawer__tab,
+  .ForestryFloatingDrawerStack[data-wishlist-open=true] .ForestryFloatingDrawer__tab {
+    transform: translateX(-42%);
+  }
+
+  .ForestryFloatingDrawer.is-open .ForestryFloatingDrawer__tab {
+    transform: translateX(-96%);
   }
 
   .ForestryFloatingDrawer.is-open .ForestryFloatingDrawer__panel {

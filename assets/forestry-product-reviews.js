@@ -920,34 +920,26 @@
       '</aside>';
   }
 
-  function launcherMarkup(data, key) {
-    const snapshot = summarySnapshot(data);
-
-    return '' +
-      '<button type="button" class="ForestryProductReviews__launcher" data-action="forestry-review-open-drawer">' +
-        '<span class="ForestryProductReviews__launcherLabel">Reviews</span>' +
-        '<span class="ForestryProductReviews__launcherCount">' + escapeHtml(String(snapshot.count)) + '</span>' +
-      '</button>';
-  }
-
   function experienceShellMarkup(root, data) {
     const key = productKey(root);
     const state = stateForKey(key);
     const snapshot = summarySnapshot(data);
+    const viewer = data && data.viewer ? data.viewer : {};
 
     updateCountBadges(key, snapshot.count);
 
     return '' +
       '<div class="ForestryProductReviews__summaryRow">' +
-        '<button type="button" class="ForestryProductReviewSummary__button" data-action="forestry-review-open-drawer">' +
+        '<button type="button" class="ForestryProductReviewSummary__button" data-action="forestry-sitewide-reviews-show-product">' +
           starMarkup(snapshot.average) +
           '<span class="ForestryProductReviewSummary__copy">' + escapeHtml(snapshot.count > 0 ? ((snapshot.average ? snapshot.average.toFixed(1) : '0.0') + ' · ' + reviewCountLabel(snapshot.count)) : 'Be the first to review') + '</span>' +
         '</button>' +
+        ((viewer.can_submit === true && !reviewLocked(viewer))
+          ? '<button type="button" class="ForestryProductReviewSummary__link Link Link--primary" data-action="forestry-review-open-modal">Write a review</button>'
+          : '') +
       '</div>' +
       '<div class="ForestryProductReviews__shell" data-forestry-product-review-shell data-forestry-product-review-key="' + escapeHtml(key) + '">' +
-        launcherMarkup(data, key) +
-        '<div class="ForestryProductReviews__backdrop' + ((state.drawerOpen || state.modalOpen) ? ' is-visible' : '') + '" data-action="forestry-review-close-surfaces"></div>' +
-        drawerMarkup(root, data, key) +
+        '<div class="ForestryProductReviews__backdrop' + (state.modalOpen ? ' is-visible' : '') + '" data-action="forestry-review-close-surfaces"></div>' +
         modalMarkup(root, data, key) +
       '</div>';
   }
@@ -1690,7 +1682,11 @@
   function renderFloatingReviews() {
     const state = floatingReviewState();
     const node = state.node;
+    const stack = document.querySelector('[data-forestry-floating-drawer-stack]');
     if (!node) {
+      if (stack) {
+        delete stack.dataset.reviewsOpen;
+      }
       return;
     }
 
@@ -1716,6 +1712,13 @@
     }
     if (count) {
       count.textContent = String(snapshot.count || 0);
+    }
+    if (stack) {
+      if (state.open) {
+        stack.dataset.reviewsOpen = 'true';
+      } else {
+        delete stack.dataset.reviewsOpen;
+      }
     }
     if (content) {
       content.innerHTML = floatingReviewContentMarkup(node);
@@ -1875,7 +1878,11 @@
     const openDrawerButton = event.target.closest('[data-action="forestry-review-open-drawer"]');
     if (openDrawerButton) {
       event.preventDefault();
-      openDrawer(keyFromEventNode(openDrawerButton));
+      if (document.querySelector(PANEL_SELECTOR)) {
+        openDrawer(keyFromEventNode(openDrawerButton));
+      } else {
+        openFloatingReviews('product', openDrawerButton);
+      }
       return;
     }
 
