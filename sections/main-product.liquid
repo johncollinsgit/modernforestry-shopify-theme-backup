@@ -368,7 +368,12 @@
                 {%- when 'product_meta' -%}
                   {%- render 'product-meta', form: form, block: block, product: product -%}
                   {%- comment -%}Forestry-owned reviews and wishlist mount directly on the PDP meta block.{%- endcomment -%}
-                  {%- assign forestry_show_reviews = settings.native_reviews_enabled or (settings.growave_reviews_enabled and block.settings.show_product_rating == false) -%}
+                  {%- assign forestry_show_reviews = false -%}
+                  {%- if settings.native_reviews_enabled -%}
+                    {%- assign forestry_show_reviews = true -%}
+                  {%- elsif settings.growave_reviews_enabled and block.settings.show_product_rating == false -%}
+                    {%- assign forestry_show_reviews = true -%}
+                  {%- endif -%}
                   {%- assign forestry_show_wishlist = settings.native_wishlist_enabled -%}
                   {%- if forestry_show_reviews or forestry_show_wishlist -%}
                     <div class="ForestryMetaRow">
