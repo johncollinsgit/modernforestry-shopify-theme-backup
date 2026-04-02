@@ -18,6 +18,7 @@
 
 {%- capture collection_inner -%}
   {%- comment -%}This is the common part to both template{%- endcomment -%}
+  {%- comment -%}Collection grid cache-bust marker for product card action updates.{%- endcomment -%}
 
   {%- if collection.products_count > 0 -%}
     {%- paginate collection.products by section.settings.grid_items_per_page -%}
