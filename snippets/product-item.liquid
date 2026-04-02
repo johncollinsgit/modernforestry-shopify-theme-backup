@@ -201,6 +201,23 @@
           {{- color_swatch_list -}}
         {%- endif -%}
 
+        {%- if use_horizontal != true and product.template_suffix != 'coming-soon' -%}
+          <div class="ProductItem__Actions">
+            {%- if product.available -%}
+              {%- form 'product', product, class: 'ProductItem__AddToCartForm' -%}
+                <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+                <button type="submit" class="ProductItem__AddToCart Button Button--primary Button--full">
+                  {{ 'product.form.add_to_cart' | t }}
+                </button>
+              {%- endform -%}
+            {%- else -%}
+              <button type="button" class="ProductItem__AddToCart Button Button--secondary Button--full" disabled="disabled">
+                {{ 'product.form.sold_out' | t }}
+              </button>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
         {%- if settings.native_wishlist_enabled -%}
           {%- render 'forestry-wishlist-root', product: product, customer: customer, compact: true -%}
         {%- endif -%}

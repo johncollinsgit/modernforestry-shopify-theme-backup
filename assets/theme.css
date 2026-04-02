@@ -7612,6 +7612,18 @@ body:not(.features--show-image-zooming) .Image--lazyLoaded.Image--zoomOut {
   margin-top: 4px;
 }
 
+.ProductItem__Actions {
+  margin-top: 14px;
+}
+
+.ProductItem__AddToCartForm {
+  margin: 0;
+}
+
+.ProductItem__AddToCart {
+  width: 100%;
+}
+
 @media (-moz-touch-enabled: 0), (hover: hover) {
   .features--show-price-on-hover .ProductItem__PriceList--showOnHover {
     opacity: 0;
