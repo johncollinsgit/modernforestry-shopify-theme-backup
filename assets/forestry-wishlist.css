@@ -10,14 +10,46 @@
 }
 
 .ForestryWishlistRoot--compact {
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 .ForestryWishlistRoot__button--compact {
-  width: 100%;
-  justify-content: center;
-  padding-left: 12px;
-  padding-right: 12px;
+  width: auto;
+  justify-content: flex-start;
+  padding: 0;
+}
+
+.ForestryWishlistRoot__button--link {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  color: #4b5563;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  justify-content: flex-start;
+}
+
+.ForestryWishlistRoot__button--link:hover,
+.ForestryWishlistRoot__button--link:focus-visible {
+  text-decoration: underline;
+}
+
+.ForestryWishlistRoot__button--link:focus-visible {
+  outline: 2px solid rgba(103, 128, 255, 0.4);
+  outline-offset: 2px;
+}
+
+.ForestryWishlistRoot__button--link .ForestryWishlistRoot__icon {
+  width: 14px;
+  height: 14px;
+}
+
+.ForestryWishlistRoot__button--link .ForestryWishlistRoot__icon .Icon {
+  width: 14px;
+  height: 14px;
 }
 
 .ForestryWishlistRoot__icon {

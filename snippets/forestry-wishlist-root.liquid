@@ -1,6 +1,12 @@
 {%- if settings.native_wishlist_enabled -%}
   {%- assign forestry_wishlist_marketing_profile_id = customer.metafields.custom.marketing_profile_id.value | default: '' -%}
   {%- assign forestry_wishlist_compact = compact | default: false -%}
+  {%- assign button_classes = 'ForestryWishlistRoot__button' -%}
+  {%- if forestry_wishlist_compact -%}
+    {%- assign button_classes = button_classes | append: ' ForestryWishlistRoot__button--compact ForestryWishlistRoot__button--link' -%}
+  {%- else -%}
+    {%- assign button_classes = button_classes | append: ' Button Button--secondary' -%}
+  {%- endif -%}
   <div
     class="ForestryWishlistRoot{% if forestry_wishlist_compact %} ForestryWishlistRoot--compact{% endif %}"
     data-forestry-wishlist-root
@@ -22,7 +28,7 @@
     data-endpoint-wishlist-remove="/apps/forestry/wishlist/remove"
     data-wishlist-limit="25"
   >
-    <button type="button" class="Button Button--secondary ForestryWishlistRoot__button{% if forestry_wishlist_compact %} ForestryWishlistRoot__button--compact{% endif %}" data-action="forestry-wishlist-toggle" aria-pressed="false">
+    <button type="button" class="{{ button_classes }}" data-action="forestry-wishlist-toggle" aria-pressed="false">
       <span class="ForestryWishlistRoot__icon ForestryWishlistRoot__icon--outline">
         {%- render 'icon', icon: 'heart' -%}
       </span>

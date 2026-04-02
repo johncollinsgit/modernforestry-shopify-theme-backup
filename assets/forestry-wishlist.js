@@ -1024,6 +1024,9 @@
     const ui = rootUi(root);
     const inWishlist = bool(productState.in_wishlist);
     const busy = bool(ui.busy);
+    const isCompactRoot = root.classList.contains('ForestryWishlistRoot--compact');
+    const addLabel = isCompactRoot ? 'Add to wishlist' : 'Save to wishlist';
+    const savedLabel = isCompactRoot ? 'Saved' : 'Saved to wishlist';
 
     root.dataset.inWishlist = inWishlist ? 'true' : 'false';
     button.setAttribute('aria-pressed', inWishlist ? 'true' : 'false');
@@ -1032,9 +1035,9 @@
     if (busy) {
       label.textContent = inWishlist ? 'Updating...' : 'Saving...';
     } else if (inWishlist) {
-      label.textContent = 'Saved to wishlist';
+      label.textContent = savedLabel;
     } else {
-      label.textContent = 'Save to wishlist';
+      label.textContent = addLabel;
     }
 
     const noteMessage = clean(ui.message);
