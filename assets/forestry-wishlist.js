@@ -1670,6 +1670,83 @@
     runtime.createListOpen = false;
   }
 
+  function compactAddToCartLabel() {
+    return clean(window.theme && window.theme.strings && window.theme.strings.productFormAddToCart) || 'Add to cart';
+  }
+
+  function normalizeCompactWishlistButton(root) {
+    if (!root || !root.classList.contains('ForestryWishlistRoot--compact')) {
+      return;
+    }
+
+    const button = root.querySelector('[data-action="forestry-wishlist-toggle"]');
+    if (button) {
+      button.classList.remove('Button', 'Button--secondary');
+      button.classList.add('ForestryWishlistRoot__button--link');
+    }
+  }
+
+  function injectCompactAddToCart(root) {
+    if (!root || !root.classList.contains('ForestryWishlistRoot--compact')) {
+      return;
+    }
+
+    const info = root.closest('.ProductItem__Info');
+    if (!info || info.querySelector('.ProductItem__Actions')) {
+      return;
+    }
+
+    const productId = clean(root.dataset && root.dataset.productId);
+    const variantId = clean(root.dataset && root.dataset.productVariantId);
+    if (!productId || !variantId) {
+      return;
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'ProductItem__Actions';
+
+    const form = document.createElement('form');
+    form.method = 'post';
+    form.action = '/cart/add';
+    form.acceptCharset = 'UTF-8';
+    form.className = 'ProductItem__AddToCartForm';
+    form.enctype = 'multipart/form-data';
+
+    const formType = document.createElement('input');
+    formType.type = 'hidden';
+    formType.name = 'form_type';
+    formType.value = 'product';
+    form.appendChild(formType);
+
+    const utf8 = document.createElement('input');
+    utf8.type = 'hidden';
+    utf8.name = 'utf8';
+    utf8.value = '\u2713';
+    form.appendChild(utf8);
+
+    const id = document.createElement('input');
+    id.type = 'hidden';
+    id.name = 'id';
+    id.value = variantId;
+    form.appendChild(id);
+
+    const button = document.createElement('button');
+    button.type = 'submit';
+    button.className = 'ProductItem__AddToCart Button Button--primary Button--full';
+    button.textContent = compactAddToCartLabel();
+    form.appendChild(button);
+
+    actions.appendChild(form);
+    info.insertBefore(actions, root);
+  }
+
+  function hydrateCompactCollectionCardActions() {
+    runtime.roots.forEach(function (root) {
+      normalizeCompactWishlistButton(root);
+      injectCompactAddToCart(root);
+    });
+  }
+
   function boot() {
     discover();
     if (!runtime.primaryNode) {
@@ -1677,6 +1754,7 @@
       return;
     }
 
+    hydrateCompactCollectionCardActions();
     observeWishlistDrawer();
     renderAll();
     hydrateStatus();
