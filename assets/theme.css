@@ -2906,7 +2906,7 @@ body:not(.is-tabbing) .flickity-enabled:focus {
   left: 10px;
   padding: 0 5px;
   line-height: normal;
-  color: var(--text-color-light);
+  color: rgba(var(--text-color-rgb), 0.82);
   font-size: calc(var(--base-text-font-size) - (var(--default-text-font-size) - 12px));
   opacity: 0;
   background: rgba(var(--background-rgb), 0);
@@ -2917,21 +2917,52 @@ body:not(.is-tabbing) .flickity-enabled:focus {
 
 .Form__Input:not(:-moz-placeholder-shown) ~ .Form__FloatingLabel, .Form__Textarea:not(:-moz-placeholder-shown) ~ .Form__FloatingLabel {
   opacity: 1;
-  background: var(--background);
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(var(--background-rgb), 0.96);
+  box-shadow: 0 0 0 1px rgba(var(--text-color-rgb), 0.08);
   transform: translateY(0);
 }
 
 .Form__Input:not(:-ms-input-placeholder) ~ .Form__FloatingLabel, .Form__Textarea:not(:-ms-input-placeholder) ~ .Form__FloatingLabel {
   opacity: 1;
-  background: var(--background);
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(var(--background-rgb), 0.96);
+  box-shadow: 0 0 0 1px rgba(var(--text-color-rgb), 0.08);
   transform: translateY(0);
 }
 
 .Form__Input:not(:placeholder-shown) ~ .Form__FloatingLabel,
 .Form__Textarea:not(:placeholder-shown) ~ .Form__FloatingLabel {
   opacity: 1;
-  background: var(--background);
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(var(--background-rgb), 0.96);
+  box-shadow: 0 0 0 1px rgba(var(--text-color-rgb), 0.08);
   transform: translateY(0);
+}
+
+.Form__Input:-webkit-autofill ~ .Form__FloatingLabel {
+  opacity: 1;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(var(--background-rgb), 0.96);
+  box-shadow: 0 0 0 1px rgba(var(--text-color-rgb), 0.08);
+  transform: translateY(0);
+}
+
+.Form__Input:-webkit-autofill,
+.Form__Input:-webkit-autofill:hover,
+.Form__Input:-webkit-autofill:focus,
+.Form__Textarea:-webkit-autofill,
+.Form__Textarea:-webkit-autofill:hover,
+.Form__Textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-color);
+  caret-color: var(--text-color);
+  -webkit-box-shadow: 0 0 0 1000px var(--background) inset;
+  box-shadow: 0 0 0 1000px var(--background) inset;
+  transition: background-color 9999s ease-out 0s;
 }
 
 .Form__Checkbox {
