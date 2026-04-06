@@ -377,6 +377,14 @@ img {
   }
 }
 
+@media screen and (max-width: 900px) {
+  html[data-forestry-rewards-auth] .ForestryFloatingDrawerStack {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
 svg:not(:root) {
   overflow: hidden;
 }

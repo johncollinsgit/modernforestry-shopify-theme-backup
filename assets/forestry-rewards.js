@@ -5029,12 +5029,29 @@
       }
     }
 
+    function syncGlobalRewardsAuthState(mode, view) {
+      const authMode = view !== 'minimized' && (mode === 'login' || mode === 'register') ? mode : '';
+      const target = document.documentElement;
+
+      if (!target) {
+        return;
+      }
+
+      if (authMode) {
+        target.setAttribute('data-forestry-rewards-auth', authMode);
+        return;
+      }
+
+      target.removeAttribute('data-forestry-rewards-auth');
+    }
+
     function setPortalMode(nextMode, options) {
       const mode = nextMode === 'login' || nextMode === 'register' ? nextMode : 'hero';
       const settings = options || {};
 
       root.setAttribute('data-candle-cash-portal-mode', mode);
       syncPortalSurfaces(mode);
+      syncGlobalRewardsAuthState(mode, root.dataset.cinematicView || 'full');
 
       if (settings.updateHistory !== false) {
         writePortalUrl(mode, root.dataset.cinematicView);
@@ -5082,6 +5099,7 @@
       root.dataset.cinematicView = view;
       writePortalUrl(portalMode(), view);
       syncStandardRootVisibility(view);
+      syncGlobalRewardsAuthState(portalMode(), view);
 
       if (!button) {
         return;
@@ -5404,6 +5422,7 @@
         pointerRect = null;
         root.setAttribute('data-candle-cash-authing', 'false');
         root.dataset.cinematicInteractive = 'false';
+        syncGlobalRewardsAuthState('hero', 'full');
         applyPointerState(0.5, 0.5);
       },
     };
