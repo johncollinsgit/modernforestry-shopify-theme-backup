@@ -812,6 +812,36 @@
   transform: translate3d(0, -12px, 0) scale(0.98);
 }
 
+@media screen and (max-width: 900px) {
+  [data-candle-cash-cinematic][data-candle-cash-portal-mode="login"] .CandleCashCinematic__content,
+  [data-candle-cash-cinematic][data-candle-cash-portal-mode="register"] .CandleCashCinematic__content {
+    grid-template-areas: "portal";
+    row-gap: 0;
+  }
+
+  [data-candle-cash-cinematic][data-candle-cash-portal-mode="login"] .CandleCashCinematic__message,
+  [data-candle-cash-cinematic][data-candle-cash-portal-mode="register"] .CandleCashCinematic__message,
+  [data-candle-cash-cinematic][data-candle-cash-portal-mode="login"] .CandleCashCinematic__brandmark,
+  [data-candle-cash-cinematic][data-candle-cash-portal-mode="register"] .CandleCashCinematic__brandmark {
+    display: none;
+  }
+
+  [data-candle-cash-cinematic][data-candle-cash-portal-mode="login"]::before,
+  [data-candle-cash-cinematic][data-candle-cash-portal-mode="login"]::after,
+  [data-candle-cash-cinematic][data-candle-cash-portal-mode="register"]::before,
+  [data-candle-cash-cinematic][data-candle-cash-portal-mode="register"]::after,
+  [data-candle-cash-cinematic][data-candle-cash-portal-mode="login"] .CandleCashCinematic__bg,
+  [data-candle-cash-cinematic][data-candle-cash-portal-mode="register"] .CandleCashCinematic__bg,
+  [data-candle-cash-cinematic][data-candle-cash-portal-mode="login"] .CandleCashCinematic__trace,
+  [data-candle-cash-cinematic][data-candle-cash-portal-mode="register"] .CandleCashCinematic__trace,
+  [data-candle-cash-cinematic][data-candle-cash-portal-mode="login"] .CandleCashCinematic__scene,
+  [data-candle-cash-cinematic][data-candle-cash-portal-mode="register"] .CandleCashCinematic__scene {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
 .CandleCashCinematic .Button--primary,
 .CandleCashCinematic .Button--secondary {
   position: relative;

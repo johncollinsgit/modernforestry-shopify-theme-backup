@@ -4656,12 +4656,17 @@
   const DEBUG_PARAM = 'candle_cash_intro';
   const PORTAL_PARAM = 'candle_cash_portal';
   const PORTAL_STORAGE_KEY = 'candleCashPortalTransition';
+  const INLINE_AUTH_BREAKPOINT = '(min-width: 901px)';
   const PORTAL_DURATION_MS = 560;
   const WHEEL_SKIP_THRESHOLD = 24;
   let activeCinematicController = null;
 
   function cleanCinematicValue(value) {
     return value == null ? '' : String(value).trim();
+  }
+
+  function cinematicInlineAuthEnabled() {
+    return window.matchMedia ? cinematicMatchMedia(INLINE_AUTH_BREAKPOINT) : window.innerWidth > 900;
   }
 
   function cinematicMatchMedia(query) {
@@ -5272,6 +5277,7 @@
           const target = cleanCinematicValue(link.getAttribute('data-candle-cash-portal-open') || link.getAttribute('data-portal-target')).toLowerCase();
           const inlineTarget = link.hasAttribute('data-candle-cash-portal-open');
           const href = cleanCinematicValue(link.getAttribute('href'));
+          const allowInlinePortal = cinematicInlineAuthEnabled();
           let destinationPath = '';
 
           if (href) {
@@ -5282,9 +5288,13 @@
             }
           }
 
-          if (target && (inlineTarget || destinationPath === window.location.pathname)) {
+          if (target && allowInlinePortal && (inlineTarget || destinationPath === window.location.pathname)) {
             event.preventDefault();
             openPortalMode(target);
+            return;
+          }
+
+          if (!allowInlinePortal) {
             return;
           }
 
@@ -5447,6 +5457,7 @@
   const MAX_WELCOME_WAIT_MS = 2600;
   const WELCOME_DISSOLVE_MS = 1100;
   const REWARDS_REFRESH_SETTLE_MS = 360;
+  const INLINE_AUTH_BREAKPOINT = '(min-width: 901px)';
 
   function cleanValue(value) {
     return value == null ? '' : String(value).trim();
@@ -5542,6 +5553,10 @@
     return cleanValue(container && container.getAttribute('data-candle-cash-auth-surface')).toLowerCase() === 'inline';
   }
 
+  function desktopInlineAuthEnabled() {
+    return window.matchMedia ? window.matchMedia(INLINE_AUTH_BREAKPOINT).matches : window.innerWidth > 900;
+  }
+
   function cinematicRootFor(container) {
     return container && container.closest ? container.closest('[data-candle-cash-cinematic]') : null;
   }
@@ -5567,6 +5582,34 @@
     }
 
     input.value = fallback;
+  }
+
+  function syncAuthSubmitAction(container) {
+    const form = authForm(container);
+    const kind = cleanValue(container && container.getAttribute('data-candle-cash-auth')).toLowerCase() || 'login';
+    const helpers = authHelpers();
+    const input = form && form.querySelector('input[name="return_to"]');
+    const fallback = cleanValue(input && input.value) || '/account';
+    const baseAction = cleanValue(form && form.getAttribute('data-candle-cash-base-action')) || cleanValue(form && form.getAttribute('action')) || window.location.pathname;
+
+    if (!form) {
+      return;
+    }
+
+    if (!form.getAttribute('data-candle-cash-base-action')) {
+      form.setAttribute('data-candle-cash-base-action', baseAction);
+    }
+
+    if (helpers && typeof helpers.buildAuthUrl === 'function' && typeof helpers.returnUrlForTarget === 'function') {
+      form.action = helpers.buildAuthUrl(baseAction, {
+        kind: kind,
+        portal: null,
+        returnUrl: helpers.returnUrlForTarget(kind, fallback),
+      });
+      return;
+    }
+
+    form.action = baseAction;
   }
 
   function suppressShopAuth(container) {
@@ -6048,6 +6091,7 @@
     container.__candleCashAuthBound = true;
     suppressShopAuth(container);
     syncAuthReturnInput(container);
+    syncAuthSubmitAction(container);
     restoreIntent(container);
     setAuthError(container, '');
     runAuthPortal(container);
@@ -6098,12 +6142,7 @@
     form.addEventListener('submit', function (event) {
       suppressShopAuth(container);
       syncAuthReturnInput(container);
-
-      if (inlineAuth(container)) {
-        event.preventDefault();
-        submitInlineAuthForm(container, form);
-        return;
-      }
+      syncAuthSubmitAction(container);
 
       const intent = buildIntent(container);
       const phoneField = consentPhoneField(container);
@@ -6119,14 +6158,17 @@
         phoneField.setCustomValidity('');
       }
 
-      event.preventDefault();
-      event.stopImmediatePropagation();
       persistIntent(intent);
 
-      if (window.HTMLFormElement && window.HTMLFormElement.prototype && typeof window.HTMLFormElement.prototype.submit === 'function') {
-        window.HTMLFormElement.prototype.submit.call(form);
+      if (inlineAuth(container) && desktopInlineAuthEnabled()) {
+        const root = cinematicRootFor(container);
+
+        if (root) {
+          root.setAttribute('data-candle-cash-authing', 'true');
+          root.setAttribute('data-cinematic-transition', 'out');
+        }
       }
-    }, true);
+    });
   }
 
   function currentWelcomeMode() {
