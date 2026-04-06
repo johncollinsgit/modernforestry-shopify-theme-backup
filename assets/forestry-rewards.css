@@ -3868,7 +3868,27 @@
 
 .CandleCashAuth .Form__FloatingLabel,
 .CandleCashAuth .Text--subdued {
-  color: rgba(246, 241, 234, 0.58);
+  color: rgba(246, 241, 234, 0.82);
+}
+
+.CandleCashAuth .Form__Input:not(:placeholder-shown) ~ .Form__FloatingLabel,
+.CandleCashAuth .Form__Textarea:not(:placeholder-shown) ~ .Form__FloatingLabel,
+.CandleCashAuth .Form__Input:-webkit-autofill ~ .Form__FloatingLabel {
+  background: rgba(12, 10, 9, 0.92);
+  border-radius: 999px;
+  padding: 0 8px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.CandleCashAuth .Form__Input:-webkit-autofill,
+.CandleCashAuth .Form__Input:-webkit-autofill:hover,
+.CandleCashAuth .Form__Input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f6f1ea;
+  caret-color: #f6f1ea;
+  border: 1px solid rgba(198, 122, 45, 0.38);
+  -webkit-box-shadow: 0 0 0 1000px rgba(24, 18, 14, 0.96) inset;
+  box-shadow: 0 0 0 1000px rgba(24, 18, 14, 0.96) inset;
+  transition: background-color 9999s ease-out 0s;
 }
 
 .CandleCashAuth .Form__ItemHelp,
