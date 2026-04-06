@@ -1,5 +1,5 @@
-{%- assign rewards_return_to = '/pages/rewards?candle_cash_welcome=login' -%}
-{%- assign rewards_register_portal_url = routes.account_register_url | append: '?candle_cash_portal=register' -%}
+{%- assign default_return_to = '/account' -%}
+{%- assign rewards_register_portal_url = '/account/register?candle_cash_portal=register' -%}
 {%- assign is_recover_active = false -%}
 
 {%- form 'recover_customer_password' -%}
@@ -40,7 +40,7 @@
             <p class="CandleCashAuth__legend">Enter smoothly and pick up right where Candle Cash left off.</p>
           </header>
 
-          <input type="hidden" name="return_to" value="{{ rewards_return_to }}">
+          <input type="hidden" name="return_to" value="{{ default_return_to }}">
 
           {%- if form.errors -%}
             <p class="Form__Alert Alert Alert--error">

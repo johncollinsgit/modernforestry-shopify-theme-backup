@@ -7,7 +7,7 @@
   if candle_club_customer_email == candle_club_allowed_email
     assign candle_club_actionable = true
   endif
-  assign account_link = routes.account_login_url
+  assign account_link = '/account/login'
   assign hero_account_label = 'Sign in to view your balance'
   assign closing_account_label = 'Sign in or create account'
   if customer
@@ -30,7 +30,7 @@
       <p class="CandleCashFaqPage__lead">Candle Cash is the easiest way to earn and use rewards with The Forestry Studio. Your balance stays close in your account, cart, and rewards space, so it is ready when you are.</p>
 
       <div class="CandleCashFaqPage__actions">
-        <a class="Button Button--primary" href="{{ account_link }}">{{ hero_account_label }}</a>
+        <a class="Button Button--primary" href="{{ account_link }}"{% unless customer %} data-forestry-auth-link="login"{% endunless %}>{{ hero_account_label }}</a>
         <a class="Button Button--secondary" href="{{ rewards_url }}">Open Candle Cash</a>
         <a class="Button Button--secondary" href="{{ routes.all_products_collection_url }}">Shop candles</a>
       </div>

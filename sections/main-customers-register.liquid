@@ -1,5 +1,5 @@
-{%- assign rewards_return_to = '/pages/rewards?candle_cash_welcome=register' -%}
-{%- assign rewards_login_portal_url = routes.account_login_url | append: '?candle_cash_portal=login' -%}
+{%- assign default_return_to = '/account' -%}
+{%- assign rewards_login_portal_url = '/account/login?candle_cash_portal=login' -%}
 
 <section class="CandleCashAuth CandleCashAuth--register" data-section-id="reset-password" data-section-type="reset-password" data-candle-cash-auth="register" data-auth-portal-state="idle" data-auth-portal-transition="idle" data-candle-cash-bonus-expanded="false">
   <div class="CandleCashAuth__bg" aria-hidden="true"></div>
@@ -25,7 +25,7 @@
             <p class="CandleCashAuth__legend">Set up your account and we&apos;ll land you directly inside your rewards world.</p>
           </header>
 
-          <input type="hidden" name="return_to" value="{{ rewards_return_to }}">
+          <input type="hidden" name="return_to" value="{{ default_return_to }}">
 
           {%- if form.errors -%}
             <div class="Form__Alert Alert Alert--error">

@@ -13,6 +13,11 @@
     available: 12000,
     cart: 2500,
   };
+  const AUTH_RETURN_PARAM = 'return_url';
+  const AUTH_PORTAL_PARAM = 'candle_cash_portal';
+  const AUTH_WELCOME_PARAM = 'candle_cash_welcome';
+  const CLASSIC_LOGIN_PATH = '/account/login';
+  const CLASSIC_REGISTER_PATH = '/account/register';
   const runtime = window[RUNTIME_KEY] || {
     mounted: new Set(),
     state: new WeakMap(),
@@ -26,6 +31,160 @@
   function cleanString(value) {
     return value == null ? '' : String(value).trim();
   }
+
+  function authPathFor(kind) {
+    return cleanString(kind).toLowerCase() === 'register' ? CLASSIC_REGISTER_PATH : CLASSIC_LOGIN_PATH;
+  }
+
+  function normalizeReturnUrl(value) {
+    const source = cleanString(value);
+    if (!source) {
+      return '';
+    }
+
+    try {
+      const url = new URL(source, window.location.origin);
+      if (url.origin !== window.location.origin) {
+        return '';
+      }
+
+      return url.pathname + url.search + url.hash;
+    } catch (error) {
+      return '';
+    }
+  }
+
+  function currentPageUrl() {
+    return normalizeReturnUrl(window.location.pathname + window.location.search + window.location.hash) || '/';
+  }
+
+  function currentAuthReturnUrl(fallback) {
+    const url = new URL(window.location.href);
+    const explicitReturn = normalizeReturnUrl(url.searchParams.get(AUTH_RETURN_PARAM));
+
+    if (explicitReturn) {
+      return explicitReturn;
+    }
+
+    const normalizedFallback = normalizeReturnUrl(fallback);
+    if (normalizedFallback) {
+      return normalizedFallback;
+    }
+
+    return currentPageUrl();
+  }
+
+  function returnUrlForAuthTarget(target, fallback) {
+    const kind = cleanString(target).toLowerCase();
+    const normalized = normalizeReturnUrl(currentAuthReturnUrl(fallback));
+
+    if (!normalized) {
+      return currentPageUrl();
+    }
+
+    try {
+      const url = new URL(normalized, window.location.origin);
+      url.searchParams.delete(AUTH_PORTAL_PARAM);
+
+      if (url.pathname === '/pages/rewards' && (kind === 'login' || kind === 'register' || kind === 'home')) {
+        url.searchParams.set(AUTH_WELCOME_PARAM, kind);
+      }
+
+      return url.pathname + url.search + url.hash;
+    } catch (error) {
+      return normalized;
+    }
+  }
+
+  function buildAuthUrl(base, options) {
+    const settings = options || {};
+    const kind = cleanString(settings.kind).toLowerCase();
+    const portal = cleanString(settings.portal).toLowerCase();
+    const hash = cleanString(settings.hash);
+    const fallbackBase = authPathFor(kind);
+
+    try {
+      const url = new URL(cleanString(base) || fallbackBase, window.location.origin);
+      const returnUrl = normalizeReturnUrl(
+        settings.returnUrl == null
+          ? currentAuthReturnUrl()
+          : settings.returnUrl
+      );
+
+      if (returnUrl) {
+        url.searchParams.set(AUTH_RETURN_PARAM, returnUrl);
+      } else {
+        url.searchParams.delete(AUTH_RETURN_PARAM);
+      }
+
+      if (portal === 'login' || portal === 'register' || portal === 'minimized') {
+        url.searchParams.set(AUTH_PORTAL_PARAM, portal);
+      } else if (settings.portal === null) {
+        url.searchParams.delete(AUTH_PORTAL_PARAM);
+      }
+
+      if (settings.hash != null) {
+        url.hash = hash ? (hash.charAt(0) === '#' ? hash : '#' + hash) : '';
+      }
+
+      return url.pathname + url.search + url.hash;
+    } catch (error) {
+      return cleanString(base) || fallbackBase;
+    }
+  }
+
+  function applyManagedAuthLinks(scope) {
+    const root = scope && typeof scope.querySelectorAll === 'function' ? scope : document;
+
+    root.querySelectorAll('[data-forestry-auth-link]').forEach(function (link) {
+      const kind = cleanString(link.getAttribute('data-forestry-auth-link')).toLowerCase();
+      const returnMode = cleanString(link.getAttribute('data-forestry-auth-return')).toLowerCase();
+      const hash = cleanString(link.getAttribute('data-forestry-auth-hash'));
+      const portalTarget = cleanString(
+        link.getAttribute('data-forestry-auth-portal') ||
+        link.getAttribute('data-portal-target') ||
+        link.getAttribute('data-candle-cash-portal-open')
+      ).toLowerCase();
+      let returnUrl = '';
+
+      if (returnMode === 'rewards-login') {
+        returnUrl = returnUrlForAuthTarget('login');
+      } else if (returnMode === 'rewards-register') {
+        returnUrl = returnUrlForAuthTarget('register');
+      } else if (returnMode === 'account') {
+        returnUrl = '/account';
+      } else {
+        returnUrl = currentAuthReturnUrl();
+      }
+
+      link.href = buildAuthUrl(link.getAttribute('href') || authPathFor(kind), {
+        kind: kind,
+        portal: portalTarget || undefined,
+        hash: hash || undefined,
+        returnUrl: returnUrl,
+      });
+    });
+  }
+
+  function guestLoginUrl(root) {
+    const loginUrl = cleanString(root && root.dataset && root.dataset.loginUrl) || CLASSIC_LOGIN_PATH;
+
+    return buildAuthUrl(loginUrl, {
+      kind: 'login',
+      returnUrl: returnUrlForAuthTarget('login'),
+    });
+  }
+
+  window.ForestryAuthUrls = Object.assign({}, window.ForestryAuthUrls, {
+    loginPath: CLASSIC_LOGIN_PATH,
+    registerPath: CLASSIC_REGISTER_PATH,
+    normalizeReturnUrl: normalizeReturnUrl,
+    currentPageUrl: currentPageUrl,
+    currentAuthReturnUrl: currentAuthReturnUrl,
+    returnUrlForTarget: returnUrlForAuthTarget,
+    buildAuthUrl: buildAuthUrl,
+    applyManagedLinks: applyManagedAuthLinks,
+  });
 
   function escapeHtml(value) {
     return cleanString(value)
@@ -1666,7 +1825,7 @@
   function taskActionMarkup(root, model, task, uiState) {
     const state = taskState(task);
     const disabled = uiState.busy ? ' disabled aria-disabled="true"' : '';
-    const loginUrl = cleanString(root.dataset.loginUrl) || '/account/login';
+    const loginUrl = guestLoginUrl(root);
     const lockedUrl = cleanString(task.eligibility && task.eligibility.locked_cta_url);
     const lockedText = cleanString(task.eligibility && task.eligibility.locked_cta_text) || 'Learn more';
 
@@ -1818,7 +1977,7 @@
     const rewardReference = rewardCode || cleanString(reward.discount_title || rewardDisplayName(reward));
     const disabled = uiState.busy ? ' disabled aria-disabled="true"' : '';
     const access = redemptionAccess(model);
-    const loginUrl = cleanString(root.dataset.loginUrl) || '/account/login';
+    const loginUrl = guestLoginUrl(root);
     const rewardsUrl = cleanString(root.dataset.rewardsUrl) || '/pages/rewards';
     const redeemLabel = 'Redeem ' + redeemAmountLabel(model) + ' Candle Cash';
 
@@ -1930,7 +2089,7 @@
   }
 
   function referralCardMarkup(root, model) {
-    const loginUrl = cleanString(root.dataset.loginUrl) || '/account/login';
+    const loginUrl = guestLoginUrl(root);
     const referral = model.referral || {};
     const referralLink = cleanString(referral.link || (referral.code ? window.location.origin + '/?ref=' + encodeURIComponent(referral.code) : ''));
 
@@ -1965,7 +2124,7 @@
   }
 
   function guestCalloutMarkup(root) {
-    const loginUrl = cleanString(root.dataset.loginUrl) || '/account/login';
+    const loginUrl = guestLoginUrl(root);
 
     return '<div class="ForestryRewardsGuestCallout">' +
       '<div>' +
@@ -4614,13 +4773,23 @@
       return destination;
     }
 
-    try {
-      const url = new URL(destination, window.location.origin);
-      url.searchParams.set('candle_cash_portal', portalTarget);
-      return url.pathname + url.search + url.hash;
-    } catch (error) {
-      return destination;
+    const helpers = window.ForestryAuthUrls;
+
+    if (!helpers || typeof helpers.buildAuthUrl !== 'function' || typeof helpers.returnUrlForTarget !== 'function') {
+      try {
+        const url = new URL(destination, window.location.origin);
+        url.searchParams.set('candle_cash_portal', portalTarget);
+        return url.pathname + url.search + url.hash;
+      } catch (error) {
+        return destination;
+      }
     }
+
+    return helpers.buildAuthUrl(destination, {
+      kind: portalTarget,
+      portal: portalTarget,
+      returnUrl: helpers.returnUrlForTarget(portalTarget),
+    });
   }
 
   function upgradeCinematicMarkup(root) {
@@ -5326,13 +5495,23 @@
       return destination;
     }
 
-    try {
-      const url = new URL(destination, window.location.origin);
-      url.searchParams.set(PORTAL_PARAM, portalTarget);
-      return url.pathname + url.search + url.hash;
-    } catch (error) {
-      return destination;
+    const helpers = window.ForestryAuthUrls;
+
+    if (!helpers || typeof helpers.buildAuthUrl !== 'function' || typeof helpers.returnUrlForTarget !== 'function') {
+      try {
+        const url = new URL(destination, window.location.origin);
+        url.searchParams.set(PORTAL_PARAM, portalTarget);
+        return url.pathname + url.search + url.hash;
+      } catch (error) {
+        return destination;
+      }
     }
+
+    return helpers.buildAuthUrl(destination, {
+      kind: portalTarget,
+      portal: portalTarget,
+      returnUrl: helpers.returnUrlForTarget(portalTarget),
+    });
   }
 
   function authForm(container) {
@@ -5365,6 +5544,44 @@
 
   function cinematicRootFor(container) {
     return container && container.closest ? container.closest('[data-candle-cash-cinematic]') : null;
+  }
+
+  function authHelpers() {
+    return window.ForestryAuthUrls || null;
+  }
+
+  function syncAuthReturnInput(container) {
+    const form = authForm(container);
+    const kind = cleanValue(container && container.getAttribute('data-candle-cash-auth')).toLowerCase();
+    const input = form && form.querySelector('input[name="return_to"]');
+    const helpers = authHelpers();
+    const fallback = cleanValue(input && input.value) || '/account';
+
+    if (!input) {
+      return;
+    }
+
+    if (helpers && typeof helpers.returnUrlForTarget === 'function') {
+      input.value = helpers.returnUrlForTarget(kind || 'login', fallback);
+      return;
+    }
+
+    input.value = fallback;
+  }
+
+  function suppressShopAuth(container) {
+    const form = authForm(container);
+    if (!form) {
+      return;
+    }
+
+    form.removeAttribute('data-login-with-shop-sign-in');
+
+    container.querySelectorAll('shop-login, shop-login-button, [data-shop-login-button], [data-shop-sign-in]').forEach(function (node) {
+      if (node && node.parentNode) {
+        node.parentNode.removeChild(node);
+      }
+    });
   }
 
   function upgradeAuthMarkup(container) {
@@ -5464,6 +5681,20 @@
       hintLink.href = authPortalUrl(hintLink.getAttribute('href'), target);
       hintLink.setAttribute('data-candle-cash-auth-portal-link', '');
       hintLink.setAttribute('data-portal-target', target);
+    }
+
+    if (authKind === 'login') {
+      const forgotLink = container.querySelector('.Form__ItemHelp[href]');
+      const helpers = authHelpers();
+
+      if (forgotLink && helpers && typeof helpers.buildAuthUrl === 'function' && typeof helpers.returnUrlForTarget === 'function') {
+        forgotLink.href = helpers.buildAuthUrl(forgotLink.getAttribute('href') || '/account/login', {
+          kind: 'login',
+          hash: 'recover',
+          portal: null,
+          returnUrl: helpers.returnUrlForTarget('login'),
+        });
+      }
     }
 
     if (emailConsent) {
@@ -5815,6 +6046,8 @@
     }
 
     container.__candleCashAuthBound = true;
+    suppressShopAuth(container);
+    syncAuthReturnInput(container);
     restoreIntent(container);
     setAuthError(container, '');
     runAuthPortal(container);
@@ -5863,6 +6096,9 @@
     });
 
     form.addEventListener('submit', function (event) {
+      suppressShopAuth(container);
+      syncAuthReturnInput(container);
+
       if (inlineAuth(container)) {
         event.preventDefault();
         submitInlineAuthForm(container, form);
@@ -5883,8 +6119,14 @@
         phoneField.setCustomValidity('');
       }
 
+      event.preventDefault();
+      event.stopImmediatePropagation();
       persistIntent(intent);
-    });
+
+      if (window.HTMLFormElement && window.HTMLFormElement.prototype && typeof window.HTMLFormElement.prototype.submit === 'function') {
+        window.HTMLFormElement.prototype.submit.call(form);
+      }
+    }, true);
   }
 
   function currentWelcomeMode() {
@@ -6083,6 +6325,11 @@
   }
 
   function initializeAll() {
+    const helpers = authHelpers();
+    if (helpers && typeof helpers.applyManagedLinks === 'function') {
+      helpers.applyManagedLinks(document);
+    }
+
     document.querySelectorAll(AUTH_SELECTOR).forEach(bindAuthContainer);
     maybeRunWelcome();
   }

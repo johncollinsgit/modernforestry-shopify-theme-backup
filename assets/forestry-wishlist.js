@@ -614,6 +614,15 @@
 
   function loginUrlFor(node) {
     const loginUrl = clean(node && node.dataset && node.dataset.loginUrl) || '/account/login';
+    const helpers = window.ForestryAuthUrls;
+
+    if (helpers && typeof helpers.buildAuthUrl === 'function' && typeof helpers.returnUrlForTarget === 'function') {
+      return helpers.buildAuthUrl(loginUrl, {
+        kind: 'login',
+        returnUrl: helpers.returnUrlForTarget('login'),
+      });
+    }
+
     const url = new URL(loginUrl, window.location.origin);
     url.searchParams.set('return_url', window.location.pathname + window.location.search + window.location.hash);
     return url.toString();

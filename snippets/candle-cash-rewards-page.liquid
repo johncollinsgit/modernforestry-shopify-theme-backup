@@ -6,8 +6,8 @@
 {%- assign rewards_subtitle = subtitle | default: 'Earn Candle Cash through reviews, referrals, birthdays, and a few easy wins.' -%}
 {%- assign modern_forestry_logo_url = 'modern-forestry-logo-white.png' | asset_url -%}
 {%- assign rewards_page_path = page.url | default: '/pages/rewards' -%}
-{%- assign rewards_login_url = routes.account_login_url | append: '?candle_cash_portal=login' -%}
-{%- assign rewards_register_url = routes.account_register_url | append: '?candle_cash_portal=register' -%}
+{%- assign rewards_login_url = '/account/login?candle_cash_portal=login' -%}
+{%- assign rewards_register_url = '/account/register?candle_cash_portal=register' -%}
 {%- assign rewards_return_to_login = rewards_page_path | append: '?candle_cash_welcome=login' -%}
 {%- assign rewards_return_to_register = rewards_page_path | append: '?candle_cash_welcome=register' -%}
 <section class="Section Section--spacingNormal ForestryRewardsPageSection{% if is_rewards_page and customer == blank %} ForestryRewardsPageSection--cinematic{% endif %}">
@@ -81,8 +81,8 @@
               <p class="CandleCashCinematic__panel-copy">Step through the portal, see your balance, and save on what comes next.</p>
             </div>
             <div class="CandleCashCinematic__actions">
-              <a class="Button Button--primary" href="{{ rewards_login_url }}" data-candle-cash-portal-open="login">Log in</a>
-              <a class="Button Button--secondary" href="{{ rewards_register_url }}" data-candle-cash-portal-open="register">Create account</a>
+              <a class="Button Button--primary" href="{{ rewards_login_url }}" data-candle-cash-portal-open="login" data-forestry-auth-link="login" data-forestry-auth-return="rewards-login">Log in</a>
+              <a class="Button Button--secondary" href="{{ rewards_register_url }}" data-candle-cash-portal-open="register" data-forestry-auth-link="register" data-forestry-auth-return="rewards-register">Create account</a>
             </div>
             <p class="CandleCashCinematic__panel-note">New here? Create an account to unlock your rewards and member-only perks.</p>
           </div>
@@ -113,7 +113,7 @@
                 <div class="Form__Item">
                   <input type="password" class="Form__Input" name="customer[password]" required="required" placeholder="{{ 'customer.login.password' | t }}" aria-label="{{ 'customer.login.password' | t }}" autocomplete="current-password">
                   <label class="Form__FloatingLabel">{{ 'customer.login.password' | t }}</label>
-                  <a href="{{ routes.account_login_url }}#recover" class="Form__ItemHelp Link Link--primary">Forgot password?</a>
+                  <a href="/account/login#recover" class="Form__ItemHelp Link Link--primary" data-forestry-auth-link="login" data-forestry-auth-return="rewards-login" data-forestry-auth-hash="recover">Forgot password?</a>
                 </div>
 
                 <button class="CandleCashAuth__bonus-toggle" type="button" data-candle-cash-bonus-toggle aria-expanded="false" aria-controls="CandleCashPortalLoginBonus">ADD BONUS CANDLE CASH</button>
@@ -154,7 +154,7 @@
 
                 <div class="Form__Hint Form__Hint--center CandleCashAuth__hint CandleCashPortal__hint">
                   <span class="Text--subdued">{{ 'customer.login.register_label' | t }}</span>
-                  <a href="{{ rewards_register_url }}" class="Link Link--secondary" data-candle-cash-portal-open="register">Create an account</a>
+                  <a href="{{ rewards_register_url }}" class="Link Link--secondary" data-candle-cash-portal-open="register" data-forestry-auth-link="register" data-forestry-auth-return="rewards-register">Create an account</a>
                 </div>
               {%- endform -%}
             </div>
@@ -236,7 +236,7 @@
 
                 <div class="Form__Hint Form__Hint--center CandleCashAuth__hint CandleCashPortal__hint">
                   <span class="Text--subdued">Already have an account?</span>
-                  <a href="{{ rewards_login_url }}" class="Link Link--secondary" data-candle-cash-portal-open="login">Log in</a>
+                  <a href="{{ rewards_login_url }}" class="Link Link--secondary" data-candle-cash-portal-open="login" data-forestry-auth-link="login" data-forestry-auth-return="rewards-login">Log in</a>
                 </div>
               {%- endform -%}
             </div>
