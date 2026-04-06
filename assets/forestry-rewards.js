@@ -5449,12 +5449,12 @@
 
       if (!toggle) {
         toggle = document.createElement('button');
-        toggle.className = 'CandleCashAuth__bonus-toggle';
+        toggle.className = 'CandleCashAuth__bonus-toggle Button Button--full';
         toggle.type = 'button';
         toggle.setAttribute('data-candle-cash-bonus-toggle', '');
         toggle.setAttribute('aria-expanded', 'false');
         toggle.setAttribute('aria-controls', bonusId);
-        toggle.textContent = 'ADD BONUS CANDLE CASH';
+        toggle.textContent = 'Add Bonus Candle Cash';
         bonus.parentNode.insertBefore(toggle, bonus);
       }
     }
@@ -5535,7 +5535,7 @@
 
     if (toggle) {
       toggle.setAttribute('aria-expanded', nextExpanded ? 'true' : 'false');
-      toggle.textContent = nextExpanded ? 'HIDE BONUS CANDLE CASH' : 'ADD BONUS CANDLE CASH';
+      toggle.textContent = nextExpanded ? 'Hide Bonus Candle Cash' : 'Add Bonus Candle Cash';
     }
 
     if (panel) {
