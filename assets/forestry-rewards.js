@@ -5412,11 +5412,11 @@
 
     if (authKind === 'login') {
       if (storySubhead) {
-        storySubhead.textContent = 'Log in through a warm, modern portal and step right back into Candle Cash Central.';
+        storySubhead.textContent = 'See your orders, Earn, View and Use Candle Cash, and experience our hand-made Candles';
       }
 
       if (storyCopy) {
-        storyCopy.textContent = 'A premium member experience that keeps the sense of arrival intact all the way through login.';
+        storyCopy.textContent = 'Candle cash will expire 90 days after earning if not used.';
       }
 
       if (legend) {
