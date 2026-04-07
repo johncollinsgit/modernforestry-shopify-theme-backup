@@ -2,6 +2,7 @@
   const ROOT_SELECTOR = '[data-forestry-rewards-root]';
   const DEFAULT_CANDLE_CLUB_URL = '/products/modern-forestry-candle-club-16oz-subscription-with-gifts?selling_plan=11300438275';
   const DEFAULT_THEME = 'cognac-reserve';
+  const DEFAULT_REWARDS_BUILD_VERSION = '2026-04-07-cachefix-1';
   const THEME_OPTIONS = [
     { id: 'cognac-reserve', label: 'Cognac Reserve' },
     { id: 'midnight-ledger', label: 'Midnight Ledger' },
@@ -318,7 +319,15 @@
   }
 
   function fallbackModel(root) {
-    return readJsonScript(root, '[data-forestry-rewards-fallback]');
+    const fallback = readJsonScript(root, '[data-forestry-rewards-fallback]');
+
+    if (!fallback || typeof fallback !== 'object') {
+      return {};
+    }
+
+    return Object.assign({}, fallback, {
+      redemption_access: normalizeFallbackRedemptionAccess(fallback.redemption_access),
+    });
   }
 
   function mergeObject(primary, fallback) {
@@ -798,6 +807,10 @@
     }).join('|');
   }
 
+  function rewardsBuildVersion(root) {
+    return cleanString(root && root.dataset && root.dataset.rewardsBuildVersion) || DEFAULT_REWARDS_BUILD_VERSION;
+  }
+
   function cacheEntryAge(entry) {
     return entry ? (Date.now() - Number(entry.fetchedAt || 0)) : Number.POSITIVE_INFINITY;
   }
@@ -930,11 +943,11 @@
   }
 
   function statusResponseCacheKey(root, query) {
-    return cacheKey(['status', cleanString(root.dataset.endpointCandleCashStatus), query.toString()]);
+    return cacheKey(['status', cleanString(root.dataset.endpointCandleCashStatus), rewardsBuildVersion(root), query.toString()]);
   }
 
   function availableRewardsResponseCacheKey(root, query) {
-    return cacheKey(['available', cleanString(root.dataset.endpointRewardsAvailable), query.toString()]);
+    return cacheKey(['available', cleanString(root.dataset.endpointRewardsAvailable), rewardsBuildVersion(root), query.toString()]);
   }
 
   function cartResponseCacheKey() {
@@ -1143,6 +1156,50 @@
     await fetchContract(root, endpoint, {
       method: 'POST',
       body: Object.assign({}, bodyFromIdentity(identity), payload || {}),
+    });
+  }
+
+  function normalizeFallbackRedemptionAccess(access) {
+    const payload = access && typeof access === 'object' ? Object.assign({}, access) : {};
+    const mode = cleanString(payload.mode || payload.state).toLowerCase();
+    const ctaLabel = cleanString(payload.cta_label || payload.ctaLabel);
+    const message = cleanString(payload.message);
+    const selectedAccountsCopy = /selected accounts only/i.test(message);
+
+    if (mode !== 'coming_soon' && ctaLabel !== 'COMING SOON!' && !selectedAccountsCopy) {
+      return payload;
+    }
+
+    return Object.assign({}, payload, {
+      redeem_enabled: false,
+      cta_label: 'Check reward status',
+      message: 'Checking Candle Cash redemption access.',
+      mode: 'pending_status',
+    });
+  }
+
+  function maybeTrackFallbackRender(root, fallback, status) {
+    const statusCode = cleanString(status && status.error && status.error.code) || 'request_failed';
+    const requestKey = cacheKey([
+      'fallback-render',
+      rewardsBuildVersion(root),
+      cleanString(root && root.dataset && root.dataset.surface) || 'page',
+      cleanString(root && root.dataset && root.dataset.endpointCandleCashStatus),
+      statusCode,
+    ]);
+
+    if (!oncePerSession(requestKey)) {
+      return;
+    }
+
+    logRewardEvent(root, {
+      event_type: 'reward_status_fallback_rendered',
+      request_key: requestKey,
+      reward_kind: 'surface',
+      surface: root.dataset.surface || 'page',
+      state: cleanString(fallback && fallback.state) || 'unknown_customer',
+      fallback_access_mode: cleanString(fallback && fallback.redemption_access && fallback.redemption_access.mode) || 'pending_status',
+      status_error_code: statusCode,
     });
   }
 
@@ -3554,8 +3611,14 @@
     const availableRewards = shouldLoadAvailableRewards ? results[2] : null;
 
     if (!status.ok) {
+      const fallbackPayload = hasFallback ? fallback : null;
+
+      if (fallbackPayload) {
+        maybeTrackFallbackRender(root, fallbackPayload, status);
+      }
+
       if (availableRewards && availableRewards.ok) {
-        const rewardsPayload = Object.assign({}, fallback || {}, availableRewards.data || {});
+        const rewardsPayload = Object.assign({}, fallbackPayload || {}, availableRewards.data || {});
         if (!Array.isArray(rewardsPayload.available_rewards) && Array.isArray(availableRewards.data && availableRewards.data.rewards)) {
           rewardsPayload.available_rewards = availableRewards.data.rewards;
         }
@@ -3567,7 +3630,7 @@
       }
 
       if (hasFallback) {
-        return { ok: true, model: computeModel(root, { data: fallback }, cartState) };
+        return { ok: true, model: computeModel(root, { data: fallbackPayload }, cartState) };
       }
 
       if (status.status === 404) {
