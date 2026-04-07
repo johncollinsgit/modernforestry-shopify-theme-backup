@@ -2249,6 +2249,12 @@
       return '<button class="Button Button--primary Button--full" type="button" data-action="activate-birthday"' + disabled + '>Activate Candle Cash</button>';
     }
     if (state.name === 'coming_soon') {
+      const accessMode = cleanString(access.mode).toLowerCase();
+      const isPendingStatus = accessMode === 'pending_status' || cleanString(access.ctaLabel).toLowerCase() === 'check reward status';
+      if (isPendingStatus) {
+        return '<button class="Button Button--secondary Button--full" type="button" data-action="refresh-status"' + disabled + '>' + escapeHtml(access.ctaLabel || 'Check reward status') + '</button>';
+      }
+
       return '<button class="Button Button--secondary Button--full" type="button" disabled aria-disabled="true" tabindex="-1">' + escapeHtml(access.ctaLabel) + '</button>';
     }
     if (state.name === 'ready') {
@@ -4016,6 +4022,24 @@
     rerender(root);
   }
 
+  async function refreshStatus(root) {
+    if (rootState(root).busy) {
+      return;
+    }
+
+    setRootState(root, {
+      busy: true,
+      toast: '',
+      toastTone: 'neutral',
+    });
+    rerender(root);
+
+    await loadAndRender(root, { force: true });
+
+    setRootState(root, { busy: false });
+    rerender(root);
+  }
+
   async function activateBirthday(root) {
     if (rootState(root).busy) {
       return;
@@ -4904,6 +4928,11 @@
         toastTone: 'neutral',
       });
       rerender(root);
+      return;
+    }
+
+    if (action === 'refresh-status') {
+      await refreshStatus(root);
       return;
     }
 
