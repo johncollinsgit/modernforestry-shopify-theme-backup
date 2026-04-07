@@ -1159,8 +1159,8 @@
 
     return {
       enabled: enabled,
-      ctaLabel: cleanString(access.ctaLabel) || (enabled ? 'Redeem Candle Cash' : 'COMING SOON!'),
-      message: cleanString(access.message) || (enabled ? 'Candle Cash is live for this account.' : 'Candle Cash is temporarily live for selected accounts only.'),
+      ctaLabel: cleanString(access.ctaLabel) || (enabled ? 'Redeem Candle Cash' : 'Check reward status'),
+      message: cleanString(access.message) || (enabled ? 'Candle Cash is live for this account.' : 'Checking Candle Cash redemption access.'),
       mode: cleanString(access.mode) || (enabled ? 'live' : 'coming_soon'),
     };
   }

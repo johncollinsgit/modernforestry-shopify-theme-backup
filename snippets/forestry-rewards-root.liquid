@@ -14,16 +14,6 @@
 {%- assign rewards_marketing_profile_id = marketing_profile_id | default: customer.metafields.custom.marketing_profile_id.value | default: '' -%}
 {%- assign candle_cash_points = customer.metafields.custom.candle_cash_points.value | default: customer.metafields.custom.candle_cash_balance_points.value | default: 0 -%}
 {%- assign candle_cash_amount = customer.metafields.custom.candle_cash_balance_amount.value | default: customer.metafields.custom.candle_cash_balance.value | default: customer.metafields.custom.candle_cash.value | default: 0 -%}
-{%- assign candle_cash_beta_emails = 'sarahcollins0816@gmail.com,info@theforestrystudio.com,randbhendrich@yahoo.com,pjordan.mail@gmail.com,marah.jordan@csuglobal.edu' | split: ',' -%}
-{%- assign candle_cash_customer_email = customer.email | default: '' | downcase -%}
-{%- assign normalized_candle_cash_customer_email = candle_cash_customer_email | to_s | strip | downcase -%}
-{%- assign candle_cash_redeem_live = false -%}
-{%- for beta_email in candle_cash_beta_emails -%}
-  {%- assign normalized_beta_email = beta_email | to_s | strip | downcase -%}
-  {%- if normalized_candle_cash_customer_email == normalized_beta_email -%}
-    {%- assign candle_cash_redeem_live = true -%}
-  {%- endif -%}
-{%- endfor -%}
 {%- assign candle_cash_expiration_days = customer.metafields.custom.candle_cash_expiration_days.value | default: blank -%}
 {%- assign candle_cash_expiring_amount = customer.metafields.custom.candle_cash_expiring_amount.value | default: candle_cash_amount -%}
 {%- assign candle_cash_expiration_date = '' -%}
@@ -66,10 +56,10 @@
     "max_redemptions_per_order": 1
   },
   "redemption_access": {
-    "redeem_enabled": {{ candle_cash_redeem_live | json }},
-    "cta_label": {% if candle_cash_redeem_live %}"Redeem Candle Cash"{% else %}"COMING SOON!"{% endif %},
-    "message": {% if candle_cash_redeem_live %}"Candle Cash is live for this account."{% else %}"Candle Cash is temporarily live for selected accounts only."{% endif %},
-    "mode": {% if candle_cash_redeem_live %}"live"{% else %}"coming_soon"{% endif %}
+    "redeem_enabled": false,
+    "cta_label": "Check reward status",
+    "message": "Checking Candle Cash redemption access.",
+    "mode": "pending_status"
   },
   "summary": {
     "current_balance_points": {{ candle_cash_points | json }},
