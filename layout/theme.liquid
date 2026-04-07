@@ -25,7 +25,7 @@
     {% render 'social-meta-tags' %}
     {% render 'css-variables' %}
 
-    {% unless request.design_mode %}{% include 'wlm-head' %}{% endunless %}
+    {% unless request.design_mode or request.page_type == 'captcha' %}{% include 'wlm-head' %}{% endunless %}
     <script>
       (function () {
         var blockedPatterns = ['img0.socialshopwave.com', 'static.growave.io', 'growave.io', 'ssw-empty.js'];
@@ -319,14 +319,16 @@
 
     <script src="{{ 'libs.min.js' | asset_url }}" defer></script>
     <script src="{{ 'theme.js' | asset_url }}" defer></script>
-    <script src="{{ 'custom.js' | asset_url }}" defer></script>
-    <script src="{{ 'forestry-rewards.js' | asset_url }}" defer></script>
-    {%- if settings.native_reviews_enabled -%}
-      <script src="{{ 'forestry-product-reviews.js' | asset_url }}" defer></script>
-    {%- endif -%}
-    {%- if settings.native_wishlist_enabled -%}
-      <script src="{{ 'forestry-wishlist.js' | asset_url }}" defer></script>
-    {%- endif -%}
+    {% unless request.page_type == 'captcha' %}
+      <script src="{{ 'custom.js' | asset_url }}" defer></script>
+      <script src="{{ 'forestry-rewards.js' | asset_url }}" defer></script>
+      {%- if settings.native_reviews_enabled -%}
+        <script src="{{ 'forestry-product-reviews.js' | asset_url }}" defer></script>
+      {%- endif -%}
+      {%- if settings.native_wishlist_enabled -%}
+        <script src="{{ 'forestry-wishlist.js' | asset_url }}" defer></script>
+      {%- endif -%}
+    {% endunless %}
 
     <script>
       (function () {

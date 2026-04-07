@@ -401,6 +401,77 @@
   margin-top: 1.5rem;
 }
 
+.ForestryRewardsTabs {
+  margin-top: 1.25rem;
+}
+
+.ForestryRewardsTabs__list {
+  width: fit-content;
+  max-width: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.36rem;
+  border-radius: 999px;
+  border: 1px solid var(--cc-border);
+  background: rgba(var(--cc-surface-rgb), 0.88);
+  backdrop-filter: blur(10px);
+}
+
+.ForestryRewardsTab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.75rem 1.15rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--cc-text-soft);
+  font-family: var(--heading-font-family);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: background 0.22s ease, color 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.ForestryRewardsTab:hover {
+  color: var(--cc-text);
+}
+
+.ForestryRewardsTab.is-active {
+  background: rgba(var(--cc-accent-rgb), 0.14);
+  border-color: rgba(var(--cc-accent-rgb), 0.26);
+  color: var(--cc-text);
+}
+
+.ForestryRewardsTab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--forestry-rewards-cta-focus-ring);
+}
+
+.ForestryRewardsTabPanels {
+  margin-top: 1.25rem;
+}
+
+.ForestryRewardsTabPanel[hidden] {
+  display: none;
+}
+
+.ForestryRewardsStatusPanel {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.ForestryRewardsStatusPanel .ForestryRewardsSection {
+  margin-top: 0;
+}
+
+.ForestryRewardsStatusPanel .ForestryRewardsStatGrid,
+.ForestryRewardsStatusPanel .ForestryRewardsWalletGrid {
+  margin-top: 1rem;
+}
+
 .ForestryRewardsCard,
 .ForestryRewardsFallback {
   padding: 1.4rem;
@@ -1098,6 +1169,10 @@
   padding: 1rem 1.1rem;
 }
 
+.ForestryRewardsSurface__utility .ForestryRewardsGuestCallout {
+  margin-top: 0;
+}
+
 .ForestryRewardsReferralSplit {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1159,6 +1234,43 @@
 
 .ForestryRewardsTaskGrid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ForestryRewardsTaskGrid--page {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  align-items: start;
+}
+
+.ForestryRewardsTaskGrid--page > .reward-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 11.5rem;
+}
+
+.ForestryRewardsTaskGrid--page > .reward-card .ForestryRewardsOpportunitySummary {
+  flex: 1 1 auto;
+}
+
+.ForestryRewardsTaskGrid--page > .reward-card .ForestryRewardsOpportunitySummary__main {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.85rem;
+}
+
+.ForestryRewardsTaskGrid--page > .reward-card .reward-details {
+  width: 100%;
+}
+
+.ForestryRewardsTaskGrid--page > .reward-card.is-open {
+  grid-column: 1 / -1;
+  min-height: 0;
+}
+
+.ForestryRewardsTaskGrid--page > .ForestryRewardsHistoryEmpty {
+  grid-column: 1 / -1;
+  margin-top: 0;
 }
 
 .ForestryRewardsTaskGrid--compact {
@@ -1333,6 +1445,17 @@
 }
 
 @media screen and (max-width: 640px) {
+  .ForestryRewardsTabs__list {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-radius: 20px;
+  }
+
+  .ForestryRewardsTab {
+    width: 100%;
+  }
+
   .ForestryRewardsGuestCallout,
   .ForestryRewardsReferralCode,
   .ForestryRewardsTaskMeta,
