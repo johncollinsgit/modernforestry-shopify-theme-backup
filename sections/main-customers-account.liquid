@@ -18,8 +18,8 @@
         <div class="ForestryRewardsAccountMount" {{ block.shopify_attributes }}>
           {% render 'forestry-rewards-root',
             surface: 'account',
-            title: 'Your Rewards',
-            subtitle: 'Birthday Candle Cash, saved reward codes, and the easiest way to use them before checkout.'
+            title: 'Rewards Wallet',
+            subtitle: 'Balance, wallet activity, and recent order savings live here.'
           %}
         </div>
 
@@ -47,6 +47,7 @@
                     <tr>
                       <th>{{ 'customer.orders.order_number' | t }}</th>
                       <th>{{ 'customer.orders.date' | t }}</th>
+                      <th class="Text--alignRight">Rewards discount</th>
                       <th>{{ 'customer.orders.payment_status' | t }}</th>
                       <th>{{ 'customer.orders.fulfillment_status' | t }}</th>
                       <th class="Text--alignRight">{{ 'customer.orders.total' | t }}</th>
@@ -55,9 +56,30 @@
 
                     <tbody class="Heading u-h7">
                     {%- for order in customer.orders -%}
+                      {%- assign rewards_discount_total = 0 -%}
+                      {%- assign rewards_discount_title = '' -%}
+                      {%- if order.cart_level_discount_applications != blank -%}
+                        {%- for discount_application in order.cart_level_discount_applications -%}
+                          {%- assign discount_title_upcase = discount_application.title | upcase -%}
+                          {%- if discount_title_upcase contains 'CANDLE CASH' or discount_title_upcase contains 'CC-' -%}
+                            {%- assign rewards_discount_total = rewards_discount_total | plus: discount_application.total_allocated_amount -%}
+                            {%- assign rewards_discount_title = discount_application.title -%}
+                          {%- endif -%}
+                        {%- endfor -%}
+                      {%- endif -%}
                       <tr>
                         <td><a href="{{ order.customer_url }}" class="Link Link--underline">{{ order.name }}</a></td>
                         <td>{{ order.created_at | date: format: 'basic' }}</td>
+                        <td class="Text--alignRight">
+                          {%- if rewards_discount_total > 0 -%}
+                            <span>{{ rewards_discount_total | money }}</span>
+                            {%- if rewards_discount_title != blank -%}
+                              <div class="Text--subdued">{{ rewards_discount_title }}</div>
+                            {%- endif -%}
+                          {%- else -%}
+                            &mdash;
+                          {%- endif -%}
+                        </td>
                         <td>{{ order.financial_status_label }}</td>
                         <td>{{ order.fulfillment_status_label }}</td>
                         <td class="Text--alignRight">{{ order.total_price | money }}</td>

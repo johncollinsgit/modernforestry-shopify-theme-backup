@@ -383,6 +383,13 @@
   margin-top: 1.5rem;
 }
 
+.ForestryRewardsWalletGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
 .ForestryRewardsStack,
 .ForestryRewardsSurface__lower {
   display: grid;
@@ -950,6 +957,7 @@
 
   .ForestryRewardsSurface__hero,
   .ForestryRewardsGrid,
+  .ForestryRewardsWalletGrid,
   .ForestryRewardsBirthdayForm__grid {
     grid-template-columns: 1fr;
   }
@@ -1010,7 +1018,8 @@
   .ForestryRewardsList__actions,
   .ForestryRewardsMeta li,
   .ForestryRewardsSnapshot div,
-  .ForestryRewardsHelper__footer {
+  .ForestryRewardsHelper__footer,
+  .ForestryRewardsTaskTimeline__item {
     flex-direction: column;
     align-items: flex-start;
   }
@@ -1155,6 +1164,43 @@
 .ForestryRewardsTaskGrid--compact {
   grid-template-columns: 1fr;
   margin-top: 1rem;
+}
+
+.ForestryRewardsHistoryStack {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.ForestryRewardsTaskTimeline {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ForestryRewardsTaskTimeline__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  padding: 0.95rem 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(var(--text-color-rgb), 0.08);
+  background: rgba(var(--cc-surface-rgb), 0.88);
+}
+
+.ForestryRewardsTaskTimeline__item strong {
+  color: var(--heading-color);
+}
+
+.ForestryRewardsTaskTimeline__item span {
+  color: rgba(var(--text-color-rgb), 0.64);
+  text-align: right;
+}
+
+.ForestryRewardsCard--wallet-cta {
+  background:
+    radial-gradient(circle at top right, rgba(var(--cc-accent-rgb), 0.12), transparent 42%),
+    rgba(var(--cc-surface-rgb), 0.9);
 }
 
 .ForestryRewardsTaskCard {

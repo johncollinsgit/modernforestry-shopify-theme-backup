@@ -397,6 +397,33 @@
     };
   }
 
+  function rewardsLabel(model, root) {
+    const explicit = cleanString(model && model.copy && model.copy.rewards_label);
+    if (explicit) {
+      return explicit;
+    }
+
+    const wallet = cleanString(model && model.copy && model.copy.wallet_label);
+    if (wallet) {
+      return wallet.replace(/\s+wallet$/i, '') || wallet;
+    }
+
+    const title = cleanString(model && model.copy && model.copy.title) || cleanString(root && root.dataset && root.dataset.title);
+    if (title) {
+      return title.replace(/\s+(central|wallet)$/i, '') || title;
+    }
+
+    return 'Rewards';
+  }
+
+  function walletLabel(model, root) {
+    return cleanString(model && model.copy && model.copy.wallet_label) || (rewardsLabel(model, root) + ' Wallet');
+  }
+
+  function earnMoreRewardsLabel(model, root) {
+    return 'Earn More ' + rewardsLabel(model, root);
+  }
+
   function buildIdentity(root) {
     return {
       marketing_profile_id: positiveInt(root.dataset.marketingProfileId),
@@ -1569,11 +1596,13 @@
   }
 
   function taskShouldDisplay(task, model) {
-    if (taskIsRepeatable(task)) {
-      return true;
+    const state = taskResolvedState(task, model);
+
+    if (state === 'pending' || state === 'completed' || state === 'awarded' || state === 'approved') {
+      return false;
     }
 
-    return !taskIsCompleted(task, model);
+    return true;
   }
 
   function visibleTasks(model) {
@@ -2283,6 +2312,53 @@
     '</p>';
   }
 
+  function walletRulesCopy(model, root) {
+    const rules = redemptionRules(model);
+    const label = rewardsLabel(model, root);
+    const detail = expirationDetails(model);
+    const parts = [
+      label + ' can be redeemed in ' + rules.redeemAmountLabel + ' increments, with a limit of ' + rules.maxPerOrderLabel + ' per order.',
+    ];
+
+    if (detail && detail.days) {
+      parts.push(label + ' expires ' + detail.days + ' day' + (detail.days === 1 ? '' : 's') + ' after you earn it.');
+    } else if (detail && detail.date) {
+      parts.push('Some available ' + label.toLowerCase() + ' expires on ' + shortDate(detail.date) + '.');
+    } else {
+      parts.push(label + ' expiration follows your store settings from the day it is earned.');
+    }
+
+    return parts.join(' ');
+  }
+
+  function filteredTaskHistory(model) {
+    return mergeArray(model && model.taskHistory, []).filter(function (row) {
+      const status = normalizeState(row && row.status);
+      return status === 'pending' || status === 'awarded' || status === 'approved' || status === 'completed';
+    });
+  }
+
+  function compactTaskHistoryMarkup(model) {
+    const rows = filteredTaskHistory(model).slice(0, 6);
+    if (!rows.length) {
+      return '<div class="ForestryRewardsHistoryEmpty">No recent task activity yet.</div>';
+    }
+
+    return '<div class="ForestryRewardsTaskTimeline">' + rows.map(function (row) {
+      const when = shortDate(row.awarded_at || row.created_at);
+      const pending = normalizeState(row.status) === 'pending';
+      const reward = amountNumber(row.reward_amount);
+      const rewardText = pending
+        ? 'Pending review'
+        : (reward > 0 ? ('+' + (currencyLabel(reward) || '$0')) : 'Completed');
+
+      return '<div class="ForestryRewardsTaskTimeline__item">' +
+        '<strong>' + escapeHtml(row.task_title || 'Task') + '</strong>' +
+        '<span>' + escapeHtml(rewardText + (when ? ' · ' + when : '')) + '</span>' +
+      '</div>';
+    }).join('') + '</div>';
+  }
+
   function candleClubPreviewOnly(root, model) {
     const datasetValue = cleanString(root && root.dataset && root.dataset.candleClubPreviewOnly);
 
@@ -2540,16 +2616,18 @@
 
   function renderCentralSurface(root, model, uiState) {
     const viewState = birthdayViewState(model);
+    const label = rewardsLabel(model, root);
     const title = cleanString(model.copy.title) || cleanString(root.dataset.title) || 'Candle Cash Central';
     const lead = model.profileId
       ? 'Tap any reward opportunity to reveal details and actions.'
-      : 'Sign in to reveal and activate your Candle Cash opportunities.';
+      : 'Sign in to reveal and activate your ' + label + ' opportunities.';
     const earnTasks = visibleTasks(model);
     const utilities = utilityMarkup([
       celebrationMarkup(model, uiState, 'page'),
       expirationNoticeMarkup(model, 'page'),
       clubBannerMarkup(root, model, 'page'),
     ]);
+    const taskHistoryMarkup = compactTaskHistoryMarkup(model);
     const tasksMarkup = earnTasks.length
       ? earnTasks.map(function (task) { return taskCardMarkup(root, model, task, uiState); }).join('')
       : '<div class="ForestryRewardsHistoryEmpty">No active tasks right now.</div>';
@@ -2590,7 +2668,7 @@
         '</div>' +
         '<section class="ForestryRewardsSection" id="candle-cash-tasks">' +
           '<div class="ForestryRewardsSection__header">' +
-            '<div><p class="ForestryRewardsCard__eyebrow">Easy ways to earn</p><h3 class="Heading u-h3">Easy ways to earn Candle Cash</h3></div>' +
+            '<div><p class="ForestryRewardsCard__eyebrow">Easy ways to earn</p><h3 class="Heading u-h3">Easy ways to earn ' + escapeHtml(label) + '</h3></div>' +
           '</div>' +
           '<div class="ForestryRewardsTaskGrid">' + tasksMarkup + '</div>' +
         '</section>' +
@@ -2609,20 +2687,28 @@
           '</div>' +
           '<section class="ForestryRewardsSection ForestryRewardsSection--faq">' +
             '<div class="ForestryRewardsSection__header">' +
-              '<div><p class="ForestryRewardsCard__eyebrow">A few helpful notes</p><h3 class="Heading u-h4">How Candle Cash works</h3></div>' +
+              '<div><p class="ForestryRewardsCard__eyebrow">A few helpful notes</p><h3 class="Heading u-h4">How ' + escapeHtml(label) + ' works</h3></div>' +
             '</div>' +
             faqMarkup(model) +
           '</section>' +
         '</div>' +
+        '<section class="ForestryRewardsSection ForestryRewardsSection--history">' +
+          '<div class="ForestryRewardsSection__header">' +
+            '<div><p class="ForestryRewardsCard__eyebrow">Recently completed</p><h3 class="Heading u-h4">Task history</h3></div>' +
+          '</div>' +
+          taskHistoryMarkup +
+        '</section>' +
         (uiState.toast ? '<div class="ForestryRewardsToast ForestryRewardsToast--' + escapeHtml(uiState.toastTone || 'neutral') + '">' + escapeHtml(uiState.toast) + '</div>' : '') +
       '</section>';
   }
 
   function renderAccountSurface(root, model, uiState) {
-    const viewState = birthdayViewState(model);
-    const birthdayComplete = viewState === 'applied' || viewState === 'redeemed';
-    const tasksPreview = visibleTasks(model).slice(0, 4);
+    const label = rewardsLabel(model, root);
+    const wallet = walletLabel(model, root);
+    const title = cleanString(model.copy.title) || (label + ' Central');
     const rewardsUrl = cleanString(root.dataset.rewardsUrl || '/pages/rewards');
+    const balanceLabel = currencyLabel(model.balanceAmount || 0) || '$0';
+    const activeCodes = mergeArray(model.rewardCodes, []).length;
     const utilities = utilityMarkup([
       celebrationMarkup(model, uiState, 'account'),
       expirationNoticeMarkup(model, 'account'),
@@ -2630,41 +2716,61 @@
     ]);
 
     root.innerHTML = '' +
-      '<section class="ForestryRewardsSurface ForestryRewardsSurface--account">' +
+      '<section class="ForestryRewardsSurface ForestryRewardsSurface--account" id="candle-cash-wallet">' +
         comingSoonNoticeMarkup('account') +
         themeToggleMarkup(root, uiState) +
         '<div class="ForestryRewardsSurface__hero">' +
           '<div>' +
-            '<p class="ForestryRewardsEyebrow">Your Rewards</p>' +
-            '<h2 class="Heading u-h2">Keep your Candle Cash close</h2>' +
-            '<p class="ForestryRewardsLead">Birthday rewards, referral wins, and your next best task all live here.</p>' +
+            '<p class="ForestryRewardsEyebrow">Your wallet</p>' +
+            '<h2 class="Heading u-h2">' + escapeHtml(wallet) + '</h2>' +
+            '<p class="ForestryRewardsLead">See your balance, how much ' + escapeHtml(label.toLowerCase()) + ' you have used, and what your recent orders saved.</p>' +
           '</div>' +
           '<div class="ForestryRewardsSurface__summary">' +
             '<p class="ForestryRewardsStatLabel">Balance</p>' +
-            '<p class="ForestryRewardsStatValue">' + escapeHtml(currencyLabel(model.balanceAmount || 0) || '$0') + '</p>' +
-            '<p class="ForestryRewardsStatNote">' + escapeHtml('Redeem ' + redeemAmountLabel(model) + ' at a time. Limit ' + redemptionRules(model).maxPerOrderLabel + ' per order.') + '</p>' +
+            '<p class="ForestryRewardsStatValue">' + escapeHtml(balanceLabel) + '</p>' +
+            '<p class="ForestryRewardsStatNote">' + escapeHtml(walletRulesCopy(model, root)) + '</p>' +
+            '<div class="ForestryRewardsCard__actions"><a class="Button Button--primary Button--full" href="' + escapeHtml(rewardsUrl) + '">' + escapeHtml(earnMoreRewardsLabel(model, root)) + '</a></div>' +
           '</div>' +
         '</div>' +
         utilities +
-        '<div class="ForestryRewardsGrid">' +
-          '<article class="ForestryRewardsCard ForestryRewardsCard--birthday' + (birthdayComplete ? ' ForestryRewardsCard--complete' : '') + '">' +
+        '<div class="ForestryRewardsWalletGrid">' +
+          '<article class="ForestryRewardsCard ForestryRewardsCard--balance">' +
             '<div class="ForestryRewardsCard__header">' +
-              '<div><p class="ForestryRewardsCard__eyebrow">Birthday reward</p><h3 class="Heading u-h4">' + escapeHtml((model.birthdayIssuance && model.birthdayIssuance.reward_name) || 'Birthday Candle Cash') + '</h3></div>' +
+              '<div><p class="ForestryRewardsCard__eyebrow">Wallet balance</p><h3 class="Heading u-h4">' + escapeHtml(wallet) + '</h3></div>' +
             '</div>' +
-            '<p class="ForestryRewardsCard__description">' + escapeHtml(rewardCardDescription(model, viewState)) + '</p>' +
-            '<div class="ForestryRewardsCard__actions">' + birthdayActionMarkup(model, viewState, uiState) + '</div>' +
-            birthdayFormMarkup(model, uiState) +
+            '<p class="ForestryRewardsCard__amount">' + escapeHtml(balanceLabel) + '</p>' +
+            '<p class="ForestryRewardsCard__description">' + escapeHtml(walletRulesCopy(model, root)) + '</p>' +
+            '<ul class="ForestryRewardsMeta">' +
+              '<li><span>Redeem at a time</span><strong>' + escapeHtml(redeemAmountLabel(model)) + '</strong></li>' +
+              '<li><span>Per order limit</span><strong>' + escapeHtml(redemptionRules(model).maxPerOrderLabel) + '</strong></li>' +
+              '<li><span>Pending rewards</span><strong>' + escapeHtml(String(model.summary.pending_rewards || 0)) + '</strong></li>' +
+            '</ul>' +
           '</article>' +
-          '<aside class="ForestryRewardsStack">' +
-            referralCardMarkup(root, model) +
-            '<div class="ForestryRewardsCard ForestryRewardsCard--list">' +
-              '<p class="ForestryRewardsCard__eyebrow">Next best moves</p>' +
-              '<div class="ForestryRewardsTaskGrid ForestryRewardsTaskGrid--compact">' +
-                (tasksPreview.length ? tasksPreview.map(function (task) { return taskCardMarkup(root, model, task, uiState); }).join('') : '<div class="ForestryRewardsHistoryEmpty">No active tasks right now.</div>') +
-              '</div>' +
-              '<div class="ForestryRewardsCard__actions"><a class="Button Button--secondary" href="' + escapeHtml(rewardsUrl) + '">Open Candle Cash Central</a></div>' +
+          '<article class="ForestryRewardsCard ForestryRewardsCard--history">' +
+            '<div class="ForestryRewardsCard__header">' +
+              '<div><p class="ForestryRewardsCard__eyebrow">Wallet activity</p><h3 class="Heading u-h4">Earned and used history</h3></div>' +
             '</div>' +
-          '</aside>' +
+            '<p class="ForestryRewardsCard__description">This is your recent ' + escapeHtml(label.toLowerCase()) + ' activity, including earnings and redemptions.</p>' +
+            '<div class="ForestryRewardsHistoryStack">' + historyLedgerMarkup(model) + '</div>' +
+          '</article>' +
+          '<article class="ForestryRewardsCard ForestryRewardsCard--history">' +
+            '<div class="ForestryRewardsCard__header">' +
+              '<div><p class="ForestryRewardsCard__eyebrow">Task activity</p><h3 class="Heading u-h4">Recent reward tasks</h3></div>' +
+            '</div>' +
+            '<p class="ForestryRewardsCard__description">Completed and pending earn actions stay here so the main workspace stays clean.</p>' +
+            '<div class="ForestryRewardsHistoryStack">' + historyTasksMarkup(model) + '</div>' +
+          '</article>' +
+          '<article class="ForestryRewardsCard ForestryRewardsCard--helper ForestryRewardsCard--wallet-cta">' +
+            '<p class="ForestryRewardsCard__eyebrow">Earn more</p>' +
+            '<h3 class="Heading u-h3">' + escapeHtml(title) + '</h3>' +
+            '<p class="ForestryRewardsCard__description">Head to your main rewards workspace to find active ways to earn more, without the completed-card clutter.</p>' +
+            '<div class="ForestryRewardsSnapshot">' +
+              '<div><span>Lifetime earned</span><strong>' + escapeHtml(currencyLabel(model.summary.lifetime_earned_amount || 0) || '$0') + '</strong></div>' +
+              '<div><span>Saved codes</span><strong>' + escapeHtml(String(activeCodes)) + '</strong></div>' +
+              '<div><span>Referrals</span><strong>' + escapeHtml(String(model.referral && model.referral.count ? model.referral.count : 0)) + '</strong></div>' +
+            '</div>' +
+            '<div class="ForestryRewardsCard__actions"><a class="Button Button--primary Button--full" href="' + escapeHtml(rewardsUrl) + '">' + escapeHtml(earnMoreRewardsLabel(model, root)) + '</a></div>' +
+          '</article>' +
         '</div>' +
         (uiState.toast ? '<div class="ForestryRewardsToast ForestryRewardsToast--' + escapeHtml(uiState.toastTone || 'neutral') + '">' + escapeHtml(uiState.toast) + '</div>' : '') +
       '</section>';
