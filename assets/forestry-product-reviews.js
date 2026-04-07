@@ -1640,6 +1640,8 @@
     const reviewSort = showingProduct ? 'most_recent' : (clean(state.sitewideSort) || clean(payload.current_sort) || 'most_recent');
     const reviews = sortedFloatingReviews(payload.reviews, reviewSort);
     const currentProductTitle = clean(node.dataset.currentProductTitle) || 'This product';
+    const currentProductKey = clean(node.dataset.currentProductId);
+    const browseProductsUrl = '/collections/all';
 
     if (loading && !reviews.length) {
       return '<p class="Text--subdued">Loading reviews...</p>';
@@ -1672,10 +1674,16 @@
           }).join('') + '</div>'
         : '<div class="ForestryProductReviews__empty"><p class="Heading u-h6">No reviews yet</p><p class="Text--subdued">' + escapeHtml(showingProduct ? 'This product has not been reviewed yet.' : 'Sitewide reviews will appear here as soon as they are approved.') + '</p></div>') +
       (showingProduct && floatingReviewHasProduct(node)
-        ? '<div class="ForestryFloatingDrawer__panelFooter"><button type="button" class="Button Button--secondary" data-action="forestry-sitewide-reviews-show-all">See all reviews</button></div>'
+        ? '<div class="ForestryFloatingDrawer__panelFooter">' +
+            '<button type="button" class="Button Button--primary" data-action="forestry-review-open-modal" data-forestry-product-review-key="' + escapeHtml(currentProductKey) + '">Write a review</button>' +
+            '<button type="button" class="Button Button--secondary" data-action="forestry-sitewide-reviews-show-all">See all reviews</button>' +
+          '</div>'
         : '') +
       (!showingProduct && floatingReviewHasProduct(node)
         ? '<div class="ForestryFloatingDrawer__panelFooter"><button type="button" class="Button Button--secondary" data-action="forestry-sitewide-reviews-show-product">Back to this product</button></div>'
+        : '') +
+      (!floatingReviewHasProduct(node)
+        ? '<div class="ForestryFloatingDrawer__panelFooter"><a class="Button Button--primary" href="' + escapeHtml(browseProductsUrl) + '">Browse products to review</a></div>'
         : '');
   }
 

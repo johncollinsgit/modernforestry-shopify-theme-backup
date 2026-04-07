@@ -1588,6 +1588,25 @@
     return taskMaxCompletions(task) > 1;
   }
 
+  function productReviewTask(task) {
+    return cleanString(task && task.handle) === 'product-review';
+  }
+
+  function productReviewRewardWindowDays(task) {
+    const days = positiveInt(task && task.metadata && task.metadata.reward_window_days);
+    return days || 7;
+  }
+
+  function productReviewRewardWindowCopy(task) {
+    const days = productReviewRewardWindowDays(task);
+
+    if (days === 7) {
+      return 'The first eligible website review in each 7-day window earns Candle Cash. You can still leave more reviews anytime.';
+    }
+
+    return 'The first eligible website review every ' + days + ' days earns Candle Cash. You can still leave more reviews anytime.';
+  }
+
   function taskIsCompleted(task, model) {
     const state = taskResolvedState(task, model);
     const completedCount = positiveInt(task && task.eligibility && task.eligibility.completed_count) || 0;
@@ -1597,6 +1616,10 @@
 
   function taskShouldDisplay(task, model) {
     const state = taskResolvedState(task, model);
+
+    if (productReviewTask(task)) {
+      return true;
+    }
 
     if (state === 'pending' || state === 'completed' || state === 'awarded' || state === 'approved') {
       return false;
@@ -1632,6 +1655,11 @@
   }
 
   function taskRepeatabilityLabel(task) {
+    if (productReviewTask(task)) {
+      const days = productReviewRewardWindowDays(task);
+      return days === 7 ? 'First eligible review each week' : ('First eligible review every ' + days + ' days');
+    }
+
     const max = taskMaxCompletions(task);
 
     if (max > 1) {
@@ -1679,6 +1707,9 @@
   function taskDetailCopy(task, state, model) {
     if (candleClubTask(task) && model && model.candleClub && model.candleClub.previewOnly) {
       return model.candleClub.lockMessage || 'Candle Cash';
+    }
+    if (productReviewTask(task)) {
+      return productReviewRewardWindowCopy(task);
     }
     if (state === 'login_required') {
       return 'Sign in first and we will save your progress to the right account.';
@@ -1849,6 +1880,10 @@
 
     if (candleClubTask(task) && candleClubPreviewOnly(root, model)) {
       return candleClubComingSoonMarkup(root, model);
+    }
+
+    if (productReviewTask(task)) {
+      return taskSystemActionMarkup(root, model, task);
     }
 
     if (cleanString(task.handle) === 'email-signup' && model.consentEmail) {
@@ -4544,13 +4579,27 @@
       if (toggle && typeof toggle.click === 'function') {
         toggle.click();
         logRewardEvent(root, {
-          event_type: 'product_review_drawer_opened',
+          event_type: 'reward_task_open_click',
           request_key: 'product-review-open:' + Date.now(),
           reward_kind: 'product_review',
           surface: root.dataset.surface || 'page',
+          meta: {
+            task_handle: cleanString(target.getAttribute('data-task-handle')) || 'product-review',
+            destination: 'product_reviews_drawer',
+          },
         });
       } else {
-        openTaskDestination('#forestry-sitewide-reviews-panel');
+        openTaskDestination('/collections/all');
+        logRewardEvent(root, {
+          event_type: 'reward_task_open_click',
+          request_key: 'product-review-open:' + Date.now(),
+          reward_kind: 'product_review',
+          surface: root.dataset.surface || 'page',
+          meta: {
+            task_handle: cleanString(target.getAttribute('data-task-handle')) || 'product-review',
+            destination: 'browse_products',
+          },
+        });
       }
       return;
     }

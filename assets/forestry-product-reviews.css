@@ -388,6 +388,9 @@ html.forestry-product-reviews-open body {
 
 .ForestryFloatingDrawer__panelFooter {
   margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .ForestryProductReviews__removeMedia {
