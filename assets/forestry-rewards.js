@@ -379,6 +379,15 @@
       copy: {},
       summary: {},
       referral: null,
+      googleReview: {
+        enabled: false,
+        ready: false,
+        reason: '',
+        message: '',
+        fallbackMode: '',
+        reviewUrl: '',
+        lastSyncAt: '',
+      },
       tasks: [],
       taskHistory: [],
       ledgerHistory: [],
@@ -1696,6 +1705,10 @@
     return taskVerificationMode(task) === 'manual_review_fallback' || bool(task.requires_customer_submission) || bool(task.requires_manual_approval);
   }
 
+  function googleReviewManualFallbackTask(task) {
+    return cleanString(task && task.handle) === 'google-review' && taskVerificationMode(task) === 'manual_review_fallback';
+  }
+
   function taskNeedsInlineEmailSignup(task, model) {
     return cleanString(task.handle) === 'email-signup' && !model.consentEmail;
   }
@@ -1721,6 +1734,9 @@
       return cleanString(task.eligibility && task.eligibility.locked_message) || 'This reward is reserved for Candle Club members.';
     }
     if (state === 'pending') {
+      if (googleReviewManualFallbackTask(task)) {
+        return 'We saved your review details. Candle Cash lands after the team reviews it.';
+      }
       return 'We recorded the action. Candle Cash lands as soon as the matching event clears.';
     }
     if (state === 'completed' || state === 'awarded' || state === 'approved') {
@@ -1746,9 +1762,17 @@
         : 'Turn on text deals here and we will add Candle Cash automatically when the signup is confirmed.';
     }
     if (task.handle === 'google-review') {
-      return task.action_url
-        ? 'Open Google, leave your review, and we will match it automatically once it posts. Only the first Google review reward each week earns Candle Cash.'
-        : 'Google review matching is ready. Add the review link in admin to make this task actionable.';
+      const googleReview = model && model.googleReview ? model.googleReview : {};
+
+      if (googleReviewManualFallbackTask(task)) {
+        return cleanString(googleReview.message) || 'Leave your Google review, then submit the name shown on the review plus a short snippet or the date posted. Candle Cash lands after the team reviews it.';
+      }
+
+      if (task.action_url) {
+        return 'Open Google, leave your review, and we will match it automatically once it posts. Only the first Google review reward each week earns Candle Cash.';
+      }
+
+      return cleanString(googleReview.message) || 'Google review matching is not live yet.';
     }
     if (task.handle === 'product-review') {
       return 'Leave a review on the Modern Forestry website. Only the first website review reward each week earns Candle Cash.';
@@ -1804,16 +1828,17 @@
     }
 
     const disabled = uiState.busy ? ' disabled aria-disabled="true"' : '';
+    const manualGoogleReview = googleReviewManualFallbackTask(task);
     const openLink = task.action_url
-      ? '<a class="Button Button--secondary" href="' + escapeHtml(task.action_url) + '" target="_blank" rel="noopener">Open task</a>'
+      ? '<a class="Button Button--secondary" href="' + escapeHtml(task.action_url) + '" target="_blank" rel="noopener">' + escapeHtml(manualGoogleReview ? 'Open Google review' : 'Open task') + '</a>'
       : '';
 
     return '<div class="ForestryRewardsTaskProof">' +
       '<div class="ForestryRewardsTaskProof__grid">' +
-        '<label class="ForestryRewardsInlineField"><span>Proof link</span><input type="url" data-task-proof-url="' + escapeHtml(task.handle) + '" placeholder="Paste a review or proof link"></label>' +
-        '<label class="ForestryRewardsInlineField"><span>Note</span><textarea rows="3" data-task-proof-text="' + escapeHtml(task.handle) + '" placeholder="Anything you want the team to review?"></textarea></label>' +
+        '<label class="ForestryRewardsInlineField"><span>' + escapeHtml(manualGoogleReview ? 'Optional proof link' : 'Proof link') + '</span><input type="url" data-task-proof-url="' + escapeHtml(task.handle) + '" placeholder="' + escapeHtml(manualGoogleReview ? 'Paste the review link if Google gives you one' : 'Paste a review or proof link') + '"></label>' +
+        '<label class="ForestryRewardsInlineField"><span>' + escapeHtml(manualGoogleReview ? 'Review details' : 'Note') + '</span><textarea rows="3" data-task-proof-text="' + escapeHtml(task.handle) + '" placeholder="' + escapeHtml(manualGoogleReview ? 'Enter the name shown on the review plus a short snippet or the date posted' : 'Anything you want the team to review?') + '"></textarea></label>' +
       '</div>' +
-      '<div class="ForestryRewardsTaskProof__actions">' + openLink + '<button class="Button Button--primary" type="button" data-action="submit-task" data-task-handle="' + escapeHtml(task.handle) + '" data-task-requires-proof="1"' + disabled + '>Submit for review</button></div>' +
+      '<div class="ForestryRewardsTaskProof__actions">' + openLink + '<button class="Button Button--primary" type="button" data-action="submit-task" data-task-handle="' + escapeHtml(task.handle) + '" data-task-requires-proof="1"' + disabled + '>' + escapeHtml(manualGoogleReview ? 'Submit review details' : 'Submit for review') + '</button></div>' +
     '</div>';
   }
 
@@ -1922,9 +1947,12 @@
     }
 
     if (taskNeedsProof(task)) {
-      const label = uiState.openTaskHandle === task.handle ? 'Hide form' : 'Submit proof';
+      const manualGoogleReview = googleReviewManualFallbackTask(task);
+      const label = uiState.openTaskHandle === task.handle
+        ? 'Hide form'
+        : (manualGoogleReview ? 'Submit review details' : 'Submit proof');
       const openLink = task.action_url
-        ? '<a class="Button Button--secondary" href="' + escapeHtml(task.action_url) + '" target="_blank" rel="noopener">Open task</a>'
+        ? '<a class="Button Button--secondary" href="' + escapeHtml(task.action_url) + '" target="_blank" rel="noopener">' + escapeHtml(manualGoogleReview ? 'Open Google review' : 'Open task') + '</a>'
         : '';
       return openLink + '<button class="Button Button--primary" type="button" data-action="toggle-task-form" data-task-handle="' + escapeHtml(task.handle) + '"' + disabled + '>' + escapeHtml(label) + '</button>';
     }
@@ -3133,6 +3161,7 @@
     const availableRewards = rewardCatalogRows(mergeArray(data.available_rewards, fallback.available_rewards), balanceAmount);
     const membership = mergeObject(data.membership || {}, fallback.membership || {});
     const history = mergeObject(data.history || {}, fallback.history || {});
+    const googleReview = mergeObject(data.google_review || {}, fallback.google_review || {});
     const redemptionAccessConfig = mergeObject(data.redemption_access || {}, fallback.redemption_access || {});
     const redemptionRulesConfig = mergeObject(data.redemption_rules || {}, fallback.redemption_rules || {});
     const profileId = positiveInt(data.profile_id || fallback.profile_id || root.dataset.marketingProfileId || root.dataset.shopifyCustomerId);
@@ -3185,6 +3214,15 @@
       copy: mergeObject(data.copy || {}, fallback.copy || {}),
       summary: summary,
       referral: referral,
+      googleReview: {
+        enabled: bool(googleReview.enabled),
+        ready: bool(googleReview.ready),
+        reason: cleanString(googleReview.reason),
+        message: cleanString(googleReview.message),
+        fallbackMode: cleanString(googleReview.fallback_mode || googleReview.fallbackMode),
+        reviewUrl: cleanString(googleReview.review_url || googleReview.reviewUrl),
+        lastSyncAt: cleanString(googleReview.last_sync_at || googleReview.lastSyncAt),
+      },
       tasks: mergeArray(data.tasks, fallback.tasks),
       taskHistory: storefrontVisibleRows(mergeArray(history.tasks, fallback.history && fallback.history.tasks)),
       ledgerHistory: storefrontVisibleRows(mergeArray(history.ledger, fallback.history && fallback.history.ledger)),
@@ -4094,7 +4132,24 @@
 
   function openTaskWindow(url) {
     const destination = cleanString(url);
-    if (!destination || destination.charAt(0) === '#') {
+    if (!destination) {
+      try {
+        const taskWindow = window.open('', '_blank');
+        if (taskWindow) {
+          try {
+            taskWindow.opener = null;
+          } catch (error) {
+            // Ignore opener hardening failures.
+          }
+        }
+
+        return taskWindow;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    if (destination.charAt(0) === '#') {
       openTaskDestination(destination);
       return null;
     }
@@ -4153,6 +4208,15 @@
     const proofText = cleanString(proofTextField && proofTextField.value);
     const openUrl = cleanString(target.getAttribute('data-open-url'));
     const requestKey = 'task-submit:' + taskHandle + ':' + Date.now();
+    const task = mergeArray(computeLastModel(root).tasks, []).find(function (row) {
+      return cleanString(row && row.handle) === taskHandle;
+    }) || null;
+    const manualGoogleReview = googleReviewManualFallbackTask(task);
+
+    if (manualGoogleReview && !proofText) {
+      showToast(root, 'Add the name shown on your Google review plus a short snippet or the date posted so the team can verify it.', 'warning');
+      return;
+    }
 
     if (requiresProof && !proofUrl && !proofText) {
       showToast(root, 'Add a note or proof link so the team can review it.', 'warning');
@@ -4193,7 +4257,11 @@
         state: failureCode,
       });
       setRootState(root, { openTaskHandle: taskHandle });
-      showToast(root, failureCode === 'auto_verified_task' ? 'That reward lands automatically once the verified event happens.' : 'We could not save that task yet. Try again in a moment.', 'warning');
+      showToast(root, failureCode === 'auto_verified_task'
+        ? 'That reward lands automatically once the verified event happens.'
+        : (failureCode === 'proof_text_required'
+          ? 'Add the name shown on your Google review plus a short snippet or the date posted so the team can verify it.'
+          : 'We could not save that task yet. Try again in a moment.'), 'warning');
       await loadAndRender(root, { force: true });
       return;
     }
@@ -4210,7 +4278,11 @@
     setRootState(root, {
       busy: false,
       openTaskHandle: '',
-      toast: completionState === 'awarded' ? 'Candle Cash added to your account.' : 'We saved the action. Candle Cash will land once the event verifies.',
+      toast: completionState === 'awarded'
+        ? 'Candle Cash added to your account.'
+        : (manualGoogleReview
+          ? 'We saved your review details. Candle Cash lands after the team reviews it.'
+          : 'We saved the action. Candle Cash will land once the event verifies.'),
       toastTone: 'success',
     });
     invalidateRewardsScope(root);
@@ -4236,7 +4308,7 @@
 
     const destination = cleanString(target.getAttribute('data-open-url'));
     const requestKey = 'google-review-start:' + Date.now();
-    const taskWindow = openTaskWindow(destination);
+    const taskWindow = openTaskWindow(cleanString(root.dataset.endpointGoogleReviewStart) ? '' : destination);
 
     logRewardEvent(root, {
       event_type: 'reward_task_click',
@@ -4263,6 +4335,8 @@
 
     if (!result.ok) {
       const failureCode = result.error && result.error.code ? result.error.code : 'google_review_not_ready';
+      const failureMessage = result.error && result.error.message ? result.error.message : 'Google review matching is not ready yet. Try again in a moment.';
+      const effectiveMode = cleanString(result.error && result.error.details && result.error.details.effective_mode);
       logRewardEvent(root, {
         event_type: 'reward_task_failure',
         request_key: requestKey + ':failure',
@@ -4270,10 +4344,18 @@
         surface: root.dataset.surface || 'page',
         state: failureCode,
       });
-      showToast(root, 'Google review matching is not ready yet. Try again in a moment.', 'warning');
+      showToast(root, failureMessage, 'warning');
       await loadAndRender(root, { force: true });
-      if (destination) {
-        navigateTaskWindow(taskWindow, destination);
+      if (effectiveMode === 'manual_review_fallback') {
+        setRootState(root, { openTaskHandle: 'google-review' });
+        rerender(root);
+      }
+      if (taskWindow && !taskWindow.closed) {
+        try {
+          taskWindow.close();
+        } catch (error) {
+          // Ignore popup close failures.
+        }
       }
       return;
     }
