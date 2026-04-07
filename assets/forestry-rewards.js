@@ -1607,16 +1607,28 @@
 
   function visibleTasks(model) {
     return mergeArray(model && model.tasks, []).filter(function (task) {
-      if (cleanString(task && task.handle) === 'birthday-signup') {
+      const handle = cleanString(task && task.handle);
+
+      if (handle === 'birthday-signup' || handle === 'referred-friend-bonus') {
         return false;
       }
 
-      if (cleanString(task && task.handle).indexOf('candle-club') === 0 && !(model.candleClub && model.candleClub.member)) {
+      if (handle.indexOf('candle-club') === 0 && !(model.candleClub && model.candleClub.member)) {
         return false;
       }
 
       return taskShouldDisplay(task, model);
     });
+  }
+
+  function taskDisplayTitle(task) {
+    const handle = cleanString(task && task.handle);
+
+    if (handle === 'product-review') {
+      return 'Review on Modern Forestry Website';
+    }
+
+    return cleanString(task && task.title);
   }
 
   function taskRepeatabilityLabel(task) {
@@ -1664,29 +1676,6 @@
     return cleanString(task.handle) === 'sms-signup' && !model.consentSms;
   }
 
-  function taskEyebrow(task) {
-    switch (cleanString(task && task.handle)) {
-      case 'email-signup':
-      case 'sms-signup':
-        return 'Verified signup';
-      case 'google-review':
-      case 'product-review':
-        return 'Verified review';
-      case 'refer-a-friend':
-      case 'referred-friend-bonus':
-        return 'Referral reward';
-      case 'birthday-signup':
-        return 'Birthday reward';
-      case 'candle-club-join':
-      case 'candle-club-vote':
-        return 'Candle Club';
-      case 'second-order':
-        return 'Order reward';
-      default:
-        return cleanString(taskVerificationMode(task)) ? titleCaseSlug(taskVerificationMode(task)) : 'Reward';
-    }
-  }
-
   function taskDetailCopy(task, state, model) {
     if (candleClubTask(task) && model && model.candleClub && model.candleClub.previewOnly) {
       return model.candleClub.lockMessage || 'Candle Cash';
@@ -1727,11 +1716,11 @@
     }
     if (task.handle === 'google-review') {
       return task.action_url
-        ? 'Open Google, leave your review, and we will match it automatically once it posts.'
+        ? 'Open Google, leave your review, and we will match it automatically once it posts. Only the first Google review reward each week earns Candle Cash.'
         : 'Google review matching is ready. Add the review link in admin to make this task actionable.';
     }
     if (task.handle === 'product-review') {
-      return 'Leave a product review on theforestrystudio.com';
+      return 'Leave a review on the Modern Forestry website. Only the first website review reward each week earns Candle Cash.';
     }
     if (task.handle === 'second-order') {
       return 'This one lands automatically after your second order is complete.';
@@ -1949,8 +1938,7 @@
     return '<article class="' + cardClass + '" id="candle-cash-task-' + escapeHtml(task.handle) + '" data-task-card="' + escapeHtml(task.handle) + '" data-opportunity-id="' + escapeHtml(opportunityId) + '" data-completed="' + (completed ? 'true' : 'false') + '" data-repeatable="' + (repeatable ? 'true' : 'false') + '"' + (collapsible ? ' role="button" tabindex="0" aria-expanded="' + (expanded ? 'true' : 'false') + '" aria-controls="' + escapeHtml(togglePanelId) + '"' : '') + '>' +
       '<div class="' + summaryClass + '">' +
         '<div class="ForestryRewardsOpportunitySummary__main">' +
-          '<p class="ForestryRewardsCard__eyebrow">' + escapeHtml(taskEyebrow(task)) + '</p>' +
-          '<h3 class="Heading u-h4">' + escapeHtml(task.title) + '</h3>' +
+          '<h3 class="Heading u-h4">' + escapeHtml(taskDisplayTitle(task)) + '</h3>' +
           (rewardAmount ? '<p class="ForestryRewardsOpportunitySummary__amount">' + escapeHtml(rewardAmount) + '</p>' : '') +
         '</div>' +
       '</div>' +
@@ -4069,6 +4057,49 @@
     window.open(destination, '_blank', 'noopener');
   }
 
+  function openTaskWindow(url) {
+    const destination = cleanString(url);
+    if (!destination || destination.charAt(0) === '#') {
+      openTaskDestination(destination);
+      return null;
+    }
+
+    try {
+      const taskWindow = window.open('', '_blank');
+      if (taskWindow) {
+        try {
+          taskWindow.opener = null;
+        } catch (error) {
+          // Ignore opener hardening failures.
+        }
+        taskWindow.location.href = destination;
+      }
+
+      return taskWindow;
+    } catch (error) {
+      openTaskDestination(destination);
+      return null;
+    }
+  }
+
+  function navigateTaskWindow(taskWindow, url) {
+    const destination = cleanString(url);
+    if (!destination) {
+      return;
+    }
+
+    if (!taskWindow || taskWindow.closed) {
+      openTaskDestination(destination);
+      return;
+    }
+
+    try {
+      taskWindow.location.href = destination;
+    } catch (error) {
+      openTaskDestination(destination);
+    }
+  }
+
   async function submitTask(root, target) {
     if (rootState(root).busy) {
       return;
@@ -4170,6 +4201,7 @@
 
     const destination = cleanString(target.getAttribute('data-open-url'));
     const requestKey = 'google-review-start:' + Date.now();
+    const taskWindow = openTaskWindow(destination);
 
     logRewardEvent(root, {
       event_type: 'reward_task_click',
@@ -4180,7 +4212,7 @@
     });
 
     if (!cleanString(root.dataset.endpointGoogleReviewStart)) {
-      openTaskDestination(destination);
+      navigateTaskWindow(taskWindow, destination);
       return;
     }
 
@@ -4205,6 +4237,9 @@
       });
       showToast(root, 'Google review matching is not ready yet. Try again in a moment.', 'warning');
       await loadAndRender(root, { force: true });
+      if (destination) {
+        navigateTaskWindow(taskWindow, destination);
+      }
       return;
     }
 
@@ -4225,7 +4260,7 @@
     rerender(root);
 
     if (reviewUrl) {
-      openTaskDestination(reviewUrl);
+      navigateTaskWindow(taskWindow, reviewUrl);
     }
   }
 
