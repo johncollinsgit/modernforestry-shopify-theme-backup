@@ -17,6 +17,7 @@
   const AUTH_RETURN_PARAM = 'return_url';
   const AUTH_PORTAL_PARAM = 'candle_cash_portal';
   const AUTH_WELCOME_PARAM = 'candle_cash_welcome';
+  const REVIEW_PREFETCH_EVENT = 'forestry:prefetch-reviews';
   const CLASSIC_LOGIN_PATH = '/account/login';
   const CLASSIC_REGISTER_PATH = '/account/register';
   const runtime = window[RUNTIME_KEY] || {
@@ -26,6 +27,8 @@
     responseCache: new Map(),
     responseInflight: new Map(),
     nextDomId: 1,
+    reviewPrefetchObserver: null,
+    reviewPrefetchTargets: new WeakMap(),
   };
 
   window[RUNTIME_KEY] = runtime;
@@ -3316,6 +3319,78 @@
       '</section>';
   }
 
+  function dispatchReviewPrefetch(detail) {
+    document.dispatchEvent(new CustomEvent(REVIEW_PREFETCH_EVENT, {
+      detail: Object.assign({
+        source: 'candle_cash',
+        scope: 'sitewide',
+      }, detail || {}),
+    }));
+  }
+
+  function modelHasProductReviewTask(model) {
+    return mergeArray(model && model.tasks, []).some(function (task) {
+      return cleanString(task && task.handle) === 'product-review';
+    });
+  }
+
+  function observeReviewPrefetchIntent(root, model) {
+    if (!root || cleanString(root.dataset.surface) !== 'page' || !modelHasProductReviewTask(model)) {
+      const previousTarget = root && runtime.reviewPrefetchTargets ? runtime.reviewPrefetchTargets.get(root) : null;
+      if (previousTarget && runtime.reviewPrefetchObserver) {
+        runtime.reviewPrefetchObserver.unobserve(previousTarget);
+      }
+      return;
+    }
+
+    const cta = root.querySelector('[data-action="open-product-review-drawer"]');
+    if (!cta) {
+      return;
+    }
+
+    if (!('IntersectionObserver' in window)) {
+      if (!root.__forestryReviewPrefetchVisible) {
+        root.__forestryReviewPrefetchVisible = true;
+        dispatchReviewPrefetch({ source: 'candle_cash_visibility' });
+      }
+      return;
+    }
+
+    if (!runtime.reviewPrefetchObserver) {
+      runtime.reviewPrefetchObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting || !entry.target) {
+            return;
+          }
+
+          const target = entry.target;
+          runtime.reviewPrefetchObserver.unobserve(target);
+
+          const ownerRoot = target.__forestryReviewPrefetchRoot;
+          if (!ownerRoot || ownerRoot.__forestryReviewPrefetchVisible) {
+            return;
+          }
+
+          ownerRoot.__forestryReviewPrefetchVisible = true;
+          dispatchReviewPrefetch({ source: 'candle_cash_visibility' });
+        });
+      }, { rootMargin: '220px 0px' });
+    }
+
+    const previous = runtime.reviewPrefetchTargets.get(root);
+    if (previous === cta) {
+      return;
+    }
+
+    if (previous && runtime.reviewPrefetchObserver) {
+      runtime.reviewPrefetchObserver.unobserve(previous);
+    }
+
+    cta.__forestryReviewPrefetchRoot = root;
+    runtime.reviewPrefetchTargets.set(root, cta);
+    runtime.reviewPrefetchObserver.observe(cta);
+  }
+
   function render(root, model) {
     applyRewardsTheme(root, activeRewardsTheme(root));
     root.__forestryLastModel = model;
@@ -3324,25 +3399,17 @@
 
     if (surface === 'cart' || surface === 'drawer') {
       renderCompactSurface(root, model, uiState);
-      return;
-    }
-
-    if (surface === 'header' || surface === 'sidebar') {
+    } else if (surface === 'header' || surface === 'sidebar') {
       renderHeaderSurface(root, model);
-      return;
-    }
-
-    if (surface === 'account') {
+    } else if (surface === 'account') {
       renderAccountSurface(root, model, uiState);
-      return;
-    }
-
-    if (surface === 'order') {
+    } else if (surface === 'order') {
       renderOrderSurface(root, model, uiState);
-      return;
+    } else {
+      renderCentralSurface(root, model, uiState);
     }
 
-    renderCentralSurface(root, model, uiState);
+    observeReviewPrefetchIntent(root, model);
   }
 
   function rerender(root) {
@@ -4978,6 +5045,10 @@
 
     if (action === 'open-product-review-drawer') {
       const requestedScope = cleanString(root.dataset.surface || 'page') === 'page' ? 'sitewide' : 'product';
+      dispatchReviewPrefetch({
+        source: 'candle_cash_open_click',
+        scope: requestedScope,
+      });
       const reviewDrawer = document.querySelector('[data-forestry-sitewide-reviews]');
       if (reviewDrawer) {
         document.dispatchEvent(new CustomEvent('forestry:open-reviews-drawer', {
@@ -5065,6 +5136,33 @@
 
       event.preventDefault();
       handleAction(root, target);
+    });
+
+    root.addEventListener('pointerover', function (event) {
+      if (cleanString(root.dataset.surface) !== 'page' || root.__forestryReviewPrefetchInteractive) {
+        return;
+      }
+
+      const target = event.target && event.target.closest ? event.target.closest('[data-action="open-product-review-drawer"]') : null;
+      if (!target || !root.contains(target)) {
+        return;
+      }
+
+      root.__forestryReviewPrefetchInteractive = true;
+      dispatchReviewPrefetch({ source: 'candle_cash_hover' });
+    });
+
+    root.addEventListener('focusin', function (event) {
+      if (cleanString(root.dataset.surface) !== 'page') {
+        return;
+      }
+
+      const target = event.target && event.target.closest ? event.target.closest('[data-action="open-product-review-drawer"]') : null;
+      if (!target || !root.contains(target)) {
+        return;
+      }
+
+      dispatchReviewPrefetch({ source: 'candle_cash_focus' });
     });
 
     root.addEventListener('click', function (event) {

@@ -7,6 +7,7 @@
   const SITEWIDE_SELECTOR = '[data-forestry-sitewide-reviews]';
   const ROOT_LOCK_CLASS = 'forestry-product-reviews-open';
   const RUNTIME_KEY = '__forestryProductReviewsRuntime';
+  const FLOATING_MODAL_HOST_SELECTOR = '[data-forestry-sitewide-review-modal-global-host]';
   const REQUEST_TIMEOUT_MS = 10000;
 
   const runtime = window[RUNTIME_KEY] || {
@@ -15,6 +16,8 @@
     ui: new Map(),
     observer: null,
     sitewide: null,
+    sitewideModalHost: null,
+    pendingFloatingPrefetch: null,
   };
 
   window[RUNTIME_KEY] = runtime;
@@ -87,6 +90,31 @@
 
   function modalSizeClass(value) {
     return 'ForestryProductReviews__modal--' + normalizedModalSize(value);
+  }
+
+  function floatingGlobalModalHost(createIfMissing) {
+    const shouldCreate = createIfMissing !== false;
+
+    if (runtime.sitewideModalHost && document.body && document.body.contains(runtime.sitewideModalHost)) {
+      return runtime.sitewideModalHost;
+    }
+
+    const existing = document.querySelector(FLOATING_MODAL_HOST_SELECTOR);
+    if (existing) {
+      runtime.sitewideModalHost = existing;
+      return existing;
+    }
+
+    if (!shouldCreate || !document.body) {
+      return null;
+    }
+
+    const host = document.createElement('div');
+    host.className = 'ForestryProductReviews__globalModalHost';
+    host.setAttribute('data-forestry-sitewide-review-modal-global-host', '');
+    document.body.appendChild(host);
+    runtime.sitewideModalHost = host;
+    return host;
   }
 
   function reducedMotionPreferred() {
@@ -1699,17 +1727,12 @@
   function floatingReviewDefaultDraft(node, state) {
     const candidates = Array.isArray(state && state.reviewCandidates) ? state.reviewCandidates : [];
     const selected = candidates[0] || null;
-    const defaultName = [clean(node && node.dataset && node.dataset.customerFirstName), clean(node && node.dataset && node.dataset.customerLastName)]
-      .filter(Boolean)
-      .join(' ');
 
     return {
       selected_candidate_key: clean(selected && selected.candidate_key),
       search: '',
       rating: 0,
       body: '',
-      name: defaultName,
-      email: clean(node && node.dataset && node.dataset.customerEmail),
     };
   }
 
@@ -1751,6 +1774,19 @@
 
       return haystack.indexOf(query) >= 0;
     });
+  }
+
+  function floatingReviewIdentity(node) {
+    const email = clean(node && node.dataset && node.dataset.customerEmail);
+    const firstName = clean(node && node.dataset && node.dataset.customerFirstName);
+    const lastName = clean(node && node.dataset && node.dataset.customerLastName);
+    const displayName = [firstName, lastName].filter(Boolean).join(' ');
+    const fallbackName = email ? clean(email.split('@')[0]).replace(/[._-]+/g, ' ') : '';
+
+    return {
+      email: email,
+      name: displayName || fallbackName || 'Customer',
+    };
   }
 
   function reviewRequest(node, endpoint, params, fallbackData) {
@@ -1895,6 +1931,7 @@
 
   function floatingReviewContentMarkup(node) {
     const state = floatingReviewState();
+    const identity = floatingReviewIdentity(node);
     const showingProduct = state.scope === 'product' && floatingReviewHasProduct(node);
     const loading = showingProduct ? state.productLoading : state.sitewideLoading;
     const payload = showingProduct
@@ -1909,12 +1946,9 @@
     const canLaunchModal = hasSubmitEndpoint;
     const launchLabel = state.reviewDataLoading ? 'Loading review flow...' : 'Leave a review';
     const launchDisabled = canLaunchModal ? '' : ' disabled aria-disabled="true"';
-    const lockCopy = hasSubmitEndpoint && state.reviewSettings.canSubmit === false
-      ? 'Sign in to leave a review and track Candle Cash rewards.'
+    const lockCopy = hasSubmitEndpoint && (state.reviewSettings.canSubmit === false || !identity.email)
+      ? 'Sign in to leave a review.'
       : '';
-    const introCopy = clean(state.entrySource) === 'candle_cash'
-      ? 'Pick your scent, add a star rating, and submit your review. Candle Cash rewards are processed through the existing review rules.'
-      : 'Share your scent experience in a quick review. We will connect rewards automatically when eligible.';
 
     return '' +
       '<div class="ForestryFloatingDrawer__panelHeader">' +
@@ -1926,7 +1960,6 @@
         '<button type="button" class="ForestryFloatingDrawer__close" data-action="forestry-sitewide-reviews-close" aria-label="Close reviews">Close</button>' +
       '</div>' +
       '<div class="ForestryProductReviews__drawerLead">' +
-        '<p class="Text--subdued">' + escapeHtml(introCopy) + '</p>' +
         '<button type="button" class="Button Button--primary Button--full" data-action="forestry-sitewide-review-open-modal"' + launchDisabled + '>' + escapeHtml(launchLabel) + '</button>' +
       '</div>' +
       (lockCopy ? '<div class="ForestryProductReviews__notice ForestryProductReviews__notice--neutral">' + escapeHtml(lockCopy) + '</div>' : '') +
@@ -2008,10 +2041,10 @@
     const open = !!state.reviewModalOpen;
     const modalSize = modalSizeClass(clean(node && node.dataset && node.dataset.reviewModalSize));
     const draft = ensureFloatingReviewDraft(node, state);
-    const selected = selectedFloatingReviewCandidate(state);
     const candidates = filteredFloatingCandidates(state);
-    const minimumLength = positiveInt(state.reviewSettings && state.reviewSettings.minimumLength) || 24;
-    const canSubmit = state.reviewSettings && state.reviewSettings.canSubmit !== false;
+    const identity = floatingReviewIdentity(node);
+    const hasIdentity = !!identity.email;
+    const canSubmit = !!(state.reviewSettings && state.reviewSettings.canSubmit !== false && hasIdentity);
     const loginUrl = clean(node && node.dataset && node.dataset.loginUrl) || '/account/login';
     const submitDisabled = state.reviewModalBusy || !canSubmit;
 
@@ -2026,7 +2059,11 @@
             '</div>' +
             '<button type="button" class="ForestryProductReviews__close" data-action="forestry-sitewide-review-close-modal" aria-label="Close review modal">Close</button>' +
           '</div>' +
-          (state.reviewDataLoading && !state.reviewDataReady
+          (!canSubmit
+            ? '<div class="ForestryProductReviews__modalBody">' +
+                '<p class="Text--subdued">Sign in to search scents and leave your review.</p>' +
+              '</div>'
+            : state.reviewDataLoading && !state.reviewDataReady
             ? '<p class="Text--subdued">Loading your scent options...</p>'
             : '' +
               '<div class="ForestryProductReviews__modalBody">' +
@@ -2051,19 +2088,7 @@
                 '<label class="ForestryProductReviews__field">' +
                   '<span class="ForestryProductReviews__fieldLabel">Review</span>' +
                   '<textarea class="Input ForestryProductReviews__textarea" rows="6" data-floating-review-field="body" placeholder="Tell us how it smelled, threw, and felt in your space.">' + escapeHtml(draft.body || '') + '</textarea>' +
-                  '<p class="Text--subdued">Minimum ' + escapeHtml(String(minimumLength)) + ' characters.</p>' +
                 '</label>' +
-                '<label class="ForestryProductReviews__field">' +
-                  '<span class="ForestryProductReviews__fieldLabel">Display name</span>' +
-                  '<input class="Input" type="text" maxlength="160" value="' + escapeHtml(draft.name || '') + '" data-floating-review-field="name" placeholder="Your name">' +
-                '</label>' +
-                '<label class="ForestryProductReviews__field">' +
-                  '<span class="ForestryProductReviews__fieldLabel">Email</span>' +
-                  '<input class="Input" type="email" maxlength="255" value="' + escapeHtml(draft.email || '') + '" data-floating-review-field="email" placeholder="you@example.com">' +
-                '</label>' +
-                (selected && selected.order_external_id
-                  ? '<p class="Text--subdued">Selected order: #' + escapeHtml(selected.order_external_id) + '</p>'
-                  : '') +
                 (state.reviewDataError ? '<p class="Text--subdued">' + escapeHtml(state.reviewDataError) + '</p>' : '') +
               '</div>') +
           (state.reviewModalMessage
@@ -2074,7 +2099,6 @@
                 '<a class="Button Button--primary" href="' + escapeHtml(loginUrl) + '">Sign in to review</a>' +
               '</div>'
             : '<div class="ForestryProductReviews__modalActions">' +
-                '<button type="button" class="Button Button--secondary" data-action="forestry-sitewide-review-close-modal">Cancel</button>' +
                 '<button type="button" class="Button Button--primary" data-action="forestry-sitewide-review-submit"' + (submitDisabled ? ' disabled aria-disabled="true"' : '') + '>' + escapeHtml(state.reviewModalBusy ? 'Submitting...' : 'Submit review') + '</button>' +
               '</div>') +
         '</section>' +
@@ -2082,9 +2106,8 @@
   }
 
   function floatingModalElement() {
-    const state = floatingReviewState();
-    const node = state && state.node;
-    return node ? node.querySelector('[data-forestry-sitewide-review-modal]') : null;
+    const host = floatingGlobalModalHost(false);
+    return host ? host.querySelector('[data-forestry-sitewide-review-modal]') : null;
   }
 
   function floatingModalFocusables(modal) {
@@ -2121,6 +2144,10 @@
     const node = state.node;
     const stack = document.querySelector('[data-forestry-floating-drawer-stack]');
     if (!node) {
+      const staleModalHost = floatingGlobalModalHost(false);
+      if (staleModalHost) {
+        staleModalHost.innerHTML = '';
+      }
       if (stack) {
         delete stack.dataset.reviewsOpen;
       }
@@ -2129,7 +2156,7 @@
 
     const panel = node.querySelector('.ForestryFloatingDrawer__panel');
     const content = node.querySelector('[data-forestry-sitewide-reviews-content]');
-    const modalHost = node.querySelector('[data-forestry-sitewide-review-modal-host]');
+    const modalHost = floatingGlobalModalHost();
     const tab = node.querySelector('[data-action="forestry-sitewide-reviews-toggle"]');
     const scrim = node.querySelector('.ForestryFloatingDrawer__scrim');
     const count = node.querySelector('[data-forestry-sitewide-review-count]');
@@ -2293,9 +2320,6 @@
       if (selected) {
         state.reviewDraft.selected_candidate_key = clean(selected.candidate_key);
       }
-      if (!clean(state.reviewDraft.email)) {
-        state.reviewDraft.email = clean(node.dataset.customerEmail);
-      }
     }
 
     renderFloatingReviews();
@@ -2316,10 +2340,6 @@
 
     if (clean(draft.body).length < minimumLength) {
       return 'Tell us a little more before submitting your review.';
-    }
-
-    if (!clean(draft.email)) {
-      return 'Add your email so we can save your review.';
     }
 
     return '';
@@ -2392,7 +2412,7 @@
       return;
     }
 
-    const host = node.querySelector('[data-forestry-sitewide-review-modal-host]') || node;
+    const host = floatingGlobalModalHost(false) || node;
     const burst = document.createElement('div');
     burst.className = 'ForestryProductReviews__confetti';
     burst.setAttribute('aria-hidden', 'true');
@@ -2460,7 +2480,8 @@
       return;
     }
 
-    if (state.reviewSettings && state.reviewSettings.canSubmit === false) {
+    const identity = floatingReviewIdentity(node);
+    if ((state.reviewSettings && state.reviewSettings.canSubmit === false) || !identity.email) {
       state.reviewModalMessage = 'Sign in to leave a review first.';
       state.reviewModalTone = 'danger';
       renderFloatingReviews();
@@ -2494,8 +2515,8 @@
       variant_id: clean(selected && selected.variant_id),
       rating: positiveInt(draft.rating) || 0,
       body: clean(draft.body),
-      name: clean(draft.name),
-      email: clean(draft.email),
+      name: clean(identity.name),
+      email: clean(identity.email),
       order_id: positiveInt(selected && selected.order_id),
       order_line_id: positiveInt(selected && selected.order_line_id),
       phone: clean(node.dataset.customerPhone),
@@ -2562,6 +2583,29 @@
     }
   }
 
+  function prefetchFloatingReviews(options) {
+    const state = floatingReviewState();
+    const node = state.node;
+    if (!node) {
+      runtime.pendingFloatingPrefetch = Object.assign({}, options || {});
+      return;
+    }
+
+    const scope = clean(options && options.scope) || state.scope || clean(node.dataset.defaultScope) || 'sitewide';
+
+    if (!state.sitewideData && !state.sitewideLoading) {
+      hydrateFloatingSitewideReviews();
+    }
+
+    if (scope === 'product' && floatingReviewHasProduct(node) && !state.productData && !state.productLoading) {
+      hydrateFloatingProductReviews();
+    }
+
+    if (!state.reviewDataReady && !state.reviewDataLoading) {
+      hydrateFloatingReviewComposer();
+    }
+  }
+
   async function openFloatingReviews(scope, trigger, options) {
     const state = floatingReviewState();
     const node = state.node;
@@ -2586,9 +2630,7 @@
       await hydrateFloatingSitewideReviews();
     }
 
-    if (!state.reviewDataReady && !state.reviewDataLoading) {
-      hydrateFloatingReviewComposer();
-    }
+    prefetchFloatingReviews({ scope: state.scope });
 
     window.requestAnimationFrame(function () {
       const panel = node.querySelector('.ForestryFloatingDrawer__panel');
@@ -2611,6 +2653,11 @@
     }
 
     renderFloatingReviews();
+
+    if (runtime.pendingFloatingPrefetch) {
+      prefetchFloatingReviews(runtime.pendingFloatingPrefetch);
+      runtime.pendingFloatingPrefetch = null;
+    }
 
     if (state.scope === 'product' && floatingReviewHasProduct(node)) {
       await hydrateFloatingProductReviews();
@@ -2942,9 +2989,17 @@
   document.addEventListener('forestry:open-reviews-drawer', function (event) {
     const detail = event && event.detail ? event.detail : {};
     const requestedScope = clean(detail.scope) || 'sitewide';
+    prefetchFloatingReviews({
+      source: clean(detail.source),
+      scope: requestedScope,
+    });
     openFloatingReviews(requestedScope, null, {
       source: clean(detail.source),
     });
+  });
+  document.addEventListener('forestry:prefetch-reviews', function (event) {
+    const detail = event && event.detail ? event.detail : {};
+    prefetchFloatingReviews(detail);
   });
 
   document.querySelectorAll(SUMMARY_SELECTOR + ',' + PANEL_SELECTOR + ',' + RATING_SELECTOR).forEach(boot);
