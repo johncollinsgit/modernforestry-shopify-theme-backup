@@ -1563,25 +1563,41 @@
 .ForestryRewardsHeaderMount__inline {
   display: inline-flex;
   align-items: center;
-  min-width: 11.35rem;
+  min-width: 0;
   min-height: 2rem;
-  flex: 0 0 11.35rem;
+  flex: 0 0 auto;
 }
 
 .ForestryRewardsHeaderLink {
   display: grid;
-  grid-template-columns: auto minmax(3.9rem, auto) minmax(4.35rem, auto);
+  grid-template-columns: auto minmax(3.9rem, max-content) max-content;
   align-items: center;
   gap: 0.36rem;
   padding: 0.28rem 0.56rem;
   min-height: 2rem;
-  min-width: 11.35rem;
+  min-width: 0;
   border-radius: 999px;
   border: 1px solid rgba(var(--text-color-rgb), 0.1);
   background: rgba(var(--background-rgb), 0.9);
   text-decoration: none;
   transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
   white-space: nowrap;
+}
+
+.ForestryRewardsHeaderMount__inline .ForestryRewardsRoot {
+  display: inline-block;
+  width: max-content;
+  min-width: max-content;
+  flex: 0 0 auto;
+}
+
+.ForestryRewardsHeaderLink--header {
+  display: inline-grid;
+  grid-template-columns: auto max-content max-content;
+  width: max-content;
+  min-width: max-content;
+  max-width: none;
+  flex: 0 0 auto;
 }
 
 .ForestryRewardsHeaderLink:hover {
@@ -1834,8 +1850,8 @@
 
 @media screen and (max-width: 640px) {
   .ForestryRewardsHeaderMount__inline {
-    min-width: 10.4rem;
-    flex-basis: 10.4rem;
+    min-width: 0;
+    flex-basis: auto;
   }
 }
 

@@ -203,7 +203,7 @@
 {{ forestry_content_for_header }}
 
     <link rel="stylesheet" href="{{ 'theme.css' | asset_url }}">
-    <link rel="stylesheet" href="{{ 'forestry-rewards.css' | asset_url }}">
+    <link rel="stylesheet" href="{{ 'forestry-rewards.css' | asset_url | append: '&cb=20260408-header-pill' }}">
     {%- if settings.native_reviews_enabled -%}
       <link rel="stylesheet" href="{{ 'forestry-product-reviews.css' | asset_url }}">
     {%- endif -%}
