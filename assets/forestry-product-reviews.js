@@ -9,6 +9,8 @@
   const RUNTIME_KEY = '__forestryProductReviewsRuntime';
   const FLOATING_MODAL_HOST_SELECTOR = '[data-forestry-sitewide-review-modal-global-host]';
   const REQUEST_TIMEOUT_MS = 10000;
+  const FLOATING_REVIEW_SEARCH_DEBOUNCE_MS = 140;
+  const FLOATING_REVIEW_SEARCH_LIMIT = 12;
 
   const runtime = window[RUNTIME_KEY] || {
     promises: new Map(),
@@ -1580,6 +1582,12 @@
         reviewNoticeTone: 'neutral',
         reviewDraft: null,
         reviewCandidates: [],
+        reviewSearchResults: [],
+        reviewSearchLoading: false,
+        reviewSearchQuery: '',
+        reviewSearchToken: 0,
+        reviewSearchTimer: null,
+        reviewSearchCache: new Map(),
         reviewSettings: {
           minimumLength: 24,
           allowGuest: true,
@@ -1776,19 +1784,165 @@
     const draft = state && state.reviewDraft ? state.reviewDraft : {};
     const query = clean(draft.search).toLowerCase();
     const candidates = Array.isArray(state && state.reviewCandidates) ? state.reviewCandidates : [];
+    const searchResults = Array.isArray(state && state.reviewSearchResults) ? state.reviewSearchResults : [];
 
     if (!query) {
       return [];
     }
 
-    return candidates.filter(function (candidate) {
+    const compactQuery = query.replace(/[^a-z0-9]+/g, '');
+    const matchCandidate = function (candidate) {
       const haystack = [
         clean(candidate && candidate.product_title),
         clean(candidate && candidate.product_handle),
       ].join(' ').toLowerCase();
 
-      return haystack.indexOf(query) >= 0;
-    });
+      if (haystack.indexOf(query) >= 0) {
+        return true;
+      }
+
+      if (!compactQuery) {
+        return false;
+      }
+
+      return haystack.replace(/[^a-z0-9]+/g, '').indexOf(compactQuery) >= 0;
+    };
+
+    if (searchResults.length) {
+      return searchResults.filter(matchCandidate);
+    }
+
+    return candidates.filter(matchCandidate);
+  }
+
+  function floatingCatalogSearchUrl(query) {
+    const url = new URL('/search/suggest.json', window.location.origin);
+    url.searchParams.set('q', clean(query));
+    url.searchParams.set('resources[type]', 'product');
+    url.searchParams.set('resources[limit]', String(FLOATING_REVIEW_SEARCH_LIMIT));
+    url.searchParams.set('resources[options][unavailable_products]', 'hide');
+    return url;
+  }
+
+  function normalizeCatalogProductCandidate(product, index) {
+    const productId = clean(product && product.id);
+    const title = clean(product && product.title);
+    const handle = clean(product && product.handle) || slugify(title);
+    const rawUrl = clean(product && product.url);
+    let productUrl = '';
+
+    if (rawUrl) {
+      try {
+        productUrl = new URL(rawUrl, window.location.origin).pathname;
+      } catch (_error) {
+        productUrl = rawUrl.split('?')[0];
+      }
+    }
+
+    return normalizeFloatingCandidate({
+      candidate_key: 'catalog:' + (productId || handle || index),
+      product_id: productId,
+      product_handle: handle,
+      product_title: title,
+      product_url: productUrl || (handle ? '/products/' + handle : ''),
+      variant_id: '',
+      source: 'catalog_search',
+    }, index);
+  }
+
+  function runFloatingCatalogSearch(query, options) {
+    const state = floatingReviewState();
+    const node = state.node;
+    if (!node) {
+      return;
+    }
+
+    const normalizedQuery = clean(query);
+    const queryKey = normalizedQuery.toLowerCase();
+
+    if (state.reviewSearchTimer) {
+      window.clearTimeout(state.reviewSearchTimer);
+      state.reviewSearchTimer = null;
+    }
+
+    const searchToken = state.reviewSearchToken + 1;
+    state.reviewSearchToken = searchToken;
+
+    if (!queryKey) {
+      state.reviewSearchQuery = '';
+      state.reviewSearchLoading = false;
+      state.reviewSearchResults = [];
+      renderFloatingReviews();
+      return;
+    }
+
+    const execute = function () {
+      const cache = state.reviewSearchCache instanceof Map ? state.reviewSearchCache : new Map();
+      state.reviewSearchCache = cache;
+
+      if (cache.has(queryKey)) {
+        const cachedResults = mergeArray(cache.get(queryKey), []);
+        state.reviewSearchQuery = queryKey;
+        state.reviewSearchLoading = false;
+        state.reviewSearchResults = cachedResults;
+        state.reviewCandidates = mergedFloatingCandidates(cachedResults, state.reviewCandidates);
+        renderFloatingReviews();
+        return;
+      }
+
+      state.reviewSearchQuery = queryKey;
+      state.reviewSearchLoading = true;
+      state.reviewSearchResults = [];
+      renderFloatingReviews();
+
+      fetch(floatingCatalogSearchUrl(normalizedQuery).toString(), {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json' },
+      }).then(function (response) {
+        if (!response.ok) {
+          return null;
+        }
+        return response.json().catch(function () {
+          return null;
+        });
+      }).then(function (payload) {
+        if (state.reviewSearchToken !== searchToken) {
+          return;
+        }
+
+        const products = mergeArray(
+          payload && payload.resources && payload.resources.results && payload.resources.results.products,
+          []
+        );
+        const catalogResults = products.map(function (product, index) {
+          return normalizeCatalogProductCandidate(product, index);
+        }).filter(Boolean);
+
+        cache.set(queryKey, catalogResults);
+        state.reviewSearchLoading = false;
+        state.reviewSearchQuery = queryKey;
+        state.reviewSearchResults = catalogResults;
+        state.reviewCandidates = mergedFloatingCandidates(catalogResults, state.reviewCandidates);
+        renderFloatingReviews();
+      }).catch(function () {
+        if (state.reviewSearchToken !== searchToken) {
+          return;
+        }
+
+        state.reviewSearchLoading = false;
+        state.reviewSearchQuery = queryKey;
+        state.reviewSearchResults = [];
+        renderFloatingReviews();
+      });
+    };
+
+    if (options && options.immediate) {
+      execute();
+      return;
+    }
+
+    state.reviewSearchTimer = window.setTimeout(execute, FLOATING_REVIEW_SEARCH_DEBOUNCE_MS);
   }
 
   function floatingReviewIdentity(node) {
@@ -2063,6 +2217,7 @@
     const loginUrl = clean(node && node.dataset && node.dataset.loginUrl) || '/account/login';
     const submitDisabled = state.reviewModalBusy || !canSubmit;
     const hasSearchQuery = !!clean(draft.search);
+    const searchLoading = hasSearchQuery && !!state.reviewSearchLoading;
 
     return '' +
       '<div class="ForestryProductReviews__floatingModalWrap' + (open ? ' is-visible' : '') + '"' + (open ? '' : ' aria-hidden="true"') + '>' +
@@ -2079,8 +2234,6 @@
             ? '<div class="ForestryProductReviews__modalBody">' +
                 '<p class="Text--subdued">Sign in to search scents and leave your review.</p>' +
               '</div>'
-            : state.reviewDataLoading && !state.reviewDataReady
-            ? '<p class="Text--subdued">Loading your scent options...</p>'
             : '' +
               '<div class="ForestryProductReviews__modalBody">' +
                 '<label class="ForestryProductReviews__field">' +
@@ -2090,7 +2243,9 @@
                 (hasSearchQuery
                   ? '<div class="ForestryProductReviews__field">' +
                       '<span class="ForestryProductReviews__fieldLabel">Scent results</span>' +
-                      (candidates.length
+                      (searchLoading
+                        ? '<p class="Text--subdued">Searching scents...</p>'
+                        : candidates.length
                         ? '<div class="ForestryProductReviews__candidateList ForestryProductReviews__candidateList--modal">' +
                             candidates.map(function (candidate) {
                               return floatingReviewCandidateMarkup(candidate, clean(candidate.candidate_key) === clean(draft.selected_candidate_key));
@@ -2486,7 +2641,8 @@
     ensureFloatingReviewDraft(node, state);
     renderFloatingReviews();
 
-    await hydrateFloatingReviewComposer();
+    hydrateFloatingReviewComposer();
+    runFloatingCatalogSearch(clean(state.reviewDraft && state.reviewDraft.search), { immediate: true });
 
     window.requestAnimationFrame(function () {
       focusFloatingReviewModal();
@@ -2894,19 +3050,11 @@
       if (name) {
         const patch = {};
         patch[name] = floatingField.value;
-        const shouldRerender = name === 'search';
-        const cursor = typeof floatingField.selectionStart === 'number' ? floatingField.selectionStart : null;
-        patchFloatingReviewDraft(patch, shouldRerender);
-        if (shouldRerender) {
-          const modal = floatingModalElement();
-          const refreshedField = modal && modal.querySelector('[data-floating-review-field="search"]');
-          if (refreshedField && typeof refreshedField.focus === 'function') {
-            refreshedField.focus();
-            if (cursor != null && typeof refreshedField.setSelectionRange === 'function') {
-              const safeCursor = Math.min(cursor, String(refreshedField.value || '').length);
-              refreshedField.setSelectionRange(safeCursor, safeCursor);
-            }
-          }
+        if (name === 'search') {
+          patchFloatingReviewDraft(patch, false);
+          runFloatingCatalogSearch(patch[name], { immediate: false });
+        } else {
+          patchFloatingReviewDraft(patch, true);
         }
       }
       return;
