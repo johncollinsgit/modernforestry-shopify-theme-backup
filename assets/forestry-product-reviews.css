@@ -223,6 +223,18 @@ html.forestry-product-reviews-open body {
   }
 }
 
+.ForestryProductReviews__modal--small {
+  width: min(560px, 100%);
+}
+
+.ForestryProductReviews__modal--medium {
+  width: min(720px, 100%);
+}
+
+.ForestryProductReviews__modal--large {
+  width: min(920px, 100%);
+}
+
 .ForestryProductReviews__drawerHeader,
 .ForestryProductReviews__inlineHeader {
   display: flex;
@@ -264,6 +276,20 @@ html.forestry-product-reviews-open body {
   display: flex;
   gap: 12px;
   align-items: center;
+}
+
+.ForestryProductReviews__drawerLead {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 18px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(39, 29, 20, 0.08);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.ForestryProductReviews__drawerLead p {
+  margin: 0;
 }
 
 .ForestryProductReviews__drawerTools {
@@ -531,11 +557,108 @@ html.forestry-product-reviews-open body {
   gap: 12px;
 }
 
+.ForestryProductReviews__candidateList--modal {
+  max-height: min(32vh, 280px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
 .ForestryProductReviews__candidateMeta,
 .ForestryProductReviews__candidateOrder {
   display: block;
   margin-top: 4px;
   font-size: 12px;
+}
+
+.ForestryProductReviews__floatingRating {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.ForestryProductReviews__floatingRatingButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  border-radius: 14px;
+  border: 1px solid rgba(39, 29, 20, 0.12);
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ForestryProductReviews__floatingRatingButton.is-active {
+  border-color: rgba(198, 122, 45, 0.45);
+  box-shadow: 0 8px 18px rgba(198, 122, 45, 0.12);
+}
+
+.ForestryProductReviews__floatingModalWrap {
+  position: fixed;
+  inset: 0;
+  z-index: 115;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 18px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.22s ease, visibility 0.22s ease;
+}
+
+.ForestryProductReviews__floatingModalWrap.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.ForestryProductReviews__floatingModalBackdrop {
+  position: fixed;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: rgba(16, 11, 8, 0.34);
+  cursor: pointer;
+}
+
+@supports ((-webkit-backdrop-filter: blur(10px)) or (backdrop-filter: blur(10px))) {
+  .ForestryProductReviews__floatingModalBackdrop {
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+}
+
+.ForestryProductReviews__floatingModal {
+  position: relative;
+  margin: 0;
+}
+
+.ForestryProductReviews__floatingModalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.ForestryProductReviews__floatingModalHeader .ForestryProductReviews__close {
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: rgba(23, 23, 23, 0.08);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+.ForestryFloatingDrawer__modalHost {
+  position: fixed;
+  inset: 0;
+  z-index: 114;
+  pointer-events: none;
+}
+
+.ForestryFloatingDrawer__modalHost .ForestryProductReviews__floatingModalWrap.is-visible {
+  pointer-events: auto;
 }
 
 .ForestryProductReviews__field {
@@ -578,6 +701,48 @@ html.forestry-product-reviews-open body {
   font-weight: 600;
 }
 
+.ForestryProductReviews__confetti {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 120;
+}
+
+.ForestryProductReviews__confetti span {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  width: 12px;
+  height: 16px;
+  border-radius: 6px;
+  background: var(--bg);
+  opacity: 0;
+  transform: translate3d(0, 0, 0) rotate(0deg);
+  animation: forestryProductReviewsBurst 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  animation-delay: var(--delay);
+}
+
+@keyframes forestryProductReviewsBurst {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(0.84);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--x), 170px, 0) rotate(var(--r)) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ForestryProductReviews__confetti span {
+    animation: none !important;
+  }
+}
+
 @media screen and (max-width: 999px) {
   .ForestryProductReviews__launcher {
     top: auto;
@@ -601,6 +766,10 @@ html.forestry-product-reviews-open body {
     width: 100%;
     flex-wrap: wrap;
   }
+
+  .ForestryProductReviews__floatingRating {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media screen and (max-width: 640px) {
@@ -619,6 +788,7 @@ html.forestry-product-reviews-open body {
   .ForestryProductReviews__modal {
     padding: 22px 16px;
     border-radius: 24px;
+    width: min(100%, 100%);
   }
 
   .ForestryProductReviews__drawerHeader,
@@ -637,5 +807,18 @@ html.forestry-product-reviews-open body {
   .ForestryProductReviews__candidate {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .ForestryProductReviews__floatingModalWrap {
+    padding: 18px 12px;
+    align-items: flex-start;
+  }
+
+  .ForestryProductReviews__floatingModal {
+    width: 100%;
+  }
+
+  .ForestryProductReviews__floatingRating {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

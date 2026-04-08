@@ -18,9 +18,11 @@
       data-shopify-customer-id="{{ customer.id }}"
       data-customer-first-name="{{ customer.first_name | escape }}"
       data-customer-last-name="{{ customer.last_name | escape }}"
+      data-review-modal-size="{{ settings.review_drawer_modal_size | default: 'medium' }}"
       data-login-url="/account/login"
       data-endpoint-product-review-status="/apps/forestry/product-reviews/status"
       data-endpoint-product-review-sitewide-status="/apps/forestry/product-reviews/sitewide"
+      data-endpoint-product-review-submit="/apps/forestry/product-reviews/submit"
     >
       <button
         type="button"
@@ -45,6 +47,7 @@
           <p class="Text--subdued">Loading reviews...</p>
         </div>
       </aside>
+      <div class="ForestryFloatingDrawer__modalHost" data-forestry-sitewide-review-modal-host></div>
     </section>
   {%- endif -%}
 

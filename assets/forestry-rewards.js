@@ -4977,9 +4977,15 @@
     }
 
     if (action === 'open-product-review-drawer') {
-      const toggle = document.querySelector('[data-action=\"forestry-review-open-drawer\"]') || document.querySelector('[data-action=\"forestry-sitewide-reviews-toggle\"]');
-      if (toggle && typeof toggle.click === 'function') {
-        toggle.click();
+      const requestedScope = cleanString(root.dataset.surface || 'page') === 'page' ? 'sitewide' : 'product';
+      const reviewDrawer = document.querySelector('[data-forestry-sitewide-reviews]');
+      if (reviewDrawer) {
+        document.dispatchEvent(new CustomEvent('forestry:open-reviews-drawer', {
+          detail: {
+            scope: requestedScope,
+            source: 'candle_cash',
+          },
+        }));
         logRewardEvent(root, {
           event_type: 'reward_task_open_click',
           request_key: 'product-review-open:' + Date.now(),
@@ -4991,7 +4997,15 @@
           },
         });
       } else {
-        openTaskDestination('/collections/all');
+        const toggle = document.querySelector('[data-action=\"forestry-review-open-drawer\"]') || document.querySelector('[data-action=\"forestry-sitewide-reviews-toggle\"]');
+        const openedDrawer = !!(toggle && typeof toggle.click === 'function');
+
+        if (openedDrawer) {
+          toggle.click();
+        } else {
+          openTaskDestination('/collections/all');
+        }
+
         logRewardEvent(root, {
           event_type: 'reward_task_open_click',
           request_key: 'product-review-open:' + Date.now(),
@@ -4999,7 +5013,7 @@
           surface: root.dataset.surface || 'page',
           meta: {
             task_handle: cleanString(target.getAttribute('data-task-handle')) || 'product-review',
-            destination: 'browse_products',
+            destination: openedDrawer ? 'product_reviews_drawer' : 'browse_products',
           },
         });
       }

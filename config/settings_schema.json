@@ -343,6 +343,31 @@
         "label": "Enable Growave review surfaces",
         "info": "Turn this off after native reviews are validated in production.",
         "default": true
+      },
+      {
+        "type": "header",
+        "content": "Review drawer"
+      },
+      {
+        "type": "select",
+        "id": "review_drawer_modal_size",
+        "label": "Leave a Review popup size",
+        "info": "Controls the Candle Cash review modal width in the review drawer flow.",
+        "options": [
+          {
+            "value": "small",
+            "label": "Small"
+          },
+          {
+            "value": "medium",
+            "label": "Medium"
+          },
+          {
+            "value": "large",
+            "label": "Large"
+          }
+        ],
+        "default": "medium"
       }
     ]
   },
