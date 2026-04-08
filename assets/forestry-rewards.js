@@ -3591,6 +3591,8 @@
   function cachedModelSnapshot(root) {
     const fallback = fallbackModel(root);
     const hasFallback = !!(fallback && Object.keys(fallback).length);
+    const surface = cleanString(root && root.dataset && root.dataset.surface).toLowerCase();
+    const fallbackAccessMode = cleanString(fallback && fallback.redemption_access && (fallback.redemption_access.mode || fallback.redemption_access.state)).toLowerCase();
     const identity = buildIdentity(root);
     const query = queryFromIdentity(identity);
     const referralCode = activeReferralCode();
@@ -3607,6 +3609,11 @@
 
     if (!status || !status.ok) {
       if (!hasFallback) {
+        return null;
+      }
+
+      // On cart, avoid flashing the generic "checking access" fallback card while live status is still loading.
+      if (surface === 'cart' && fallbackAccessMode === 'pending_status') {
         return null;
       }
 
