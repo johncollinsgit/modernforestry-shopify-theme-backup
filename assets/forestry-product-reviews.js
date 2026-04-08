@@ -1893,7 +1893,6 @@
       state.reviewSearchQuery = queryKey;
       state.reviewSearchLoading = true;
       state.reviewSearchResults = [];
-      renderFloatingReviews();
 
       fetch(floatingCatalogSearchUrl(normalizedQuery).toString(), {
         method: 'GET',
@@ -2312,6 +2311,50 @@
     }
   }
 
+  function floatingSearchFocusSnapshot() {
+    const modal = floatingModalElement();
+    const field = modal && modal.querySelector('[data-floating-review-field="search"]');
+    if (!field || document.activeElement !== field) {
+      return null;
+    }
+
+    return {
+      selectionStart: typeof field.selectionStart === 'number' ? field.selectionStart : null,
+      selectionEnd: typeof field.selectionEnd === 'number' ? field.selectionEnd : null,
+    };
+  }
+
+  function restoreFloatingSearchFocus(snapshot) {
+    if (!snapshot) {
+      return;
+    }
+
+    const modal = floatingModalElement();
+    const field = modal && modal.querySelector('[data-floating-review-field="search"]');
+    if (!field) {
+      return;
+    }
+
+    if (typeof field.focus === 'function') {
+      try {
+        field.focus({ preventScroll: true });
+      } catch (_error) {
+        field.focus();
+      }
+    }
+
+    if (snapshot.selectionStart == null || typeof field.setSelectionRange !== 'function') {
+      return;
+    }
+
+    const valueLength = String(field.value || '').length;
+    const start = Math.min(snapshot.selectionStart, valueLength);
+    const end = snapshot.selectionEnd == null
+      ? start
+      : Math.min(snapshot.selectionEnd, valueLength);
+    field.setSelectionRange(start, end);
+  }
+
   function renderFloatingReviews() {
     const state = floatingReviewState();
     const node = state.node;
@@ -2327,6 +2370,7 @@
       return;
     }
 
+    const searchFocus = floatingSearchFocusSnapshot();
     const panel = node.querySelector('.ForestryFloatingDrawer__panel');
     const content = node.querySelector('[data-forestry-sitewide-reviews-content]');
     const modalHost = floatingGlobalModalHost();
@@ -2364,6 +2408,7 @@
     if (modalHost) {
       modalHost.innerHTML = floatingReviewModalMarkup(node);
     }
+    restoreFloatingSearchFocus(searchFocus);
 
     syncViewportLock();
   }
