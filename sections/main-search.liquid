@@ -1,0 +1,104 @@
+{%- paginate search.results by 24 -%}
+  <div class="Container">
+    <header class="PageHeader">
+      <div class="SectionHeader SectionHeader--center">
+        <h1 class="SectionHeader__Heading Heading u-h1">{{ 'search.general.title' | t }}</h1>
+      </div>
+
+      <div class="PageContent PageContent--narrow">
+        <form action="{{ routes.search_url }}" method="get" role="search" class="Form Form--spacingTight">
+          <div class="Form__Item">
+            <input
+              type="search"
+              class="Form__Input"
+              name="q"
+              value="{{ search.terms | escape }}"
+              placeholder="{{ 'search.general.input_placeholder' | t }}"
+              aria-label="{{ 'search.general.input_placeholder' | t }}"
+            >
+            <label class="Form__FloatingLabel">{{ 'search.general.input_placeholder' | t }}</label>
+            <input type="hidden" name="options[prefix]" value="last">
+          </div>
+
+          <button type="submit" class="Form__Submit Button Button--primary Button--full">
+            {{ 'search.general.title' | t }}
+          </button>
+        </form>
+      </div>
+    </header>
+
+    {%- if search.performed -%}
+      <div class="PageContent">
+        {%- if search.results_count > 0 -%}
+          <p class="Heading Text--subdued u-h6" role="status">
+            {{ 'search.general.results_with_terms_count' | t: terms: search.terms, count: search.results_count }}
+          </p>
+
+          {%- assign has_product_results = false -%}
+          {%- assign has_non_product_results = false -%}
+
+          {%- for item in search.results -%}
+            {%- if item.object_type == 'product' -%}
+              {%- assign has_product_results = true -%}
+            {%- else -%}
+              {%- assign has_non_product_results = true -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- if has_product_results -%}
+            <div class="ProductListWrapper">
+              <div class="ProductList ProductList--grid {% if paginate.pages > 1 %}ProductList--removeMargin{% endif %} Grid" data-mobile-count="2" data-desktop-count="4">
+                {%- for item in search.results -%}
+                  {%- if item.object_type == 'product' -%}
+                    <div class="Grid__Cell 1/2--phone 1/3--tablet-and-up 1/4--lap-and-up">
+                      {%- render 'product-item', product: item, show_product_info: true, show_vendor: settings.show_vendor, show_color_swatch: settings.show_color_swatch, show_labels: true -%}
+                    </div>
+                  {%- endif -%}
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- endif -%}
+
+          {%- if has_non_product_results -%}
+            <div class="Segment">
+              <h2 class="Segment__Title Heading u-h5">{{ 'search.general.pages_and_articles' | t }}</h2>
+
+              <ul class="Linklist">
+                {%- for item in search.results -%}
+                  {%- unless item.object_type == 'product' -%}
+                    <li class="Linklist__Item">
+                      <a href="{{ item.url }}" class="Link Link--primary">{{ item.title }}</a>
+                    </li>
+                  {%- endunless -%}
+                {%- endfor -%}
+              </ul>
+            </div>
+          {%- endif -%}
+
+          {%- render 'pagination', paginate: paginate -%}
+        {%- else -%}
+          <div class="EmptyState">
+            <div class="Container">
+              <h2 class="EmptyState__Title Heading u-h5" role="status">
+                {{ 'search.general.no_results_with_terms' | t: terms: search.terms }}
+              </h2>
+            </div>
+          </div>
+        {%- endif -%}
+      </div>
+    {%- else -%}
+      <div class="PageContent PageContent--narrow">
+        <div class="Rte">
+          <p>{{ 'search.general.content' | t }}</p>
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+{%- endpaginate -%}
+
+{% schema %}
+{
+  "name": "Search page",
+  "settings": []
+}
+{% endschema %}

@@ -133,7 +133,7 @@ Behavior summary for this change:
 - Product-review task: copy set to “Leave a product review on theforestrystudio.com”; CTA opens the onsite review drawer with anchor fallback; analytics event logged.
 - Candle Club tasks gated to active Candle Club members only.
 - Fallback referral amounts in `forestry-rewards-root.liquid` set to 5 / 10.
-- Known warning (pre-existing): Shopify reports `templates/search.json` referencing missing `main-search` section. Not introduced by this change.
+- Resolved warning (2026-04-08): `templates/search.json` now points to restored `sections/main-search.liquid`; JSON template/section consistency check passes with no missing section types.
 
 ## Native Reviews + Wishlist Cutover
 
