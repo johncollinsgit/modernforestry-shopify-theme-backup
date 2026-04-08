@@ -321,7 +321,7 @@
     <script src="{{ 'theme.js' | asset_url }}" defer></script>
     {% unless request.page_type == 'captcha' %}
       <script src="{{ 'custom.js' | asset_url }}" defer></script>
-      <script src="{{ 'forestry-rewards.js' | asset_url | split: '?' | first }}?build=2026-04-07-cachefix-1" defer></script>
+      <script src="{{ 'forestry-rewards.js' | asset_url }}" defer></script>
       {%- if settings.native_reviews_enabled -%}
         <script src="{{ 'forestry-product-reviews.js' | asset_url }}" defer></script>
       {%- endif -%}

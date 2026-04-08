@@ -11,7 +11,7 @@ This repository is a **backup + version history** for the live Shopify theme.
 Unless explicitly noted in a release note/PR, the source of truth is the **live Shopify theme** in the store admin.
 
 - Store: `modernforestry.myshopify.com`
-- Primary live theme tracked here: `review-cutover-staging-20260323` (`#159310446851`)
+- Primary live theme tracked here: `rewards-cache-reset-20260407` (`#159737250051`)
 - Historical pre-cutover theme still visible on the stale custom-domain path: `Prestige` (`#136487764227`)
 
 ## Standard Theme Structure
@@ -32,7 +32,7 @@ cd /path/to/modernforestry-live-theme
 shopify auth login --store modernforestry.myshopify.com
 
 # 2) Pull current live theme snapshot
-shopify theme pull --store modernforestry.myshopify.com --theme 159310446851
+shopify theme pull --store modernforestry.myshopify.com --theme 159737250051
 
 # 3) Initialize git (if not already initialized)
 git init -b main
@@ -63,7 +63,7 @@ git push -u origin main
 Use this whenever you want GitHub to reflect the latest live theme edits.
 
 ```bash
-shopify theme pull --store modernforestry.myshopify.com --theme 159310446851
+shopify theme pull --store modernforestry.myshopify.com --theme 159737250051
 git add .
 git commit -m "Backup: live theme snapshot YYYY-MM-DD"
 git push
@@ -77,7 +77,7 @@ From repo root:
 
 Optional overrides:
 ```bash
-SHOPIFY_STORE=modernforestry.myshopify.com SHOPIFY_THEME_ID=159310446851 ./backup-live-theme.sh
+SHOPIFY_STORE=modernforestry.myshopify.com SHOPIFY_THEME_ID=159737250051 ./backup-live-theme.sh
 ```
 
 ## Branch Strategy (Simple)
@@ -98,7 +98,7 @@ In Shopify Admin:
 After connection, merchant/admin theme edits can be tracked through the connected GitHub workflow.
 
 ## Tiny Ongoing Workflow (2 Minutes)
-1. Pull latest live theme: `shopify theme pull --store modernforestry.myshopify.com --theme 159310446851`
+1. Pull latest live theme: `shopify theme pull --store modernforestry.myshopify.com --theme 159737250051`
 2. Commit snapshot: `git add . && git commit -m "Backup: live snapshot YYYY-MM-DD"`
 3. Push: `git push`
 4. If needed, restore from an older commit by re-pushing that version to Shopify.
@@ -106,6 +106,25 @@ After connection, merchant/admin theme edits can be tracked through the connecte
 ## Notes
 - Keep this repo focused on backup and safe rollback.
 - Avoid adding build tooling unless intentionally moving to a development-first workflow.
+
+## Latest live change (2026-04-07)
+- Theme `rewards-cache-reset-20260407` (`#159737250051`) is the active live theme.
+- Rewards runtime/cache remediation shipped for Candle Cash status surfaces:
+  - `assets/forestry-rewards.js`: pending state supports explicit retry (`data-action="refresh-status"`).
+  - `layout/theme.liquid`: rewards script include now uses Shopify-native `asset_url` directly (no manual `?build` query suffix).
+  - `sections/main-cart.liquid`: cache-bust touch marker added for cart shell refresh.
+- Operational finding:
+  - custom domain can still intermittently serve stale cached HTML/script references even when Shopify live theme is correct.
+  - this is an operational CDN/custom-domain cache behavior, not a missing theme commit.
+
+Behavior summary for this change:
+- Before:
+  - some users saw a pending card with `Check reward status` that behaved like a dead/disabled control.
+  - stale shell HTML could pin older script versions and keep outdated fallback messaging visible.
+- After:
+  - pending state exposes explicit retry action (`refresh-status`) to force a fresh rewards status fetch.
+  - shell markers reduce risk of old pinned rewards assets being reused across cart/rewards renders.
+  - API response remains the source of truth for final redemption state.
 
 ## Latest live change (2026-04-01)
 - Theme `review-cutover-staging-20260323` (`#159310446851`) updated and pushed.
@@ -146,11 +165,11 @@ Recommended rollout flow:
 4. Promote/push the same theme changes to the live theme.
 5. If Growave runtime still appears after the theme update, remove any remaining Shopify-side Growave app embeds/ScriptTags operationally.
 
-Current live state as of 2026-03-31:
+Current live state as of 2026-04-07:
 - The Backstage-owned review and wishlist proxy contract is live and verified.
 - Guest wishlist add/status/remove works against the live app proxy with `guest_token`.
-- Shopify admin marks `review-cutover-staging-20260323` (`159310446851`) as the live theme, and `modernforestry.myshopify.com` is serving that theme without Growave runtime output.
-- `theforestrystudio.com` is fronted by Cloudflare (`meadow.ns.cloudflare.com`, `randy.ns.cloudflare.com`) and still serves stale HTML from the older `Prestige` theme (`136487764227`) even while Shopify response headers report live theme `159310446851`.
+- Shopify admin marks `rewards-cache-reset-20260407` (`159737250051`) as the live theme.
+- `theforestrystudio.com` is fronted by Cloudflare (`meadow.ns.cloudflare.com`, `randy.ns.cloudflare.com`) and can still intermittently serve stale cached HTML/script references even when Shopify response headers report live theme `159737250051`.
 - That stale body persists under cache-busting query params, `Cache-Control: no-cache`, and a forced-host request directly to Shopify's edge IP (`curl --resolve theforestrystudio.com:443:23.227.38.65 ...`).
 - The remaining issue is therefore not in the checked-in theme files and is not explained by a simple browser cache. It is an operational custom-host Shopify render/cache/routing problem that must be purged or corrected outside this repo before public-domain sign-off.
 - Exact next action: purge or bypass the custom-domain cache layer and re-test `theforestrystudio.com`; if the body still reports theme `136487764227`, escalate to Shopify support with the host-specific mismatch evidence.

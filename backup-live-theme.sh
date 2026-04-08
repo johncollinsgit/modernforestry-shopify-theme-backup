@@ -2,11 +2,17 @@
 set -euo pipefail
 
 STORE="${SHOPIFY_STORE:-modernforestry.myshopify.com}"
-THEME_ID="${SHOPIFY_THEME_ID:-136487764227}"
+THEME_ID="${SHOPIFY_THEME_ID:-}"
 COMMIT_STAMP="$(date '+%Y-%m-%d %H:%M %Z')"
 
 if ! command -v shopify >/dev/null 2>&1; then
   echo "Error: Shopify CLI is not installed or not in PATH."
+  exit 1
+fi
+
+if [ -z "$THEME_ID" ]; then
+  echo "Error: SHOPIFY_THEME_ID is required. Example:"
+  echo "  SHOPIFY_STORE=modernforestry.myshopify.com SHOPIFY_THEME_ID=159737250051 ./backup-live-theme.sh"
   exit 1
 fi
 
