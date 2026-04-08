@@ -78,6 +78,24 @@
       .replace(/^-+|-+$/g, '');
   }
 
+  function titleFromHandle(value) {
+    const normalized = clean(value)
+      .replace(/[-_]+/g, ' ')
+      .replace(/\s+/g, ' ');
+
+    if (!normalized) {
+      return '';
+    }
+
+    return normalized.split(' ').map(function (part) {
+      if (!part) {
+        return '';
+      }
+
+      return part.charAt(0).toUpperCase() + part.slice(1);
+    }).join(' ');
+  }
+
   function normalizedModalSize(value) {
     const size = clean(value).toLowerCase();
 
@@ -1616,12 +1634,13 @@
     const productId = clean(candidate && candidate.product_id);
     const fallbackHandle = title ? slugify(title) : '';
     const handle = clean(candidate && candidate.product_handle) || fallbackHandle;
+    const displayTitle = title || titleFromHandle(handle);
     const orderLineId = positiveInt(candidate && candidate.order_line_id);
     const orderId = positiveInt(candidate && candidate.order_id);
     const key = clean(candidate && candidate.candidate_key)
       || ('candidate-' + (orderLineId || orderId || productId || handle || index));
 
-    if (!productId && !title) {
+    if (!displayTitle) {
       return null;
     }
 
@@ -1634,7 +1653,7 @@
       order_status: clean(candidate && candidate.order_status),
       product_id: productId,
       variant_id: clean(candidate && candidate.variant_id),
-      product_title: title || 'Selected scent',
+      product_title: displayTitle,
       product_handle: handle,
       product_url: clean(candidate && candidate.product_url) || (handle ? '/products/' + handle : ''),
       source: clean(candidate && candidate.source) || (orderLineId ? 'order' : 'product'),
@@ -1725,11 +1744,8 @@
   }
 
   function floatingReviewDefaultDraft(node, state) {
-    const candidates = Array.isArray(state && state.reviewCandidates) ? state.reviewCandidates : [];
-    const selected = candidates[0] || null;
-
     return {
-      selected_candidate_key: clean(selected && selected.candidate_key),
+      selected_candidate_key: '',
       search: '',
       rating: 0,
       body: '',
@@ -1753,7 +1769,7 @@
 
     return candidates.find(function (candidate) {
       return clean(candidate && candidate.candidate_key) === selectedKey;
-    }) || candidates[0] || null;
+    }) || null;
   }
 
   function filteredFloatingCandidates(state) {
@@ -1762,14 +1778,13 @@
     const candidates = Array.isArray(state && state.reviewCandidates) ? state.reviewCandidates : [];
 
     if (!query) {
-      return candidates;
+      return [];
     }
 
     return candidates.filter(function (candidate) {
       const haystack = [
         clean(candidate && candidate.product_title),
         clean(candidate && candidate.product_handle),
-        clean(candidate && candidate.order_external_id),
       ].join(' ').toLowerCase();
 
       return haystack.indexOf(query) >= 0;
@@ -2031,8 +2046,8 @@
     return '<button type="button" class="ForestryProductReviews__candidate' + (selected ? ' is-selected' : '') + '"' +
       ' data-action="forestry-sitewide-review-select-product"' +
       ' data-candidate-key="' + escapeHtml(candidate.candidate_key) + '">' +
-        '<span class="ForestryProductReviews__candidateTitle">' + escapeHtml(candidate.product_title || 'Selected scent') + '</span>' +
-        '<span class="ForestryProductReviews__candidateMeta Text--subdued">' + escapeHtml(meta.length ? meta.join(' · ') : 'Product selection') + '</span>' +
+        '<span class="ForestryProductReviews__candidateTitle">' + escapeHtml(candidate.product_title || 'Scent') + '</span>' +
+        (meta.length ? '<span class="ForestryProductReviews__candidateMeta Text--subdued">' + escapeHtml(meta.join(' · ')) + '</span>' : '') +
       '</button>';
   }
 
@@ -2047,6 +2062,7 @@
     const canSubmit = !!(state.reviewSettings && state.reviewSettings.canSubmit !== false && hasIdentity);
     const loginUrl = clean(node && node.dataset && node.dataset.loginUrl) || '/account/login';
     const submitDisabled = state.reviewModalBusy || !canSubmit;
+    const hasSearchQuery = !!clean(draft.search);
 
     return '' +
       '<div class="ForestryProductReviews__floatingModalWrap' + (open ? ' is-visible' : '') + '"' + (open ? '' : ' aria-hidden="true"') + '>' +
@@ -2069,18 +2085,20 @@
               '<div class="ForestryProductReviews__modalBody">' +
                 '<label class="ForestryProductReviews__field">' +
                   '<span class="ForestryProductReviews__fieldLabel">Search scent</span>' +
-                  '<input class="Input" type="search" value="' + escapeHtml(draft.search || '') + '" data-floating-review-field="search" placeholder="Search by scent or order">' +
+                  '<input class="Form__Input ForestryProductReviews__searchInput" type="search" value="' + escapeHtml(draft.search || '') + '" data-floating-review-field="search" placeholder="Search scents">' +
                 '</label>' +
-                '<div class="ForestryProductReviews__field">' +
-                  '<span class="ForestryProductReviews__fieldLabel">Select scent</span>' +
-                  (candidates.length
-                    ? '<div class="ForestryProductReviews__candidateList ForestryProductReviews__candidateList--modal">' +
-                        candidates.map(function (candidate) {
-                          return floatingReviewCandidateMarkup(candidate, clean(candidate.candidate_key) === clean(draft.selected_candidate_key));
-                        }).join('') +
-                      '</div>'
-                    : '<p class="Text--subdued">No matching scents found yet. Try a different search or browse products.</p>') +
-                '</div>' +
+                (hasSearchQuery
+                  ? '<div class="ForestryProductReviews__field">' +
+                      '<span class="ForestryProductReviews__fieldLabel">Scent results</span>' +
+                      (candidates.length
+                        ? '<div class="ForestryProductReviews__candidateList ForestryProductReviews__candidateList--modal">' +
+                            candidates.map(function (candidate) {
+                              return floatingReviewCandidateMarkup(candidate, clean(candidate.candidate_key) === clean(draft.selected_candidate_key));
+                            }).join('') +
+                          '</div>'
+                        : '<p class="Text--subdued">No matching scents found.</p>') +
+                    '</div>'
+                  : '') +
                 '<div class="ForestryProductReviews__field">' +
                   '<span class="ForestryProductReviews__fieldLabel">Star rating</span>' +
                   floatingReviewRatingMarkup(draft.rating) +
@@ -2319,6 +2337,8 @@
       const selected = selectedFloatingReviewCandidate(state);
       if (selected) {
         state.reviewDraft.selected_candidate_key = clean(selected.candidate_key);
+      } else {
+        state.reviewDraft.selected_candidate_key = '';
       }
     }
 
@@ -2331,7 +2351,7 @@
     const minimumLength = positiveInt(state && state.reviewSettings && state.reviewSettings.minimumLength) || 24;
 
     if (!selected || !clean(selected.product_id)) {
-      return 'Select the scent you want to review first.';
+      return 'Search and choose a scent before submitting.';
     }
 
     if (!positiveInt(draft.rating)) {
