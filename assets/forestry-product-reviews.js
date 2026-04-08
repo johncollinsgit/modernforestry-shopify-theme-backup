@@ -1588,6 +1588,10 @@
         reviewSearchToken: 0,
         reviewSearchTimer: null,
         reviewSearchCache: new Map(),
+        productPromise: null,
+        sitewidePromise: null,
+        reviewDataPromise: null,
+        reviewIntentPrefetched: false,
         reviewSettings: {
           minimumLength: 24,
           allowGuest: true,
@@ -2420,19 +2424,29 @@
       return;
     }
 
+    if (state.productLoading && state.productPromise) {
+      return state.productPromise;
+    }
+
     state.productLoading = true;
     renderFloatingReviews();
 
-    const result = await reviewRequest(
+    const request = reviewRequest(
       node,
       clean(node.dataset.endpointProductReviewStatus),
       floatingProductQuery(node),
       emptyPayload()
-    );
+    ).then(function (result) {
+      state.productData = result.data || emptyPayload();
+      return result;
+    }).finally(function () {
+      state.productLoading = false;
+      state.productPromise = null;
+      renderFloatingReviews();
+    });
 
-    state.productLoading = false;
-    state.productData = result.data || emptyPayload();
-    renderFloatingReviews();
+    state.productPromise = request;
+    return request;
   }
 
   async function hydrateFloatingSitewideReviews() {
@@ -2442,19 +2456,29 @@
       return;
     }
 
+    if (state.sitewideLoading && state.sitewidePromise) {
+      return state.sitewidePromise;
+    }
+
     state.sitewideLoading = true;
     renderFloatingReviews();
 
-    const result = await reviewRequest(
+    const request = reviewRequest(
       node,
       clean(node.dataset.endpointProductReviewSitewideStatus),
       floatingSitewideQuery(node),
       emptySitewidePayload()
-    );
+    ).then(function (result) {
+      state.sitewideData = result.data || emptySitewidePayload();
+      return result;
+    }).finally(function () {
+      state.sitewideLoading = false;
+      state.sitewidePromise = null;
+      renderFloatingReviews();
+    });
 
-    state.sitewideLoading = false;
-    state.sitewideData = result.data || emptySitewidePayload();
-    renderFloatingReviews();
+    state.sitewidePromise = request;
+    return request;
   }
 
   function patchFloatingReviewDraft(patch, rerender) {
@@ -2480,8 +2504,8 @@
       return;
     }
 
-    if (state.reviewDataLoading) {
-      return;
+    if (state.reviewDataLoading && state.reviewDataPromise) {
+      return state.reviewDataPromise;
     }
 
     if (state.reviewDataReady && !force) {
@@ -2501,7 +2525,7 @@
     state.reviewDataError = '';
     renderFloatingReviews();
 
-    const result = await reviewRequest(
+    const request = reviewRequest(
       node,
       clean(node.dataset.endpointProductReviewStatus),
       Object.assign({}, floatingReviewQuery(node), {
@@ -2512,37 +2536,43 @@
         product_url: clean(seedProduct.product_url),
       }),
       fallbackPayload
-    );
+    ).then(function (result) {
+      const payload = result.data || fallbackPayload;
+      const statusCandidates = mergeArray(payload && payload.viewer && payload.viewer.recent_order_candidates, []);
+      const mergedCandidates = mergedFloatingCandidates(statusCandidates, fallbackCandidates);
+      const minimumLength = positiveInt(payload && payload.settings && payload.settings.minimum_length) || 24;
+      const canSubmit = payload && payload.viewer ? payload.viewer.can_submit !== false : true;
+      const allowGuest = payload && payload.settings ? payload.settings.allow_guest !== false : true;
 
-    const payload = result.data || fallbackPayload;
-    const statusCandidates = mergeArray(payload && payload.viewer && payload.viewer.recent_order_candidates, []);
-    const mergedCandidates = mergedFloatingCandidates(statusCandidates, fallbackCandidates);
-    const minimumLength = positiveInt(payload && payload.settings && payload.settings.minimum_length) || 24;
-    const canSubmit = payload && payload.viewer ? payload.viewer.can_submit !== false : true;
-    const allowGuest = payload && payload.settings ? payload.settings.allow_guest !== false : true;
+      state.reviewCandidates = mergedCandidates;
+      state.reviewSettings = {
+        minimumLength: minimumLength,
+        canSubmit: canSubmit,
+        allowGuest: allowGuest,
+      };
+      state.reviewDataReady = true;
+      state.reviewDataError = result.ok ? '' : clean(result.error && result.error.message);
 
-    state.reviewCandidates = mergedCandidates;
-    state.reviewSettings = {
-      minimumLength: minimumLength,
-      canSubmit: canSubmit,
-      allowGuest: allowGuest,
-    };
-    state.reviewDataLoading = false;
-    state.reviewDataReady = true;
-    state.reviewDataError = result.ok ? '' : clean(result.error && result.error.message);
-
-    if (!state.reviewDraft) {
-      state.reviewDraft = floatingReviewDefaultDraft(node, state);
-    } else {
-      const selected = selectedFloatingReviewCandidate(state);
-      if (selected) {
-        state.reviewDraft.selected_candidate_key = clean(selected.candidate_key);
+      if (!state.reviewDraft) {
+        state.reviewDraft = floatingReviewDefaultDraft(node, state);
       } else {
-        state.reviewDraft.selected_candidate_key = '';
+        const selected = selectedFloatingReviewCandidate(state);
+        if (selected) {
+          state.reviewDraft.selected_candidate_key = clean(selected.candidate_key);
+        } else {
+          state.reviewDraft.selected_candidate_key = '';
+        }
       }
-    }
 
-    renderFloatingReviews();
+      return result;
+    }).finally(function () {
+      state.reviewDataLoading = false;
+      state.reviewDataPromise = null;
+      renderFloatingReviews();
+    });
+
+    state.reviewDataPromise = request;
+    return request;
   }
 
   function floatingReviewValidationMessage(state) {
@@ -2686,7 +2716,10 @@
     ensureFloatingReviewDraft(node, state);
     renderFloatingReviews();
 
-    hydrateFloatingReviewComposer();
+    prefetchFloatingReviews({
+      source: 'floating_modal_open',
+      scope: state.scope,
+    });
     runFloatingCatalogSearch(clean(state.reviewDraft && state.reviewDraft.search), { immediate: true });
 
     window.requestAnimationFrame(function () {
@@ -2809,22 +2842,33 @@
     const node = state.node;
     if (!node) {
       runtime.pendingFloatingPrefetch = Object.assign({}, options || {});
-      return;
+      return Promise.resolve();
     }
 
     const scope = clean(options && options.scope) || state.scope || clean(node.dataset.defaultScope) || 'sitewide';
+    const tasks = [];
 
     if (!state.sitewideData && !state.sitewideLoading) {
-      hydrateFloatingSitewideReviews();
+      tasks.push(hydrateFloatingSitewideReviews());
     }
 
     if (scope === 'product' && floatingReviewHasProduct(node) && !state.productData && !state.productLoading) {
-      hydrateFloatingProductReviews();
+      tasks.push(hydrateFloatingProductReviews());
     }
 
     if (!state.reviewDataReady && !state.reviewDataLoading) {
-      hydrateFloatingReviewComposer();
+      tasks.push(hydrateFloatingReviewComposer());
     }
+
+    if (!tasks.length) {
+      return Promise.resolve();
+    }
+
+    return Promise.all(tasks.map(function (task) {
+      return Promise.resolve(task).catch(function () {
+        return null;
+      });
+    }));
   }
 
   async function openFloatingReviews(scope, trigger, options) {
@@ -2842,16 +2886,22 @@
       detail: { kind: 'reviews' },
     }));
     renderFloatingReviews();
+    const warmPromise = prefetchFloatingReviews({
+      source: clean(options && options.source),
+      scope: state.scope,
+    });
 
-    if (state.scope === 'product' && floatingReviewHasProduct(node) && !state.productData) {
+    if (state.scope === 'product' && floatingReviewHasProduct(node) && !state.productData && !state.productLoading) {
       await hydrateFloatingProductReviews();
     }
 
-    if (state.scope !== 'product' && !state.sitewideData) {
+    if (state.scope !== 'product' && !state.sitewideData && !state.sitewideLoading) {
       await hydrateFloatingSitewideReviews();
     }
 
-    prefetchFloatingReviews({ scope: state.scope });
+    Promise.resolve(warmPromise).catch(function () {
+      return null;
+    });
 
     window.requestAnimationFrame(function () {
       const panel = node.querySelector('.ForestryFloatingDrawer__panel');
@@ -2892,6 +2942,43 @@
     const keyed = node && node.closest('[data-forestry-product-review-key]');
     return clean(keyed && keyed.getAttribute('data-forestry-product-review-key'));
   }
+
+  document.addEventListener('pointerover', function (event) {
+    const trigger = event.target && event.target.closest
+      ? event.target.closest('[data-action="forestry-sitewide-reviews-toggle"], [data-action="forestry-sitewide-review-open-modal"], [data-action="open-product-review-drawer"]')
+      : null;
+    if (!trigger) {
+      return;
+    }
+
+    const state = floatingReviewState();
+    if (state.reviewIntentPrefetched) {
+      return;
+    }
+
+    state.reviewIntentPrefetched = true;
+    const scope = clean(state.node && state.node.dataset && state.node.dataset.defaultScope) || state.scope || 'sitewide';
+    prefetchFloatingReviews({
+      source: 'floating_intent_hover',
+      scope: scope,
+    });
+  });
+
+  document.addEventListener('focusin', function (event) {
+    const trigger = event.target && event.target.closest
+      ? event.target.closest('[data-action="forestry-sitewide-reviews-toggle"], [data-action="forestry-sitewide-review-open-modal"], [data-action="open-product-review-drawer"]')
+      : null;
+    if (!trigger) {
+      return;
+    }
+
+    const state = floatingReviewState();
+    const scope = clean(state.node && state.node.dataset && state.node.dataset.defaultScope) || state.scope || 'sitewide';
+    prefetchFloatingReviews({
+      source: 'floating_intent_focus',
+      scope: scope,
+    });
+  });
 
   document.addEventListener('click', function (event) {
     const floatingToggle = event.target.closest('[data-action="forestry-sitewide-reviews-toggle"]');
