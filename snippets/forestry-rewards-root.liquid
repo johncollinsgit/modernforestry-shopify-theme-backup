@@ -4,13 +4,8 @@
 {%- assign rewards_page_url = rewards_url | default: '/pages/rewards' -%}
 {%- assign rewards_account_url = account_url | default: routes.account_url -%}
 {%- assign candle_club_url = candle_club_url | default: '/products/modern-forestry-candle-club-16oz-subscription-with-gifts?selling_plan=11300438275' -%}
-{%- assign candle_club_allowed_email = 'info@theforestrystudio.com' -%}
-{%- assign candle_club_customer_email = customer.email | default: '' | downcase -%}
-{%- assign candle_club_actionable = false -%}
-{%- if candle_club_customer_email == candle_club_allowed_email -%}
-  {%- assign candle_club_actionable = true -%}
-{%- endif -%}
-{%- assign candle_club_lock_message = 'Candle Cash' -%}
+{%- assign candle_club_actionable = true -%}
+{%- assign candle_club_lock_message = 'Candle Club only' -%}
 {%- assign rewards_marketing_profile_id = marketing_profile_id | default: customer.metafields.custom.marketing_profile_id.value | default: '' -%}
 {%- assign candle_cash_points = customer.metafields.custom.candle_cash_points.value | default: customer.metafields.custom.candle_cash_balance_points.value | default: 0 -%}
 {%- assign candle_cash_amount = customer.metafields.custom.candle_cash_balance_amount.value | default: customer.metafields.custom.candle_cash_balance.value | default: customer.metafields.custom.candle_cash.value | default: 0 -%}
@@ -210,7 +205,7 @@
 <div
   class="ForestryRewardsRoot ForestryRewardsRoot--{{ rewards_surface }}"
   data-forestry-rewards-root
-  data-rewards-build-version="2026-04-07-cachefix-1"
+  data-rewards-build-version="2026-04-08-ga-rollout-1"
   data-theme="cognac-reserve"
   data-surface="{{ rewards_surface }}"
   data-title="{{ rewards_title | escape }}"
@@ -225,7 +220,7 @@
   data-account-url="{{ rewards_account_url }}"
   data-rewards-url="{{ rewards_page_url }}"
   data-candle-club-url="{{ candle_club_url }}"
-  data-candle-club-preview-only="{% if candle_club_actionable %}false{% else %}true{% endif %}"
+  data-candle-club-preview-only="false"
   data-candle-club-lock-message="{{ candle_club_lock_message | escape }}"
   data-order-number="{{ order.name | escape }}"
   data-order-total-amount="{{ order.total_price | divided_by: 100.0 }}"

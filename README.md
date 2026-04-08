@@ -126,6 +126,11 @@ Behavior summary for this change:
   - shell markers reduce risk of old pinned rewards assets being reused across cart/rewards renders.
   - API response remains the source of truth for final redemption state.
 
+## Latest live change (2026-04-08)
+- Candle Cash GA hardening shipped in `snippets/forestry-rewards-root.liquid`.
+- Removed the legacy single-email Candle Club fallback gate (`info@theforestrystudio.com`) so rewards-side Candle Club behavior is no longer pinned to a test email.
+- Rewards root build marker advanced to `2026-04-08-ga-rollout-1` for faster shell/version diagnostics during cache drift checks.
+
 ## Latest live change (2026-04-01)
 - Theme `review-cutover-staging-20260323` (`#159310446851`) updated and pushed.
 - Birthday reward card is desktop-only (hidden <1024px).
