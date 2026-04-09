@@ -97,13 +97,36 @@
   ],
   "tasks": [
     {
-      "handle": "instagram-follow",
-      "title": "Follow us on Instagram",
+      "handle": "instagram-comment",
+      "title": "Leave an Instagram comment",
+      "description": "Comment on a qualifying Instagram post or reel and earn Candle Cash after our team reviews it.",
       "reward_amount": 2,
       "button_text": "Open Instagram",
-      "verification_mode": "onsite_action",
+      "verification_mode": "manual_review_fallback",
       "auto_award": false,
-      "action_url": {{ settings.social_instagram | default: 'https://instagram.com/modernforestry' | json }},
+      "requires_manual_approval": true,
+      "requires_customer_submission": true,
+      "action_url": {{ settings.social_instagram | default: 'https://www.instagram.com/theforestrystudio/' | json }},
+      "metadata": {
+        "manual_submission": {
+          "open_label": "Open Instagram",
+          "submit_label": "Submit comment details",
+          "proof_url_label": "Instagram post or reel URL",
+          "proof_url_placeholder": "https://www.instagram.com/p/... or /reel/...",
+          "proof_url_required": true,
+          "proof_url_required_message": "Add the Instagram post or reel URL where you left your comment.",
+          "proof_text_label": "Comment text or summary",
+          "proof_text_placeholder": "Paste your comment text or summarize what you posted.",
+          "proof_text_required": true,
+          "proof_text_required_message": "Add your comment text or a short summary so we can verify it.",
+          "extra_field_key": "instagram_handle",
+          "extra_field_label": "Instagram handle",
+          "extra_field_placeholder": "@yourhandle",
+          "extra_field_required": true,
+          "extra_field_required_message": "Add the Instagram handle you used for the comment.",
+          "pending_success_copy": "We saved your submission. Candle Cash lands after our team reviews your Instagram comment."
+        }
+      },
       "eligibility": {
         "state": "available",
         "completed_count": 0,
@@ -205,7 +228,7 @@
 <div
   class="ForestryRewardsRoot ForestryRewardsRoot--{{ rewards_surface }}"
   data-forestry-rewards-root
-  data-rewards-build-version="2026-04-08-ga-rollout-1"
+  data-rewards-build-version="2026-04-09-instagram-comment-1"
   data-theme="cognac-reserve"
   data-surface="{{ rewards_surface }}"
   data-title="{{ rewards_title | escape }}"
@@ -216,7 +239,7 @@
   data-shopify-customer-id="{{ customer.id }}"
   data-customer-first-name="{{ customer.first_name | escape }}"
   data-customer-last-name="{{ customer.last_name | escape }}"
-  data-login-url="/account/login"
+  data-login-url="{{ routes.account_login_url }}"
   data-account-url="{{ rewards_account_url }}"
   data-rewards-url="{{ rewards_page_url }}"
   data-candle-club-url="{{ candle_club_url }}"

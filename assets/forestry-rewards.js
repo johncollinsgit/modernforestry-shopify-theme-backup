@@ -21,7 +21,6 @@
   const AUTH_WELCOME_PARAM = 'candle_cash_welcome';
   const REVIEW_PREFETCH_EVENT = 'forestry:prefetch-reviews';
   const CLASSIC_LOGIN_PATH = '/account/login';
-  const CLASSIC_REGISTER_PATH = '/account/register';
   const runtime = window[RUNTIME_KEY] || {
     mounted: new Set(),
     state: new WeakMap(),
@@ -42,7 +41,7 @@
   }
 
   function authPathFor(kind) {
-    return cleanString(kind).toLowerCase() === 'register' ? CLASSIC_REGISTER_PATH : CLASSIC_LOGIN_PATH;
+    return CLASSIC_LOGIN_PATH;
   }
 
   function normalizeReturnUrl(value) {
@@ -177,16 +176,17 @@
 
   function guestLoginUrl(root) {
     const loginUrl = cleanString(root && root.dataset && root.dataset.loginUrl) || CLASSIC_LOGIN_PATH;
+    const rewardsFallback = cleanString(root && root.dataset && root.dataset.rewardsUrl) || '/pages/rewards';
 
     return buildAuthUrl(loginUrl, {
       kind: 'login',
-      returnUrl: returnUrlForAuthTarget('login'),
+      returnUrl: returnUrlForAuthTarget('login', rewardsFallback),
     });
   }
 
   window.ForestryAuthUrls = Object.assign({}, window.ForestryAuthUrls, {
     loginPath: CLASSIC_LOGIN_PATH,
-    registerPath: CLASSIC_REGISTER_PATH,
+    registerPath: CLASSIC_LOGIN_PATH,
     normalizeReturnUrl: normalizeReturnUrl,
     currentPageUrl: currentPageUrl,
     currentAuthReturnUrl: currentAuthReturnUrl,
@@ -1874,6 +1874,43 @@
     return cleanString(task && task.handle) === 'google-review' && taskVerificationMode(task) === 'manual_review_fallback';
   }
 
+  function manualSubmissionConfig(task) {
+    const metadata = task && task.metadata && typeof task.metadata === 'object' ? task.metadata : {};
+    const manual = metadata && metadata.manual_submission && typeof metadata.manual_submission === 'object'
+      ? metadata.manual_submission
+      : {};
+    const extraFieldKey = cleanString(manual.extra_field_key);
+
+    return {
+      openLabel: cleanString(manual.open_label),
+      submitLabel: cleanString(manual.submit_label),
+      proofUrlLabel: cleanString(manual.proof_url_label),
+      proofUrlPlaceholder: cleanString(manual.proof_url_placeholder),
+      proofUrlRequired: bool(manual.proof_url_required),
+      proofUrlRequiredMessage: cleanString(manual.proof_url_required_message),
+      proofTextLabel: cleanString(manual.proof_text_label),
+      proofTextPlaceholder: cleanString(manual.proof_text_placeholder),
+      proofTextRequired: bool(manual.proof_text_required),
+      proofTextRequiredMessage: cleanString(manual.proof_text_required_message),
+      extraFieldKey: extraFieldKey,
+      extraFieldLabel: cleanString(manual.extra_field_label),
+      extraFieldPlaceholder: cleanString(manual.extra_field_placeholder),
+      extraFieldRequired: extraFieldKey ? bool(manual.extra_field_required) : false,
+      extraFieldRequiredMessage: cleanString(manual.extra_field_required_message),
+      pendingSuccessCopy: cleanString(manual.pending_success_copy),
+    };
+  }
+
+  function requiredErrorCodeForField(fieldKey) {
+    const normalized = cleanString(fieldKey)
+      .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+      .replace(/[^a-zA-Z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+      .toLowerCase();
+
+    return normalized ? (normalized + '_required') : 'submission_extra_required';
+  }
+
   function taskNeedsInlineEmailSignup(task, model) {
     return cleanString(task.handle) === 'email-signup' && !model.consentEmail;
   }
@@ -1899,9 +1936,16 @@
       return cleanString(task.eligibility && task.eligibility.locked_message) || 'This reward is reserved for Candle Club members.';
     }
     if (state === 'pending') {
+      const submissionConfig = manualSubmissionConfig(task);
+
       if (googleReviewManualFallbackTask(task)) {
         return 'We saved your review details. Candle Cash lands after the team reviews it.';
       }
+
+      if (submissionConfig.pendingSuccessCopy) {
+        return submissionConfig.pendingSuccessCopy;
+      }
+
       return 'We recorded the action. Candle Cash lands as soon as the matching event clears.';
     }
     if (state === 'completed' || state === 'awarded' || state === 'approved') {
@@ -2016,16 +2060,33 @@
 
     const disabled = uiState.busy ? ' disabled aria-disabled="true"' : '';
     const manualGoogleReview = googleReviewManualFallbackTask(task);
+    const submissionConfig = manualSubmissionConfig(task);
+    const openLabel = manualGoogleReview
+      ? 'Open Google review'
+      : (submissionConfig.openLabel || cleanString(task.button_text) || 'Open task');
+    const proofUrlLabel = manualGoogleReview ? 'Optional proof link' : (submissionConfig.proofUrlLabel || 'Proof link');
+    const proofUrlPlaceholder = manualGoogleReview
+      ? 'Paste the review link if Google gives you one'
+      : (submissionConfig.proofUrlPlaceholder || 'Paste a review or proof link');
+    const proofTextLabel = manualGoogleReview ? 'Review details' : (submissionConfig.proofTextLabel || 'Note');
+    const proofTextPlaceholder = manualGoogleReview
+      ? 'Enter the name shown on the review plus a short snippet or the date posted'
+      : (submissionConfig.proofTextPlaceholder || 'Anything you want the team to review?');
+    const submitLabel = manualGoogleReview ? 'Submit review details' : (submissionConfig.submitLabel || 'Submit for review');
+    const extraFieldMarkup = submissionConfig.extraFieldKey
+      ? '<label class="ForestryRewardsInlineField"><span>' + escapeHtml(submissionConfig.extraFieldLabel || 'Account handle') + '</span><input type="text" data-task-extra-field="' + escapeHtml(task.handle) + '" data-task-extra-field-key="' + escapeHtml(submissionConfig.extraFieldKey) + '" placeholder="' + escapeHtml(submissionConfig.extraFieldPlaceholder || '@yourhandle') + '"></label>'
+      : '';
     const openLink = task.action_url
-      ? '<a class="Button Button--secondary" href="' + escapeHtml(task.action_url) + '" target="_blank" rel="noopener">' + escapeHtml(manualGoogleReview ? 'Open Google review' : 'Open task') + '</a>'
+      ? '<a class="Button Button--secondary" href="' + escapeHtml(task.action_url) + '" target="_blank" rel="noopener">' + escapeHtml(openLabel) + '</a>'
       : '';
 
     return '<div class="ForestryRewardsTaskProof">' +
       '<div class="ForestryRewardsTaskProof__grid">' +
-        '<label class="ForestryRewardsInlineField"><span>' + escapeHtml(manualGoogleReview ? 'Optional proof link' : 'Proof link') + '</span><input type="url" data-task-proof-url="' + escapeHtml(task.handle) + '" placeholder="' + escapeHtml(manualGoogleReview ? 'Paste the review link if Google gives you one' : 'Paste a review or proof link') + '"></label>' +
-        '<label class="ForestryRewardsInlineField"><span>' + escapeHtml(manualGoogleReview ? 'Review details' : 'Note') + '</span><textarea rows="3" data-task-proof-text="' + escapeHtml(task.handle) + '" placeholder="' + escapeHtml(manualGoogleReview ? 'Enter the name shown on the review plus a short snippet or the date posted' : 'Anything you want the team to review?') + '"></textarea></label>' +
+        extraFieldMarkup +
+        '<label class="ForestryRewardsInlineField"><span>' + escapeHtml(proofUrlLabel) + '</span><input type="url" data-task-proof-url="' + escapeHtml(task.handle) + '" placeholder="' + escapeHtml(proofUrlPlaceholder) + '"></label>' +
+        '<label class="ForestryRewardsInlineField"><span>' + escapeHtml(proofTextLabel) + '</span><textarea rows="3" data-task-proof-text="' + escapeHtml(task.handle) + '" placeholder="' + escapeHtml(proofTextPlaceholder) + '"></textarea></label>' +
       '</div>' +
-      '<div class="ForestryRewardsTaskProof__actions">' + openLink + '<button class="Button Button--primary" type="button" data-action="submit-task" data-task-handle="' + escapeHtml(task.handle) + '" data-task-requires-proof="1"' + disabled + '>' + escapeHtml(manualGoogleReview ? 'Submit review details' : 'Submit for review') + '</button></div>' +
+      '<div class="ForestryRewardsTaskProof__actions">' + openLink + '<button class="Button Button--primary" type="button" data-action="submit-task" data-task-handle="' + escapeHtml(task.handle) + '" data-task-requires-proof="1"' + disabled + '>' + escapeHtml(submitLabel) + '</button></div>' +
     '</div>';
   }
 
@@ -2135,11 +2196,15 @@
 
     if (taskNeedsProof(task)) {
       const manualGoogleReview = googleReviewManualFallbackTask(task);
+      const submissionConfig = manualSubmissionConfig(task);
       const label = uiState.openTaskHandle === task.handle
         ? 'Hide form'
-        : (manualGoogleReview ? 'Submit review details' : 'Submit proof');
+        : (manualGoogleReview ? 'Submit review details' : (submissionConfig.submitLabel || 'Submit proof'));
+      const openLabel = manualGoogleReview
+        ? 'Open Google review'
+        : (submissionConfig.openLabel || cleanString(task.button_text) || 'Open task');
       const openLink = task.action_url
-        ? '<a class="Button Button--secondary" href="' + escapeHtml(task.action_url) + '" target="_blank" rel="noopener">' + escapeHtml(manualGoogleReview ? 'Open Google review' : 'Open task') + '</a>'
+        ? '<a class="Button Button--secondary" href="' + escapeHtml(task.action_url) + '" target="_blank" rel="noopener">' + escapeHtml(openLabel) + '</a>'
         : '';
       return openLink + '<button class="Button Button--primary" type="button" data-action="toggle-task-form" data-task-handle="' + escapeHtml(task.handle) + '"' + disabled + '>' + escapeHtml(label) + '</button>';
     }
@@ -4705,17 +4770,38 @@
     const taskCard = target.closest('[data-task-card]');
     const proofUrlField = taskCard && taskCard.querySelector('[data-task-proof-url="' + taskHandle + '"]');
     const proofTextField = taskCard && taskCard.querySelector('[data-task-proof-text="' + taskHandle + '"]');
-    const proofUrl = cleanString(proofUrlField && proofUrlField.value);
-    const proofText = cleanString(proofTextField && proofTextField.value);
-    const openUrl = cleanString(target.getAttribute('data-open-url'));
-    const requestKey = 'task-submit:' + taskHandle + ':' + Date.now();
     const task = mergeArray(computeLastModel(root).tasks, []).find(function (row) {
       return cleanString(row && row.handle) === taskHandle;
     }) || null;
     const manualGoogleReview = googleReviewManualFallbackTask(task);
+    const submissionConfig = manualSubmissionConfig(task);
+    const extraFieldKey = cleanString(submissionConfig.extraFieldKey);
+    const extraFieldField = extraFieldKey
+      ? (taskCard && taskCard.querySelector('[data-task-extra-field="' + taskHandle + '"][data-task-extra-field-key="' + extraFieldKey + '"]'))
+      : null;
+    const extraFieldValue = cleanString(extraFieldField && extraFieldField.value);
+    const proofUrl = cleanString(proofUrlField && proofUrlField.value);
+    const proofText = cleanString(proofTextField && proofTextField.value);
+    const openUrl = cleanString(target.getAttribute('data-open-url'));
+    const requestKey = 'task-submit:' + taskHandle + ':' + Date.now();
 
     if (manualGoogleReview && !proofText) {
       showToast(root, 'Add the name shown on your Google review plus a short snippet or the date posted so the team can verify it.', 'warning');
+      return;
+    }
+
+    if (submissionConfig.proofTextRequired && !proofText) {
+      showToast(root, submissionConfig.proofTextRequiredMessage || 'Add a note so the team can review it.', 'warning');
+      return;
+    }
+
+    if (submissionConfig.proofUrlRequired && !proofUrl) {
+      showToast(root, submissionConfig.proofUrlRequiredMessage || 'Add a proof link so the team can review it.', 'warning');
+      return;
+    }
+
+    if (submissionConfig.extraFieldRequired && !extraFieldValue) {
+      showToast(root, submissionConfig.extraFieldRequiredMessage || 'Add the required detail so the team can verify your submission.', 'warning');
       return;
     }
 
@@ -4738,18 +4824,33 @@
 
     markBusy(root, 'Saving your task…');
     const identity = buildIdentity(root);
+    const requestBody = Object.assign({}, bodyFromIdentity(identity), {
+      task_handle: taskHandle,
+      proof_url: proofUrl || null,
+      proof_text: proofText || null,
+      request_key: requestKey,
+    });
+
+    if (extraFieldKey) {
+      requestBody[extraFieldKey] = extraFieldValue || null;
+      requestBody.submission_extra_key = extraFieldKey;
+      requestBody.submission_extra = extraFieldValue || null;
+    }
+
     const result = await fetchContract(root, root.dataset.endpointCandleCashTaskSubmit, {
       method: 'POST',
-      body: Object.assign({}, bodyFromIdentity(identity), {
-        task_handle: taskHandle,
-        proof_url: proofUrl || null,
-        proof_text: proofText || null,
-        request_key: requestKey,
-      }),
+      body: requestBody,
     });
 
     if (!result.ok) {
       const failureCode = result.error && result.error.code ? result.error.code : 'task_submit_failed';
+      const proofTextFailureMessage = manualGoogleReview
+        ? 'Add the name shown on your Google review plus a short snippet or the date posted so the team can verify it.'
+        : (submissionConfig.proofTextRequiredMessage || 'Add a note so the team can review it.');
+      const proofUrlFailureMessage = submissionConfig.proofUrlRequiredMessage || 'Add a proof link so the team can review it.';
+      const extraFailureMessage = submissionConfig.extraFieldRequiredMessage || 'Add the required detail so the team can verify your submission.';
+      const extraRequiredCode = extraFieldKey ? requiredErrorCodeForField(extraFieldKey) : '';
+
       logRewardEvent(root, {
         event_type: 'reward_task_failure',
         request_key: requestKey + ':failure',
@@ -4761,8 +4862,12 @@
       showToast(root, failureCode === 'auto_verified_task'
         ? 'That reward lands automatically once the verified event happens.'
         : (failureCode === 'proof_text_required'
-          ? 'Add the name shown on your Google review plus a short snippet or the date posted so the team can verify it.'
-          : 'We could not save that task yet. Try again in a moment.'), 'warning');
+          ? proofTextFailureMessage
+          : (failureCode === 'proof_url_required'
+            ? proofUrlFailureMessage
+            : (failureCode === 'submission_extra_required' || (extraRequiredCode && failureCode === extraRequiredCode)
+              ? extraFailureMessage
+              : 'We could not save that task yet. Try again in a moment.'))), 'warning');
       await loadAndRender(root, { force: true });
       return;
     }
@@ -4783,7 +4888,7 @@
         ? 'Candle Cash added to your account.'
         : (manualGoogleReview
           ? 'We saved your review details. Candle Cash lands after the team reviews it.'
-          : 'We saved the action. Candle Cash will land once the event verifies.'),
+          : (submissionConfig.pendingSuccessCopy || 'We saved the action. Candle Cash will land once the event verifies.')),
       toastTone: 'success',
     });
     invalidateRewardsScope(root);
@@ -6651,7 +6756,7 @@
       const helpers = authHelpers();
 
       if (forgotLink && helpers && typeof helpers.buildAuthUrl === 'function' && typeof helpers.returnUrlForTarget === 'function') {
-        forgotLink.href = helpers.buildAuthUrl(forgotLink.getAttribute('href') || '/account/login', {
+        forgotLink.href = helpers.buildAuthUrl(forgotLink.getAttribute('href') || CLASSIC_LOGIN_PATH, {
           kind: 'login',
           hash: 'recover',
           portal: null,
@@ -6892,7 +6997,7 @@
       const destination = cleanValue(response.url);
       const errorMessage = parseAuthErrorMessage(responseText);
 
-      if (!errorMessage && destination && destination.indexOf('/account/login') === -1 && destination.indexOf('/account/register') === -1) {
+      if (!errorMessage && destination && destination.indexOf(CLASSIC_LOGIN_PATH) === -1) {
         startInlineAuthSuccessTransition(container, destination);
         return;
       }
@@ -7038,6 +7143,7 @@
       const target = event.target;
       const toggle = target && target.closest ? target.closest('[data-candle-cash-bonus-toggle]') : null;
       const portalLink = target && target.closest ? target.closest('[data-candle-cash-auth-portal-link]') : null;
+      const redirectLink = target && target.closest ? target.closest('[data-candle-cash-auth-redirect]') : null;
 
       if (toggle) {
         event.preventDefault();
@@ -7057,9 +7163,48 @@
         event.preventDefault();
         startAuthPortalTransition(container, portalLink);
       }
+
+      if (
+        redirectLink &&
+        !event.defaultPrevented &&
+        event.button === 0 &&
+        !event.metaKey &&
+        !event.ctrlKey &&
+        !event.shiftKey &&
+        !event.altKey
+      ) {
+        const intent = buildIntent(container);
+        const phoneField = consentPhoneField(container);
+
+        if (intent && intent.consentSms && cleanValue(intent.phone) === '' && phoneField) {
+          event.preventDefault();
+          setAuthError(container, 'Add a phone number for Candle Cash texts.');
+          phoneField.setCustomValidity('Add a phone number for Candle Cash texts.');
+          phoneField.reportValidity();
+          return;
+        }
+
+        if (phoneField) {
+          phoneField.setCustomValidity('');
+        }
+
+        setAuthError(container, '');
+        persistIntent(intent);
+
+        if (inlineAuth(container) && desktopInlineAuthEnabled()) {
+          const root = cinematicRootFor(container);
+
+          if (root) {
+            root.setAttribute('data-candle-cash-authing', 'true');
+            root.setAttribute('data-cinematic-transition', 'out');
+          }
+        }
+      }
     });
 
     form.addEventListener('submit', function (event) {
+      const intentOnly = form.hasAttribute('data-candle-cash-auth-intent-only');
+
       suppressShopAuth(container);
       syncAuthReturnInput(container);
       syncAuthSubmitAction(container);
@@ -7079,6 +7224,11 @@
       }
 
       persistIntent(intent);
+
+      if (intentOnly) {
+        event.preventDefault();
+        return;
+      }
 
       if (inlineAuth(container) && desktopInlineAuthEnabled()) {
         const root = cinematicRootFor(container);
