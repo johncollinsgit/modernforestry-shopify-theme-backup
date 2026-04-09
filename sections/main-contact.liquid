@@ -36,12 +36,12 @@
 
           <ul class="Linklist Linklist--spacingLoose">
             {%- if support_email != blank -%}
-              <li class="Linklist__Item"><strong>Email:</strong> <a class="Link Link--primary" href="mailto:{{ support_email | escape }}">{{ support_email | escape }}</a></li>
+              <li class="Linklist__Item"><strong>Email:</strong> <a class="Link Link--primary" href="mailto:{{ support_email | escape }}" style="color: inherit;">{{ support_email | escape }}</a></li>
             {%- endif -%}
 
             {%- if support_phone != blank -%}
               {%- assign support_phone_href = support_phone | remove: ' ' | remove: '(' | remove: ')' | remove: '-' | remove: '.' -%}
-              <li class="Linklist__Item"><strong>Phone:</strong> <a class="Link Link--primary" href="tel:{{ support_phone_href | escape }}">{{ support_phone | escape }}</a></li>
+              <li class="Linklist__Item"><strong>Phone:</strong> <a class="Link Link--primary" href="tel:{{ support_phone_href | escape }}" style="color: inherit;">{{ support_phone | escape }}</a></li>
             {%- endif -%}
 
             {%- if business_address != blank -%}
