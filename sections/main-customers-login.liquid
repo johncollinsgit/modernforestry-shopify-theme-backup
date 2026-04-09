@@ -1,5 +1,11 @@
-{%- assign default_return_to = '/account#candle-cash-wallet' -%}
-{%- assign rewards_register_portal_url = '/account/register?candle_cash_portal=register' -%}
+{%- assign default_return_to = '/pages/rewards?candle_cash_welcome=login' -%}
+{%- assign account_login_url = routes.account_login_url -%}
+{%- assign login_query_connector = '?' -%}
+{%- if account_login_url contains '?' -%}
+  {%- assign login_query_connector = '&' -%}
+{%- endif -%}
+{%- assign rewards_return_url_register = '/pages/rewards?candle_cash_welcome=register' | url_encode -%}
+{%- assign rewards_register_portal_url = account_login_url | append: login_query_connector | append: 'return_url=' | append: rewards_return_url_register -%}
 {%- assign is_recover_active = false -%}
 
 {%- form 'recover_customer_password' -%}

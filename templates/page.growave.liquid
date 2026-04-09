@@ -13,7 +13,13 @@
           <h1 class="Heading u-h1">Sign in to see your Candle Cash</h1>
           <p class="ForestryRewardsLead">Your balance, earn actions, referrals, and saved rewards live inside your account once you are signed in.</p>
           <div class="ForestryRewardsCard__actions">
-            <a class="Button Button--primary" href="{{ routes.account_login_url }}">Sign in</a>
+            {%- assign account_login_url = routes.account_login_url -%}
+            {%- assign account_link_separator = '?' -%}
+            {%- if account_login_url contains '?' -%}
+              {%- assign account_link_separator = '&' -%}
+            {%- endif -%}
+            {%- assign rewards_return_url = '/pages/rewards?candle_cash_welcome=login' | url_encode -%}
+            <a class="Button Button--primary" href="{{ account_login_url }}{{ account_link_separator }}return_url={{ rewards_return_url }}">Sign in</a>
           </div>
         </div>
       </div>

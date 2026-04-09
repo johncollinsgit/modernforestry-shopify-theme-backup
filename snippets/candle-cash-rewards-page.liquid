@@ -6,10 +6,15 @@
 {%- assign rewards_subtitle = subtitle | default: 'Earn, track, and redeem Candle Cash.' -%}
 {%- assign modern_forestry_logo_url = 'modern-forestry-logo-white.png' | asset_url -%}
 {%- assign rewards_page_path = page.url | default: '/pages/rewards' -%}
-{%- assign rewards_login_url = '/account/login?candle_cash_portal=login' -%}
-{%- assign rewards_register_url = '/account/register?candle_cash_portal=register' -%}
-{%- assign rewards_return_to_login = rewards_page_path | append: '?candle_cash_welcome=login' -%}
-{%- assign rewards_return_to_register = rewards_page_path | append: '?candle_cash_welcome=register' -%}
+{%- assign account_login_url = routes.account_login_url -%}
+{%- assign login_query_connector = '?' -%}
+{%- if account_login_url contains '?' -%}
+  {%- assign login_query_connector = '&' -%}
+{%- endif -%}
+{%- assign rewards_return_url_login = rewards_page_path | append: '?candle_cash_welcome=login' | url_encode -%}
+{%- assign rewards_return_url_register = rewards_page_path | append: '?candle_cash_welcome=register' | url_encode -%}
+{%- assign rewards_login_url = account_login_url | append: login_query_connector | append: 'return_url=' | append: rewards_return_url_login -%}
+{%- assign rewards_register_url = account_login_url | append: login_query_connector | append: 'return_url=' | append: rewards_return_url_register -%}
 <section class="Section Section--spacingNormal ForestryRewardsPageSection{% if is_rewards_page and customer == blank %} ForestryRewardsPageSection--cinematic{% endif %}">
   {% if customer or is_rewards_page == false %}
     {% if is_rewards_page and customer %}
@@ -81,15 +86,15 @@
               <p class="CandleCashCinematic__panel-copy">Step through the portal, see your balance, and save on what comes next.</p>
             </div>
             <div class="CandleCashCinematic__actions">
-              <a class="Button Button--primary" href="{{ rewards_login_url }}" data-candle-cash-portal-open="login" data-forestry-auth-link="login" data-forestry-auth-return="rewards-login">Log in</a>
-              <a class="Button Button--secondary" href="{{ rewards_register_url }}" data-candle-cash-portal-open="register" data-forestry-auth-link="register" data-forestry-auth-return="rewards-register">Create account</a>
+              <a class="Button Button--primary" href="{{ rewards_login_url }}" data-candle-cash-portal-open="login">Log in</a>
+              <a class="Button Button--secondary" href="{{ rewards_register_url }}" data-candle-cash-portal-open="register">Create account</a>
             </div>
             <p class="CandleCashCinematic__panel-note">New here? Create an account to unlock your rewards and member-only perks.</p>
           </div>
 
           <div class="CandleCashPortal__surface CandleCashPortal__surface--auth" data-candle-cash-portal-surface="login" data-candle-cash-auth="login" data-candle-cash-auth-surface="inline" data-candle-cash-bonus-expanded="false" aria-hidden="true">
             <div class="CandleCashPortal__auth-shell CandleCashAuth__panel">
-              {%- form 'customer_login', name: 'candle_cash_portal_login', class: 'Form Form--spacingTight CandleCashAuth__form CandleCashPortal__form', id: 'CandleCashPortalLoginForm' -%}
+              <form class="Form Form--spacingTight CandleCashAuth__form CandleCashPortal__form" id="CandleCashPortalLoginForm" data-candle-cash-auth-form data-candle-cash-auth-intent-only novalidate>
                 <div class="CandleCashPortal__surface-controls">
                   <button class="CandleCashPortal__surface-control" type="button" data-candle-cash-portal-back>Back</button>
                   <button class="CandleCashPortal__surface-control" type="button" data-candle-cash-minimize-inline>Minimize</button>
@@ -103,18 +108,9 @@
 
                 <div class="CandleCashPortal__error" data-candle-cash-auth-error hidden aria-live="polite"></div>
 
-                <input type="hidden" name="return_to" value="{{ rewards_return_to_login }}">
-
-                <div class="Form__Item">
-                  <input type="email" class="Form__Input" name="customer[email]" required="required" placeholder="{{ 'customer.login.email' | t }}" aria-label="{{ 'customer.login.email' | t }}" autocomplete="email">
-                  <label class="Form__FloatingLabel">{{ 'customer.login.email' | t }}</label>
-                </div>
-
-                <div class="Form__Item">
-                  <input type="password" class="Form__Input" name="customer[password]" required="required" placeholder="{{ 'customer.login.password' | t }}" aria-label="{{ 'customer.login.password' | t }}" autocomplete="current-password">
-                  <label class="Form__FloatingLabel">{{ 'customer.login.password' | t }}</label>
-                  <a href="/account/login#recover" class="Form__ItemHelp Link Link--primary" data-forestry-auth-link="login" data-forestry-auth-return="rewards-login" data-forestry-auth-hash="recover">Forgot password?</a>
-                </div>
+                <p class="CandleCashPortal__auth-copy Text--subdued">
+                  Sign in using Shopify&apos;s secure customer accounts experience, then return here to view and redeem your Candle Cash.
+                </p>
 
                 <button class="CandleCashAuth__bonus-toggle" type="button" data-candle-cash-bonus-toggle aria-expanded="false" aria-controls="CandleCashPortalLoginBonus">ADD BONUS CANDLE CASH</button>
 
@@ -150,19 +146,21 @@
                   <p class="CandleCashAuth__legal">Email and text consent are optional and never required to log in. By opting into texts, you agree to recurring automated marketing messages. Msg &amp; data rates may apply. Reply STOP to opt out. See our <a href="/policies/privacy-policy">Privacy Policy</a> and <a href="/policies/terms-of-service">Terms</a>.</p>
                 </div>
 
-                <button type="submit" class="Form__Submit Button Button--primary Button--full">Enter Candle Cash</button>
+                <a href="{{ rewards_login_url }}" class="Form__Submit Button Button--primary Button--full" data-candle-cash-auth-redirect="login">
+                  Continue to sign in
+                </a>
 
                 <div class="Form__Hint Form__Hint--center CandleCashAuth__hint CandleCashPortal__hint">
                   <span class="Text--subdued">{{ 'customer.login.register_label' | t }}</span>
-                  <a href="{{ rewards_register_url }}" class="Link Link--secondary" data-candle-cash-portal-open="register" data-forestry-auth-link="register" data-forestry-auth-return="rewards-register">Create an account</a>
+                  <a href="{{ rewards_register_url }}" class="Link Link--secondary" data-candle-cash-portal-open="register">Create an account</a>
                 </div>
-              {%- endform -%}
+              </form>
             </div>
           </div>
 
           <div class="CandleCashPortal__surface CandleCashPortal__surface--auth" data-candle-cash-portal-surface="register" data-candle-cash-auth="register" data-candle-cash-auth-surface="inline" data-candle-cash-bonus-expanded="false" aria-hidden="true">
             <div class="CandleCashPortal__auth-shell CandleCashAuth__panel">
-              {%- form 'create_customer', name: 'candle_cash_portal_register', class: 'Form Form--spacingTight CandleCashAuth__form CandleCashPortal__form', id: 'CandleCashPortalRegisterForm' -%}
+              <form class="Form Form--spacingTight CandleCashAuth__form CandleCashPortal__form" id="CandleCashPortalRegisterForm" data-candle-cash-auth-form data-candle-cash-auth-intent-only novalidate>
                 <div class="CandleCashPortal__surface-controls">
                   <button class="CandleCashPortal__surface-control" type="button" data-candle-cash-portal-back>Back</button>
                   <button class="CandleCashPortal__surface-control" type="button" data-candle-cash-minimize-inline>Minimize</button>
@@ -176,27 +174,9 @@
 
                 <div class="CandleCashPortal__error" data-candle-cash-auth-error hidden aria-live="polite"></div>
 
-                <input type="hidden" name="return_to" value="{{ rewards_return_to_register }}">
-
-                <div class="Form__Item">
-                  <input type="text" class="Form__Input" name="customer[first_name]" aria-label="{{ 'customer.register.first_name' | t }}" placeholder="{{ 'customer.register.first_name' | t }}" autocomplete="given-name">
-                  <label class="Form__FloatingLabel">{{ 'customer.register.first_name' | t }}</label>
-                </div>
-
-                <div class="Form__Item">
-                  <input type="text" class="Form__Input" name="customer[last_name]" aria-label="{{ 'customer.register.last_name' | t }}" placeholder="{{ 'customer.register.last_name' | t }}" autocomplete="family-name">
-                  <label class="Form__FloatingLabel">{{ 'customer.register.last_name' | t }}</label>
-                </div>
-
-                <div class="Form__Item">
-                  <input type="email" class="Form__Input" name="customer[email]" aria-label="{{ 'customer.register.email' | t }}" placeholder="{{ 'customer.register.email' | t }}" required="required" autocomplete="email">
-                  <label class="Form__FloatingLabel">{{ 'customer.register.email' | t }}</label>
-                </div>
-
-                <div class="Form__Item">
-                  <input type="password" class="Form__Input" name="customer[password]" aria-label="{{ 'customer.register.password' | t }}" placeholder="{{ 'customer.register.password' | t }}" required="required" autocomplete="new-password">
-                  <label class="Form__FloatingLabel">{{ 'customer.register.password' | t }}</label>
-                </div>
+                <p class="CandleCashPortal__auth-copy Text--subdued">
+                  Create your customer account using Shopify&apos;s secure customer accounts experience, then return here to view and redeem your Candle Cash.
+                </p>
 
                 <button class="CandleCashAuth__bonus-toggle" type="button" data-candle-cash-bonus-toggle aria-expanded="false" aria-controls="CandleCashPortalRegisterBonus">ADD BONUS CANDLE CASH</button>
 
@@ -232,13 +212,15 @@
                   <p class="CandleCashAuth__legal">Email and text consent are optional and never required to create your account. By opting into texts, you agree to recurring automated marketing messages. Msg &amp; data rates may apply. Reply STOP to opt out. See our <a href="/policies/privacy-policy">Privacy Policy</a> and <a href="/policies/terms-of-service">Terms</a>.</p>
                 </div>
 
-                <button type="submit" class="Form__Submit Button Button--primary Button--full">Create account</button>
+                <a href="{{ rewards_register_url }}" class="Form__Submit Button Button--primary Button--full" data-candle-cash-auth-redirect="register">
+                  Continue to create account
+                </a>
 
                 <div class="Form__Hint Form__Hint--center CandleCashAuth__hint CandleCashPortal__hint">
                   <span class="Text--subdued">Already have an account?</span>
-                  <a href="{{ rewards_login_url }}" class="Link Link--secondary" data-candle-cash-portal-open="login" data-forestry-auth-link="login" data-forestry-auth-return="rewards-login">Log in</a>
+                  <a href="{{ rewards_login_url }}" class="Link Link--secondary" data-candle-cash-portal-open="login">Log in</a>
                 </div>
-              {%- endform -%}
+              </form>
             </div>
           </div>
         </div>
