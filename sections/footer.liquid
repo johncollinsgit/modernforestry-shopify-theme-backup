@@ -140,6 +140,13 @@
         {%- endfor -%}
 
         {%- if should_render_support_block -%}
+          <style>
+            #section-{{ section.id }} .Footer__Block--support a,
+            #section-{{ section.id }} .Footer__Block--support a:hover {
+              color: inherit !important;
+            }
+          </style>
+
           <div class="Footer__Block Footer__Block--support">
             <h2 class="Footer__Title Heading u-h6">{{ section.settings.support_heading | default: 'Contact us' | escape }}</h2>
 

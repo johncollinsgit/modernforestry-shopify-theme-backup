@@ -32,6 +32,13 @@
 
       {%- if should_render_support_panel -%}
         <div class="Segment">
+          <style>
+            #shopify-section-{{ section.id }} .Segment a,
+            #shopify-section-{{ section.id }} .Segment a:hover {
+              color: inherit !important;
+            }
+          </style>
+
           <h2 class="Segment__Title Heading u-h5">{{ section.settings.support_heading | default: 'Contact details' | escape }}</h2>
 
           <ul class="Linklist Linklist--spacingLoose">
