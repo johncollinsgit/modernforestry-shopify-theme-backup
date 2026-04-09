@@ -2,6 +2,20 @@
 {%- assign privacy_url = shop.privacy_policy.url | default: '/policies/privacy-policy' -%}
 {%- assign consent_endpoint = '/apps/forestry/consent/optin' -%}
 {%- assign brand_display = shop.name | remove: 'LLC' | strip -%}
+{%- assign support_email = section.settings.support_email | default: shop.email | strip -%}
+{%- assign business_address = section.settings.business_address | strip -%}
+{%- if business_address == blank and shop.address != blank -%}
+  {%- capture business_address -%}
+    {%- if shop.address.address1 != blank -%}{{ shop.address.address1 }}{%- endif -%}
+    {%- if shop.address.address2 != blank -%}{{ '\n' }}{{ shop.address.address2 }}{%- endif -%}
+    {%- if shop.address.city != blank or shop.address.province != blank or shop.address.zip != blank -%}
+      {{ '\n' }}{{ shop.address.city }}{%- if shop.address.province_code != blank -%}, {{ shop.address.province_code }}{%- elsif shop.address.province != blank -%}, {{ shop.address.province }}{%- endif -%}{% if shop.address.zip != blank %} {{ shop.address.zip }}{% endif %}
+    {%- endif -%}
+    {%- if shop.address.country != blank -%}{{ '\n' }}{{ shop.address.country }}{%- endif -%}
+  {%- endcapture -%}
+
+  {%- assign business_address = business_address | strip -%}
+{%- endif -%}
 <section class="SmsSignupPage SmsSignupPage--premium" data-section-id="{{ section.id }}">
   <div class="Container">
     <header class="SectionHeader SectionHeader--center SmsSignupPage__Hero SmsSignupPage__Reveal SmsSignupPage__Reveal--1">
@@ -76,9 +90,18 @@
           </div>
         </form>
 
-        <p class="SmsSignupPage__Support">
-          Need help? Email <a href="mailto:{{ section.settings.support_email }}">{{ section.settings.support_email }}</a> or contact us at {{ section.settings.business_address }}.
-        </p>
+        {%- if support_email != blank or business_address != blank -%}
+          <p class="SmsSignupPage__Support">
+            Need help?
+            {%- if support_email != blank -%}
+              Email <a href="mailto:{{ support_email | escape }}">{{ support_email | escape }}</a>
+            {%- endif -%}
+            {%- if business_address != blank -%}
+              {%- if support_email != blank -%} or{%- endif -%}
+              contact us at {{ business_address | escape | newline_to_br }}
+            {%- endif -%}.
+          </p>
+        {%- endif -%}
       </article>
 
       <aside class="SmsSignupPage__Info SmsSignupPage__Info--premium">
@@ -721,13 +744,13 @@
       "type": "text",
       "id": "support_email",
       "label": "Support email",
-      "default": "info@theforestrystudio.com"
+      "info": "Leave blank to use your Shopify store email."
     },
     {
       "type": "text",
       "id": "business_address",
       "label": "Business address",
-      "default": "406 Piedmont Rd Easley SC 29642"
+      "info": "Leave blank to use your Shopify store address."
     }
   ],
   "presets": [

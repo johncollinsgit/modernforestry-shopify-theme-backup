@@ -1,6 +1,45 @@
-<footer id="section-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="footer" class="Footer {% if section.blocks.size <= 2 %}Footer--center{% endif %}" role="contentinfo">
+{%- assign support_email = section.settings.support_email | default: shop.email | strip -%}
+{%- assign support_phone = section.settings.support_phone | default: shop.phone | strip -%}
+{%- assign business_address = section.settings.business_address | strip -%}
+{%- if business_address == blank and shop.address != blank -%}
+  {%- capture business_address -%}
+    {%- if shop.address.address1 != blank -%}{{ shop.address.address1 }}{%- endif -%}
+    {%- if shop.address.address2 != blank -%}{{ '\n' }}{{ shop.address.address2 }}{%- endif -%}
+    {%- if shop.address.city != blank or shop.address.province != blank or shop.address.zip != blank -%}
+      {{ '\n' }}{{ shop.address.city }}{%- if shop.address.province_code != blank -%}, {{ shop.address.province_code }}{%- elsif shop.address.province != blank -%}, {{ shop.address.province }}{%- endif -%}{% if shop.address.zip != blank %} {{ shop.address.zip }}{% endif %}
+    {%- endif -%}
+    {%- if shop.address.country != blank -%}{{ '\n' }}{{ shop.address.country }}{%- endif -%}
+  {%- endcapture -%}
+
+  {%- assign business_address = business_address | strip -%}
+{%- endif -%}
+
+{%- assign contact_page_url = section.settings.contact_page_url | strip -%}
+{%- if contact_page_url == blank and pages['contact'] != blank -%}
+  {%- assign contact_page_url = pages['contact'].url -%}
+{%- endif -%}
+
+{%- assign facebook_url = section.settings.facebook_url | default: settings.social_facebook | strip -%}
+{%- assign instagram_url = section.settings.instagram_url | default: settings.social_instagram | strip -%}
+
+{%- assign has_support_details = false -%}
+{%- if support_email != blank or support_phone != blank or business_address != blank or contact_page_url != blank or facebook_url != blank or instagram_url != blank -%}
+  {%- assign has_support_details = true -%}
+{%- endif -%}
+
+{%- assign should_render_support_block = false -%}
+{%- if section.settings.show_support_block and has_support_details -%}
+  {%- assign should_render_support_block = true -%}
+{%- endif -%}
+
+{%- assign footer_block_count = section.blocks.size -%}
+{%- if should_render_support_block -%}
+  {%- assign footer_block_count = footer_block_count | plus: 1 -%}
+{%- endif -%}
+
+<footer id="section-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="footer" class="Footer {% if footer_block_count <= 2 %}Footer--center{% endif %}" role="contentinfo">
   <div class="Container">
-    {%- if section.blocks.size > 0 -%}
+    {%- if section.blocks.size > 0 or should_render_support_block -%}
       <div class="Footer__Inner">
         {%- for block in section.blocks -%}
           <div class="Footer__Block Footer__Block--{{ block.type }}" {{ block.shopify_attributes }}>
@@ -27,11 +66,27 @@
                   <h2 class="Footer__Title Heading u-h6">{{ linklist.title | escape }}</h2>
 
                   <ul class="Linklist">
+                    {%- assign has_contact_link = false -%}
+
                     {%- for link in linklist.links -%}
+                      {%- if contact_page_url != blank -%}
+                        {%- assign link_title_downcase = link.title | downcase -%}
+
+                        {%- if link.url == contact_page_url or link_title_downcase contains 'contact' -%}
+                          {%- assign has_contact_link = true -%}
+                        {%- endif -%}
+                      {%- endif -%}
+
                       <li class="Linklist__Item">
                         <a href="{{ link.url }}" class="Link Link--primary">{{ link.title | escape }}</a>
                       </li>
                     {%- endfor -%}
+
+                    {%- if contact_page_url != blank and has_contact_link == false -%}
+                      <li class="Linklist__Item">
+                        <a href="{{ contact_page_url }}" class="Link Link--primary">Contact</a>
+                      </li>
+                    {%- endif -%}
                   </ul>
                 {%- endif -%}
 
@@ -77,12 +132,57 @@
                         </span>
                       </label>
                     </div>
-                    <button type="submit" class="Form__Submit Button Button--primary">{{ 'footer.newsletter.submit' | t }}</button>
+                  <button type="submit" class="Form__Submit Button Button--primary">{{ 'footer.newsletter.submit' | t }}</button>
                   {%- endif -%}
                 {%- endform -%}
             {%- endcase -%}
           </div>
         {%- endfor -%}
+
+        {%- if should_render_support_block -%}
+          <div class="Footer__Block Footer__Block--support">
+            <h2 class="Footer__Title Heading u-h6">{{ section.settings.support_heading | default: 'Contact us' | escape }}</h2>
+
+            <div class="Footer__Content Rte">
+              {%- if support_email != blank -%}
+                <p><strong>Email:</strong> <a class="Link Link--primary" href="mailto:{{ support_email | escape }}">{{ support_email | escape }}</a></p>
+              {%- endif -%}
+
+              {%- if support_phone != blank -%}
+                {%- assign support_phone_href = support_phone | remove: ' ' | remove: '(' | remove: ')' | remove: '-' | remove: '.' -%}
+                <p><strong>Phone:</strong> <a class="Link Link--primary" href="tel:{{ support_phone_href | escape }}">{{ support_phone | escape }}</a></p>
+              {%- endif -%}
+
+              {%- if business_address != blank -%}
+                <p><strong>Address:</strong> {{ business_address | escape | newline_to_br }}</p>
+              {%- endif -%}
+
+              {%- if contact_page_url != blank -%}
+                <p><a class="Link Link--primary" href="{{ contact_page_url }}">Contact page</a></p>
+              {%- endif -%}
+
+              {%- if facebook_url != blank or instagram_url != blank -%}
+                <ul class="HorizontalList HorizontalList--spacingLoose">
+                  {%- if facebook_url != blank -%}
+                    <li class="HorizontalList__Item">
+                      <a href="{{ facebook_url | replace_first: 'https://', '' | replace_first: 'http://', '' | prepend: 'https://' }}" class="Link Link--primary" target="_blank" rel="noopener" aria-label="Facebook">
+                        <span class="Icon-Wrapper--clickable">{%- render 'icon' with 'facebook' -%}</span>
+                      </a>
+                    </li>
+                  {%- endif -%}
+
+                  {%- if instagram_url != blank -%}
+                    <li class="HorizontalList__Item">
+                      <a href="{{ instagram_url | replace_first: 'https://', '' | replace_first: 'http://', '' | prepend: 'https://' }}" class="Link Link--primary" target="_blank" rel="noopener" aria-label="Instagram">
+                        <span class="Icon-Wrapper--clickable">{%- render 'icon' with 'instagram' -%}</span>
+                      </a>
+                    </li>
+                  {%- endif -%}
+                </ul>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endif -%}
       </div>
     {%- endif -%}
 
@@ -222,6 +322,58 @@
       "id": "show_locale_selector",
       "label": "Show language selector",
       "default": true
+    },
+    {
+      "type": "header",
+      "content": "Customer support"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_support_block",
+      "label": "Show support/contact block",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "support_heading",
+      "label": "Heading",
+      "default": "Contact us"
+    },
+    {
+      "type": "text",
+      "id": "support_email",
+      "label": "Support email",
+      "info": "Leave blank to use your Shopify store email."
+    },
+    {
+      "type": "text",
+      "id": "support_phone",
+      "label": "Support phone",
+      "info": "Leave blank to use your Shopify store phone."
+    },
+    {
+      "type": "textarea",
+      "id": "business_address",
+      "label": "Business address",
+      "info": "Leave blank to use your Shopify store address."
+    },
+    {
+      "type": "url",
+      "id": "contact_page_url",
+      "label": "Contact page URL",
+      "info": "If blank, the theme will try to link to the page with handle \"contact\"."
+    },
+    {
+      "type": "url",
+      "id": "facebook_url",
+      "label": "Facebook URL (optional)",
+      "info": "Leave blank to use Theme settings > Social media."
+    },
+    {
+      "type": "url",
+      "id": "instagram_url",
+      "label": "Instagram URL (optional)",
+      "info": "Leave blank to use Theme settings > Social media."
     }
   ],
   "blocks": [

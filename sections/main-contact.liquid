@@ -1,3 +1,24 @@
+{%- assign support_email = section.settings.support_email | default: shop.email | strip -%}
+{%- assign support_phone = section.settings.support_phone | default: shop.phone | strip -%}
+{%- assign business_address = section.settings.business_address | strip -%}
+{%- if business_address == blank and shop.address != blank -%}
+  {%- capture business_address -%}
+    {%- if shop.address.address1 != blank -%}{{ shop.address.address1 }}{%- endif -%}
+    {%- if shop.address.address2 != blank -%}{{ '\n' }}{{ shop.address.address2 }}{%- endif -%}
+    {%- if shop.address.city != blank or shop.address.province != blank or shop.address.zip != blank -%}
+      {{ '\n' }}{{ shop.address.city }}{%- if shop.address.province_code != blank -%}, {{ shop.address.province_code }}{%- elsif shop.address.province != blank -%}, {{ shop.address.province }}{%- endif -%}{% if shop.address.zip != blank %} {{ shop.address.zip }}{% endif %}
+    {%- endif -%}
+    {%- if shop.address.country != blank -%}{{ '\n' }}{{ shop.address.country }}{%- endif -%}
+  {%- endcapture -%}
+
+  {%- assign business_address = business_address | strip -%}
+{%- endif -%}
+
+{%- assign should_render_support_panel = false -%}
+{%- if support_email != blank or support_phone != blank or business_address != blank or section.settings.support_hours != blank -%}
+  {%- assign should_render_support_panel = true -%}
+{%- endif -%}
+
 <div class="Container">
   <header class="PageHeader">
     <div class="SectionHeader SectionHeader--center">
@@ -8,6 +29,31 @@
   <div class="PageContent PageContent--narrow">
     <div class="Rte">
       {{- page.content -}}
+
+      {%- if should_render_support_panel -%}
+        <div class="Segment">
+          <h2 class="Segment__Title Heading u-h5">{{ section.settings.support_heading | default: 'Contact details' | escape }}</h2>
+
+          <ul class="Linklist Linklist--spacingLoose">
+            {%- if support_email != blank -%}
+              <li class="Linklist__Item"><strong>Email:</strong> <a class="Link Link--primary" href="mailto:{{ support_email | escape }}">{{ support_email | escape }}</a></li>
+            {%- endif -%}
+
+            {%- if support_phone != blank -%}
+              {%- assign support_phone_href = support_phone | remove: ' ' | remove: '(' | remove: ')' | remove: '-' | remove: '.' -%}
+              <li class="Linklist__Item"><strong>Phone:</strong> <a class="Link Link--primary" href="tel:{{ support_phone_href | escape }}">{{ support_phone | escape }}</a></li>
+            {%- endif -%}
+
+            {%- if business_address != blank -%}
+              <li class="Linklist__Item"><strong>Address:</strong> {{ business_address | escape | newline_to_br }}</li>
+            {%- endif -%}
+
+            {%- if section.settings.support_hours != blank -%}
+              <li class="Linklist__Item"><strong>Hours:</strong> {{ section.settings.support_hours | escape }}</li>
+            {%- endif -%}
+          </ul>
+        </div>
+      {%- endif -%}
 
       {%- form 'contact', class: 'Form Form--spacingTight' -%}
         {%- if form.posted_successfully? -%}
@@ -96,7 +142,42 @@
 {% schema %}
 {
   "name": "Contact page",
-  "settings": [],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Customer support"
+    },
+    {
+      "type": "text",
+      "id": "support_heading",
+      "label": "Heading",
+      "default": "Contact details"
+    },
+    {
+      "type": "text",
+      "id": "support_email",
+      "label": "Support email",
+      "info": "Leave blank to use your Shopify store email."
+    },
+    {
+      "type": "text",
+      "id": "support_phone",
+      "label": "Support phone",
+      "info": "Leave blank to use your Shopify store phone."
+    },
+    {
+      "type": "textarea",
+      "id": "business_address",
+      "label": "Business address",
+      "info": "Leave blank to use your Shopify store address."
+    },
+    {
+      "type": "text",
+      "id": "support_hours",
+      "label": "Support hours (optional)",
+      "info": "Example: Mon–Fri, 9am–5pm ET"
+    }
+  ],
   "blocks": [
     {
       "type": "text",
