@@ -107,6 +107,40 @@ After connection, merchant/admin theme edits can be tracked through the connecte
 - Keep this repo focused on backup and safe rollback.
 - Avoid adding build tooling unless intentionally moving to a development-first workflow.
 
+## New customer accounts migration end goal
+
+We are adopting Shopify **new customer accounts** for authentication (Shopify-managed, independent from theme Liquid customer templates).
+
+Candle Cash remains a **storefront-owned** experience. The canonical Candle Cash destination is:
+- `/pages/rewards`
+
+Theme responsibilities for this phase:
+- Surface Candle Cash entry points across storefront UI (header, sidebar, cart, rewards surfaces).
+- Route guests to Shopify authentication using `routes.account_login_url`.
+- Ensure auth return paths land users back on `/pages/rewards` (including welcome/intent query params where used).
+- Render + hydrate Candle Cash via existing Forestry/Backstage storefront integrations (app proxy endpoints + theme mounts).
+
+Non-goal for this phase:
+- Rebuilding Candle Cash inside Shopify’s new customer account UI.
+
+Future option:
+- If account-native Candle Cash is desired later, build it as a Backstage customer account extension (not via theme `templates/customers/*`).
+
+Definition of done:
+- No critical Candle Cash flow depends on legacy account templates or legacy password-based forms.
+- Key Candle Cash CTAs no longer rely on legacy `/account` wallet anchors.
+- Staging QA passes with Shopify new customer accounts enabled.
+
+### Status (this branch)
+- Implemented storefront-first Candle Cash routing to `/pages/rewards`; removed Candle Cash CTAs that sent users to legacy account wallet anchors.
+- Guest Candle Cash login now uses `routes.account_login_url` with a default return path back to `/pages/rewards` (welcome/intent preserved where applicable).
+- Updated Forestry widget mounts to consume `routes.account_login_url` via `data-login-url` rather than hard-coded legacy account URLs.
+
+Manual QA still required:
+- `/pages/rewards` as guest: log in + return to `/pages/rewards` (welcome/intent), Candle Cash loads, consent intent persists.
+- Cart Candle Cash prompt as guest: sign in → return to `/pages/rewards`, then verify redemption still behaves correctly.
+- Header/sidebar Candle Cash links: guest and logged-in behavior on desktop + mobile.
+
 ## Latest live change (2026-04-07)
 - Theme `rewards-cache-reset-20260407` (`#159737250051`) is the active live theme.
 - Rewards runtime/cache remediation shipped for Candle Cash status surfaces:
@@ -130,6 +164,33 @@ Behavior summary for this change:
 - Candle Cash GA hardening shipped in `snippets/forestry-rewards-root.liquid`.
 - Removed the legacy single-email Candle Club fallback gate (`info@theforestrystudio.com`) so rewards-side Candle Club behavior is no longer pinned to a test email.
 - Rewards root build marker advanced to `2026-04-08-ga-rollout-1` for faster shell/version diagnostics during cache drift checks.
+
+## Latest live change (2026-04-09)
+- AI/machine-readability hardening shipped for native product reviews + schema integrity.
+- `snippets/microdata-schema.liquid` now emits stronger product schema with canonical URL consistency:
+  - `@type: Product`
+  - `name`, `description`, `brand`, `category`, `sku` (when present)
+  - `gtin*` or `mpn` from barcode when present
+  - `offers` with `price`, `priceCurrency`, `availability`, and canonical product `url`
+- Native review rich-result fields were restored from Backstage-synced Shopify metafields (`forestry_reviews.*`):
+  - `aggregateRating.ratingValue`
+  - `aggregateRating.ratingCount`
+  - optional `review[]` highlights from approved native review payloads
+- `Organization` and `WebSite` JSON-LD entries are now emitted from real shop/theme data, plus breadcrumb output remains active.
+- Product-page review summary/rating surfaces now server-render native review summary/count in HTML:
+  - `snippets/forestry-product-review-summary.liquid`
+  - `snippets/forestry-product-reviews-root.liquid`
+  - `snippets/product-rating.liquid`
+  - `snippets/product-tabs.liquid`
+  - `sections/main-product.liquid`
+- Legacy Growave runtime review helper surfaces were retired from active runtime output (historical import remains backend-only):
+  - `snippets/ssw-widget-avg-rate-rich.liquid`
+  - `snippets/ssw-widget-avg-rate-listing.liquid`
+  - `snippets/ssw-helpers.liquid`
+  - `snippets/ssw-login-helper.liquid`
+  - `snippets/ssw-product-modal.liquid`
+  - `templates/index.ssw-async.liquid`
+- Live push completed to `rewards-cache-reset-20260407` (`#159737250051`).
 
 ## Latest live change (2026-04-01)
 - Theme `review-cutover-staging-20260323` (`#159310446851`) updated and pushed.
