@@ -104,6 +104,36 @@ html.forestry-product-reviews-open body {
   margin-top: 16px;
 }
 
+.ForestryProductReviewsCallout__highlights {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.ForestryProductReviewsCallout__highlight {
+  padding: 14px 16px;
+  border: 1px solid rgba(23, 23, 23, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.ForestryProductReviewsCallout__highlightTitle,
+.ForestryProductReviewsCallout__highlightBody,
+.ForestryProductReviewsCallout__highlightMeta {
+  margin: 0;
+}
+
+.ForestryProductReviewsCallout__highlightBody,
+.ForestryProductReviewsCallout__highlightMeta {
+  margin-top: 6px;
+}
+
+.ForestryProductReviewsCallout__highlightMeta {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
 .ForestryProductReviews__launcher {
   position: fixed;
   left: 0;

@@ -1,4 +1,8 @@
 {%- if settings.native_reviews_enabled -%}
+  {%- assign forestry_review_summary = product.metafields.forestry_reviews.review_summary.value -%}
+  {%- assign forestry_review_count = product.metafields.forestry_reviews.review_count.value | default: 0 | plus: 0 -%}
+  {%- assign forestry_review_average = product.metafields.forestry_reviews.average_rating.value | default: 0 | plus: 0 -%}
+  {%- assign forestry_rating_steps = forestry_review_average | times: 2 | round -%}
   <div
     class="ForestryProductReviewSummary"
     data-forestry-product-review-summary
@@ -7,22 +11,42 @@
     data-product-variant-id="{{ product.selected_or_first_available_variant.id }}"
     data-product-handle="{{ product.handle | escape }}"
     data-product-title="{{ product.title | escape }}"
-    data-product-url="{{ product.url | escape }}"
+    data-product-url="{{ shop.url | append: product.url | escape }}"
     data-customer-email="{{ customer.email | escape }}"
     data-customer-phone="{{ customer.phone | escape }}"
     data-shopify-customer-id="{{ customer.id }}"
     data-customer-first-name="{{ customer.first_name | escape }}"
     data-customer-last-name="{{ customer.last_name | escape }}"
     data-review-modal-size="{{ settings.review_drawer_modal_size | default: 'medium' }}"
-    data-login-url="/account/login"
+    data-login-url="{{ routes.account_login_url }}"
     data-endpoint-product-review-status="/apps/forestry/product-reviews/status"
     data-endpoint-product-review-submit="/apps/forestry/product-reviews/submit"
   >
-    <div class="ForestryProductReviewSummary__loading">
-      <span class="ForestryProductReviewSummary__dots" aria-hidden="true"><span></span><span></span><span></span></span>
-      <span class="Text--subdued">Loading reviews</span>
-    </div>
+    <button type="button" class="ForestryProductReviewSummary__button" data-action="forestry-sitewide-reviews-show-product">
+      <span class="ForestryProductReviewStars" aria-hidden="true">
+        {%- for forestry_star_index in (1..5) -%}
+          {%- assign forestry_star_step = forestry_star_index | times: 2 -%}
+          {%- assign forestry_star_half_step = forestry_star_step | minus: 1 -%}
+          {%- if forestry_rating_steps >= forestry_star_step -%}
+            {%- render 'icon' with 'rating-star', class: 'ForestryProductReviewStar is-filled' -%}
+          {%- elsif forestry_rating_steps == forestry_star_half_step -%}
+            {%- render 'icon' with 'rating-star-half', class: 'ForestryProductReviewStar is-half' -%}
+          {%- else -%}
+            {%- render 'icon' with 'rating-star', class: 'ForestryProductReviewStar is-empty' -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </span>
+      <span class="ForestryProductReviewSummary__copy">
+        {%- if forestry_review_count > 0 -%}
+          {%- if forestry_review_summary.rating_label != blank -%}
+            {{ forestry_review_summary.rating_label }}
+          {%- else -%}
+            {{ forestry_review_average }} out of 5
+          {%- endif -%} · {{ 'product.general.reviews_count' | t: count: forestry_review_count }}
+        {%- else -%}
+          Be the first to review
+        {%- endif -%}
+      </span>
+    </button>
   </div>
-{%- elsif settings.growave_reviews_enabled -%}
-  {%- render 'ssw-widget-avg-rate-listing', product: product -%}
 {%- endif -%}

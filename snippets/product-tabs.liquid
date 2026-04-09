@@ -1,6 +1,10 @@
 {%- assign forestry_reviews_tab_rendered = false -%}
 {%- assign forestry_non_review_tab_rendered = false -%}
 {%- assign forestry_native_reviews_enabled = settings.native_reviews_enabled -%}
+{%- assign forestry_review_summary = product.metafields.forestry_reviews.review_summary.value -%}
+{%- assign forestry_review_count = product.metafields.forestry_reviews.review_count.value | default: 0 | plus: 0 -%}
+{%- assign forestry_review_average = product.metafields.forestry_reviews.average_rating.value | default: 0 | plus: 0 -%}
+{%- assign forestry_review_highlights = product.metafields.forestry_reviews.review_highlights.value -%}
 {%- assign forestry_reviews_tab_enabled = forestry_native_reviews_enabled -%}
 
 {%- capture product_tabs -%}
@@ -40,7 +44,7 @@
               <span>
                 {{ 'product.tabs.reviews' | t }}
                 {%- if forestry_native_reviews_enabled -%}
-                  <span class="text--light">(<span data-forestry-product-review-count data-forestry-product-review-key="{{ product.id }}">0</span>)</span>
+                  <span class="text--light">(<span data-forestry-product-review-count data-forestry-product-review-key="{{ product.id }}">{{ forestry_review_count }}</span>)</span>
                 {%- endif -%}
               </span>
               <span class="Collapsible__Plus"></span>
@@ -51,6 +55,30 @@
                 <div class="ForestryProductReviewsCallout">
                   <p class="Heading u-h6">Product reviews now open in the sitewide drawer.</p>
                   <p class="Text--subdued">Open this product's reviews from the left-side Reviews tab, then use the in-drawer See all reviews action for the full studio feed.</p>
+                  <p class="Text--subdued">
+                    {%- if forestry_review_count > 0 -%}
+                      {%- if forestry_review_summary.rating_label != blank -%}
+                        {{ forestry_review_summary.rating_label }}
+                      {%- else -%}
+                        {{ forestry_review_average }} out of 5
+                      {%- endif -%} · {{ 'product.general.reviews_count' | t: count: forestry_review_count }}
+                    {%- else -%}
+                      No reviews yet.
+                    {%- endif -%}
+                  </p>
+                  {%- if forestry_review_count > 0 and forestry_review_highlights != blank -%}
+                    <div class="ForestryProductReviewsCallout__highlights">
+                      {%- for review in forestry_review_highlights limit: 3 -%}
+                        <div class="ForestryProductReviewsCallout__highlight">
+                          <p class="Heading u-h6 ForestryProductReviewsCallout__highlightTitle">{{ review.title | default: 'Verified review' }}</p>
+                          <p class="Text--subdued ForestryProductReviewsCallout__highlightBody">{{ review.body | strip_html | strip_newlines | truncatewords: 32 }}</p>
+                          <p class="Text--subdued ForestryProductReviewsCallout__highlightMeta">
+                            {{ review.reviewer_name | default: 'Verified customer' }} · {{ review.rating }}/5 · {{ review.approved_at | default: review.published_at | date: '%b %-d, %Y' }}
+                          </p>
+                        </div>
+                      {%- endfor -%}
+                    </div>
+                  {%- endif -%}
                   <div class="ForestryProductReviewsCallout__actions">
                     <button type="button" class="Button Button--primary" data-action="forestry-review-open-modal" data-forestry-product-review-key="{{ product.id }}">Write a review</button>
                     <button type="button" class="Button Button--secondary" data-action="forestry-sitewide-reviews-show-product">Open product reviews</button>
@@ -69,7 +97,7 @@
         <span>
           {{ 'product.tabs.reviews' | t }}
           {%- if forestry_native_reviews_enabled -%}
-            <span class="text--light">(<span data-forestry-product-review-count data-forestry-product-review-key="{{ product.id }}">0</span>)</span>
+            <span class="text--light">(<span data-forestry-product-review-count data-forestry-product-review-key="{{ product.id }}">{{ forestry_review_count }}</span>)</span>
           {%- endif -%}
         </span>
         <span class="Collapsible__Plus"></span>
@@ -80,6 +108,30 @@
           <div class="ForestryProductReviewsCallout">
             <p class="Heading u-h6">Product reviews now open in the sitewide drawer.</p>
             <p class="Text--subdued">Open this product's reviews from the left-side Reviews tab, then use the in-drawer See all reviews action for the full studio feed.</p>
+            <p class="Text--subdued">
+              {%- if forestry_review_count > 0 -%}
+                {%- if forestry_review_summary.rating_label != blank -%}
+                  {{ forestry_review_summary.rating_label }}
+                {%- else -%}
+                  {{ forestry_review_average }} out of 5
+                {%- endif -%} · {{ 'product.general.reviews_count' | t: count: forestry_review_count }}
+              {%- else -%}
+                No reviews yet.
+              {%- endif -%}
+            </p>
+            {%- if forestry_review_count > 0 and forestry_review_highlights != blank -%}
+              <div class="ForestryProductReviewsCallout__highlights">
+                {%- for review in forestry_review_highlights limit: 3 -%}
+                  <div class="ForestryProductReviewsCallout__highlight">
+                    <p class="Heading u-h6 ForestryProductReviewsCallout__highlightTitle">{{ review.title | default: 'Verified review' }}</p>
+                    <p class="Text--subdued ForestryProductReviewsCallout__highlightBody">{{ review.body | strip_html | strip_newlines | truncatewords: 32 }}</p>
+                    <p class="Text--subdued ForestryProductReviewsCallout__highlightMeta">
+                      {{ review.reviewer_name | default: 'Verified customer' }} · {{ review.rating }}/5 · {{ review.approved_at | default: review.published_at | date: '%b %-d, %Y' }}
+                    </p>
+                  </div>
+                {%- endfor -%}
+              </div>
+            {%- endif -%}
             <div class="ForestryProductReviewsCallout__actions">
               <button type="button" class="Button Button--primary" data-action="forestry-review-open-modal" data-forestry-product-review-key="{{ product.id }}">Write a review</button>
               <button type="button" class="Button Button--secondary" data-action="forestry-sitewide-reviews-show-product">Open product reviews</button>
