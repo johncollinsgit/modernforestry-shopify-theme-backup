@@ -143,7 +143,7 @@
           <div class="Footer__Block Footer__Block--support">
             <h2 class="Footer__Title Heading u-h6">{{ section.settings.support_heading | default: 'Contact us' | escape }}</h2>
 
-            <div class="Footer__Content Rte">
+            <div class="Footer__Content">
               {%- if support_email != blank -%}
                 <p><strong>Email:</strong> <a class="Link Link--primary" href="mailto:{{ support_email | escape }}">{{ support_email | escape }}</a></p>
               {%- endif -%}
