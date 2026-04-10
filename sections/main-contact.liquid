@@ -13,6 +13,7 @@
 
   {%- assign business_address = business_address | strip -%}
 {%- endif -%}
+{%- assign formatted_business_address = business_address | escape | replace: '\\r\\n', '<br />' | replace: '\\n', '<br />' | newline_to_br -%}
 
 {%- assign should_render_support_panel = false -%}
 {%- if support_email != blank or support_phone != blank or business_address != blank or section.settings.support_hours != blank -%}
@@ -52,7 +53,7 @@
             {%- endif -%}
 
             {%- if business_address != blank -%}
-              <li class="Linklist__Item"><strong>Address:</strong> {{ business_address | escape | newline_to_br }}</li>
+              <li class="Linklist__Item"><strong>Address:</strong> {{ formatted_business_address }}</li>
             {%- endif -%}
 
             {%- if section.settings.support_hours != blank -%}

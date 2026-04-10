@@ -13,6 +13,7 @@
 
   {%- assign business_address = business_address | strip -%}
 {%- endif -%}
+{%- assign formatted_business_address = business_address | escape | replace: '\\r\\n', '<br />' | replace: '\\n', '<br />' | newline_to_br -%}
 
 {%- assign contact_page_url = section.settings.contact_page_url | strip -%}
 {%- if contact_page_url == blank and pages['contact'] != blank -%}
@@ -161,7 +162,7 @@
               {%- endif -%}
 
               {%- if business_address != blank -%}
-                <p><strong>Address:</strong> {{ business_address | escape | newline_to_br }}</p>
+                <p><strong>Address:</strong> {{ formatted_business_address }}</p>
               {%- endif -%}
 
               {%- if contact_page_url != blank -%}
