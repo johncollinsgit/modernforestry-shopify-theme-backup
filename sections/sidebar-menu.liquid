@@ -103,6 +103,11 @@
                 <li class="Linklist__Item">
                   <a href="/pages/rewards" class="Text--subdued Link Link--primary">Candle Cash</a>
                 </li>
+                {%- if forestry_wholesale_login_url != blank -%}
+                  <li class="Linklist__Item">
+                    <a href="{{ forestry_wholesale_login_url }}" class="Text--subdued Link Link--primary">Wholesale Login</a>
+                  </li>
+                {%- endif -%}
                 {%- if customer -%}
                   <li class="Linklist__Item ForestryRewardsSidebarMount">
                     {% render 'forestry-rewards-root',

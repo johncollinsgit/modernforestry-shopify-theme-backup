@@ -478,6 +478,11 @@ HEADER CONTENT
                   {%- endif -%}
                 </div>
               </li>
+              {%- if forestry_wholesale_login_url != blank -%}
+                <li class="HorizontalList__Item">
+                  <a href="{{ forestry_wholesale_login_url }}" class="Heading Link Link--primary Text--subdued u-h8">Wholesale Login</a>
+                </li>
+              {%- endif -%}
             {%- endif -%}
 
                 {%- if forestry_native_wishlist_enabled -%}
