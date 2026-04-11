@@ -1,5 +1,7 @@
 {%- assign main_menu_handle = section.settings.primary_menu | default: 'main-menu' -%}
 {%- assign main_menu = linklists[main_menu_handle] -%}
+{%- capture forestry_wholesale_login_url -%}{% render 'forestry-wholesale-url', key: 'login' %}{%- endcapture -%}
+{%- assign forestry_wholesale_login_url = forestry_wholesale_login_url | strip -%}
 
 <section id="sidebar-menu" class="SidebarMenu Drawer Drawer--small Drawer--fromLeft" aria-hidden="true" data-section-id="{{ section.id }}" data-section-type="sidebar-menu">
     <header class="Drawer__Header" data-drawer-animated-left>
@@ -13,6 +15,14 @@
         <div class="Drawer__Container">
           <nav class="SidebarMenu__Nav SidebarMenu__Nav--primary" aria-label="{{ 'header.navigation.sidebar_title' | t }}">
             {%- for link in main_menu.links -%}
+              {%- capture forestry_primary_link_url -%}{% render 'forestry-wholesale-link-url', link_url: link.url, link_title: link.title %}{%- endcapture -%}
+              {%- assign forestry_primary_link_url = forestry_primary_link_url | strip -%}
+              {%- assign forestry_link_title_downcase = link.title | downcase -%}
+              {%- assign forestry_link_url_downcase = link.url | downcase -%}
+              {%- assign forestry_is_wholesale_nav_group = false -%}
+              {%- if forestry_link_title_downcase contains 'wholesale' or forestry_link_url_downcase contains '/apps/shop' or forestry_link_url_downcase contains '/pages/wholesale' or forestry_link_url_downcase contains '/collections/wholesale' -%}
+                {%- assign forestry_is_wholesale_nav_group = true -%}
+              {%- endif -%}
               <div class="Collapsible">
                 {%- if link.links != blank -%}
                   <button class="Collapsible__Button Heading u-h6" data-action="toggle-collapsible" {% if link.links != blank %}aria-expanded="false"{% endif %}>
@@ -22,6 +32,13 @@
                   <div class="Collapsible__Inner">
                     <div class="Collapsible__Content">
                       {%- for sub_link in link.links -%}
+                        {%- capture forestry_sub_link_url -%}{% render 'forestry-wholesale-link-url', link_url: sub_link.url, link_title: sub_link.title %}{%- endcapture -%}
+                        {%- assign forestry_sub_link_url = forestry_sub_link_url | strip -%}
+                        {%- assign forestry_sub_link_title_downcase = sub_link.title | downcase -%}
+                        {%- assign forestry_sub_link_url_downcase = sub_link.url | downcase -%}
+                        {%- if forestry_sub_link_title_downcase contains 'wholesale' or forestry_sub_link_title_downcase contains 'wholesaler' or forestry_sub_link_url_downcase contains '/apps/shop' or forestry_sub_link_url_downcase contains '/pages/wholesale' or forestry_sub_link_url_downcase contains '/collections/wholesale' -%}
+                          {%- assign forestry_is_wholesale_nav_group = true -%}
+                        {%- endif -%}
                         <div class="Collapsible">
                           {%- if sub_link.links != blank -%}
                             <button class="Collapsible__Button Heading Text--subdued Link--primary u-h7" data-action="toggle-collapsible" {% if sub_link.links != blank %}aria-expanded="false"{% endif %}>
@@ -32,22 +49,34 @@
                               <div class="Collapsible__Content">
                                 <ul class="Linklist Linklist--bordered Linklist--spacingLoose">
                                   {%- for sub_sub_link in sub_link.links -%}
+                                    {%- capture forestry_sub_sub_link_url -%}{% render 'forestry-wholesale-link-url', link_url: sub_sub_link.url, link_title: sub_sub_link.title %}{%- endcapture -%}
+                                    {%- assign forestry_sub_sub_link_url = forestry_sub_sub_link_url | strip -%}
+                                    {%- assign forestry_sub_sub_link_title_downcase = sub_sub_link.title | downcase -%}
+                                    {%- assign forestry_sub_sub_link_url_downcase = sub_sub_link.url | downcase -%}
+                                    {%- if forestry_sub_sub_link_title_downcase contains 'wholesale' or forestry_sub_sub_link_title_downcase contains 'wholesaler' or forestry_sub_sub_link_url_downcase contains '/apps/shop' or forestry_sub_sub_link_url_downcase contains '/pages/wholesale' or forestry_sub_sub_link_url_downcase contains '/collections/wholesale' -%}
+                                      {%- assign forestry_is_wholesale_nav_group = true -%}
+                                    {%- endif -%}
                                     <li class="Linklist__Item">
-                                      <a href="{{ sub_sub_link.url }}" class="Text--subdued Link Link--primary">{{ sub_sub_link.title | escape }}</a>
+                                      <a href="{{ forestry_sub_sub_link_url }}" class="Text--subdued Link Link--primary">{{ sub_sub_link.title | escape }}</a>
                                     </li>
                                   {%- endfor -%}
                                 </ul>
                               </div>
                             </div>
                           {%- else -%}
-                            <a href="{{ sub_link.url }}" class="Collapsible__Button Heading Text--subdued Link Link--primary u-h7">{{ sub_link.title | escape }}</a>
+                            <a href="{{ forestry_sub_link_url }}" class="Collapsible__Button Heading Text--subdued Link Link--primary u-h7">{{ sub_link.title | escape }}</a>
                           {%- endif -%}
                         </div>
                       {%- endfor -%}
+                      {%- if forestry_is_wholesale_nav_group and forestry_wholesale_login_url != blank -%}
+                        <div class="Collapsible">
+                          <a href="{{ forestry_wholesale_login_url }}" class="Collapsible__Button Heading Text--subdued Link Link--primary u-h7">Wholesale Login</a>
+                        </div>
+                      {%- endif -%}
                     </div>
                   </div>
                 {%- else -%}
-                  <a href="{{ link.url }}" class="Collapsible__Button Heading Link Link--primary u-h6">{{ link.title | escape }}</a>
+                  <a href="{{ forestry_primary_link_url }}" class="Collapsible__Button Heading Link Link--primary u-h6">{{ link.title | escape }}</a>
                 {%- endif -%}
               </div>
             {%- endfor -%}
@@ -58,8 +87,10 @@
           <nav class="SidebarMenu__Nav SidebarMenu__Nav--secondary">
             <ul class="Linklist Linklist--spacingLoose">
               {%- for link in secondary_menu.links -%}
+                {%- capture forestry_secondary_link_url -%}{% render 'forestry-wholesale-link-url', link_url: link.url, link_title: link.title %}{%- endcapture -%}
+                {%- assign forestry_secondary_link_url = forestry_secondary_link_url | strip -%}
                 <li class="Linklist__Item">
-                  <a href="{{ link.url }}" class="Text--subdued Link Link--primary">{{ link.title | escape }}</a>
+                  <a href="{{ forestry_secondary_link_url }}" class="Text--subdued Link Link--primary">{{ link.title | escape }}</a>
                 </li>
               {%- endfor -%}
 

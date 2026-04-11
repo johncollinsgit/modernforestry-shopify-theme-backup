@@ -23,6 +23,10 @@
           <div class="ProductList ProductList--shopNow" data-desktop-count="{% if section.blocks.size > 0 %}2{% else %}3{% endif %}" data-flickity-config='{{ flickity_config }}'>
             {%- if collection != blank -%}
               {%- for product in collection.products limit: section.settings.grid_items_count -%}
+                {%- capture forestry_is_wholesale_product -%}{% render 'forestry-wholesale-product-state', product: product, collection: collection %}{%- endcapture -%}
+                {%- if forestry_is_wholesale_product | strip == 'true' -%}
+                  {%- continue -%}
+                {%- endif -%}
                 <div class="Carousel__Cell">
                   {%- render 'product-item', product: product, show_product_info: section.settings.show_product_info, show_vendor: section.settings.show_vendor, show_color_swatch: section.settings.show_color_swatch, show_labels: false -%}
                 </div>

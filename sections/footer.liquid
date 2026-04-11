@@ -19,6 +19,8 @@
 {%- if contact_page_url == blank and pages['contact'] != blank -%}
   {%- assign contact_page_url = pages['contact'].url -%}
 {%- endif -%}
+{%- capture forestry_wholesale_login_url -%}{% render 'forestry-wholesale-url', key: 'login' %}{%- endcapture -%}
+{%- assign forestry_wholesale_login_url = forestry_wholesale_login_url | strip -%}
 
 {%- assign facebook_url = section.settings.facebook_url | default: settings.social_facebook | strip -%}
 {%- assign instagram_url = section.settings.instagram_url | default: settings.social_instagram | strip -%}
@@ -68,8 +70,15 @@
 
                   <ul class="Linklist">
                     {%- assign has_contact_link = false -%}
+                    {%- assign has_wholesale_link = false -%}
+                    {%- assign has_wholesale_login_link = false -%}
 
                     {%- for link in linklist.links -%}
+                      {%- capture forestry_footer_link_url -%}{% render 'forestry-wholesale-link-url', link_url: link.url, link_title: link.title %}{%- endcapture -%}
+                      {%- assign forestry_footer_link_url = forestry_footer_link_url | strip -%}
+                      {%- assign forestry_footer_link_title_downcase = link.title | downcase -%}
+                      {%- assign forestry_footer_link_url_downcase = link.url | downcase -%}
+
                       {%- if contact_page_url != blank -%}
                         {%- assign link_title_downcase = link.title | downcase -%}
 
@@ -78,10 +87,24 @@
                         {%- endif -%}
                       {%- endif -%}
 
+                      {%- if forestry_footer_link_title_downcase contains 'wholesale' or forestry_footer_link_url_downcase contains '/apps/shop' or forestry_footer_link_url_downcase contains '/pages/wholesale' or forestry_footer_link_url_downcase contains '/collections/wholesale' -%}
+                        {%- assign has_wholesale_link = true -%}
+                      {%- endif -%}
+
+                      {%- if forestry_footer_link_url == forestry_wholesale_login_url -%}
+                        {%- assign has_wholesale_login_link = true -%}
+                      {%- endif -%}
+
                       <li class="Linklist__Item">
-                        <a href="{{ link.url }}" class="Link Link--primary">{{ link.title | escape }}</a>
+                        <a href="{{ forestry_footer_link_url }}" class="Link Link--primary">{{ link.title | escape }}</a>
                       </li>
                     {%- endfor -%}
+
+                    {%- if has_wholesale_link and has_wholesale_login_link == false and forestry_wholesale_login_url != blank -%}
+                      <li class="Linklist__Item">
+                        <a href="{{ forestry_wholesale_login_url }}" class="Link Link--primary">Wholesale Login</a>
+                      </li>
+                    {%- endif -%}
 
                     {%- if contact_page_url != blank and has_contact_link == false -%}
                       <li class="Linklist__Item">

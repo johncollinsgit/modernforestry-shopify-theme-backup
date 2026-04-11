@@ -36,6 +36,12 @@
 {%- if is_candle_club_product and candle_club_actionable == false -%}
   {%- assign candle_club_locked = true -%}
 {%- endif -%}
+{%- capture forestry_is_wholesale_product -%}{% render 'forestry-wholesale-product-state', product: product, collection: collection %}{%- endcapture -%}
+{%- assign forestry_is_wholesale_product = forestry_is_wholesale_product | strip -%}
+{%- capture forestry_wholesale_line_sheet_url -%}{% render 'forestry-wholesale-url', key: 'line_sheet' %}{%- endcapture -%}
+{%- capture forestry_wholesale_login_url -%}{% render 'forestry-wholesale-url', key: 'login' %}{%- endcapture -%}
+{%- assign forestry_wholesale_line_sheet_url = forestry_wholesale_line_sheet_url | strip -%}
+{%- assign forestry_wholesale_login_url = forestry_wholesale_login_url | strip -%}
 
 {%- capture section_settings -%}
 {
@@ -334,8 +340,12 @@
             </header>
 
             <div class="ComplementaryProducts__List">
-              {%- for product in recommendations.products -%}
-                {% render 'product-item', product: product, use_horizontal: true, show_labels: false, show_product_info: true, show_vendor: false, show_price_on_hover: false %}
+              {%- for recommended_product in recommendations.products -%}
+                {%- capture forestry_is_wholesale_recommendation -%}{% render 'forestry-wholesale-product-state', product: recommended_product %}{%- endcapture -%}
+                {%- if forestry_is_wholesale_recommendation | strip == 'true' -%}
+                  {%- continue -%}
+                {%- endif -%}
+                {% render 'product-item', product: recommended_product, use_horizontal: true, show_labels: false, show_product_info: true, show_vendor: false, show_price_on_hover: false %}
               {%- endfor -%}
             </div>
           {%- endif -%}
@@ -411,13 +421,13 @@
                   </div>
 
                 {%- when 'variant_selector' -%}
-                  {%- unless candle_club_locked -%}
+                  {%- unless candle_club_locked or forestry_is_wholesale_product == 'true' -%}
                     {%- assign has_ouputted_variant_selector = true -%}
                     {%- render 'product-form', block: block, product: product -%}
                   {%- endunless -%}
 
                 {%- when 'quantity_selector' -%}
-                  {%- unless candle_club_locked -%}
+                  {%- unless candle_club_locked or forestry_is_wholesale_product == 'true' -%}
                     <div class="ProductForm__QuantitySelector" {{ block.shopify_attributes }}>
                       {%- if block.settings.show_label -%}
                         <span class="ProductForm__Label">{{ 'product.form.quantity' | t }}:</span>
@@ -458,7 +468,16 @@
                   {%- endif -%}
 
                   <div class="ProductForm__BuyButtons" {{ block.shopify_attributes }}>
-                    {%- if candle_club_locked -%}
+                    {%- if forestry_is_wholesale_product == 'true' -%}
+                      <div class="ProductForm__WholesaleNotice">
+                        <p class="ProductForm__Label">Wholesale ordering moved:</p>
+                        <p class="Text--subdued">This case-pack/wholesale item is available on our wholesale storefront.</p>
+                        <div class="ButtonGroup ButtonGroup--spacingSmall">
+                          <a href="{{ forestry_wholesale_line_sheet_url }}" class="Button Button--primary ButtonGroup__Item">Wholesale Line Sheet</a>
+                          <a href="{{ forestry_wholesale_login_url }}" class="Button Button--secondary ButtonGroup__Item">Wholesale Login</a>
+                        </div>
+                      </div>
+                    {%- elsif candle_club_locked -%}
                       {% render 'candle-club-coming-soon' %}
                     {%- else -%}
                       {%- if block.settings.show_payment_button and product.selected_or_first_available_variant.available == false -%}
@@ -527,7 +546,7 @@
               {%- endcase -%}
             {%- endfor -%}
 
-            {%- unless has_ouputted_variant_selector or candle_club_locked -%}
+            {%- unless has_ouputted_variant_selector or candle_club_locked or forestry_is_wholesale_product == 'true' -%}
               <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
             {%- endunless -%}
           {%- endform -%}
@@ -584,7 +603,7 @@ PHOTO SWIPE
   ShopifyXR('addModels', {{ product.media | where: 'media_type', 'model' | json }});
 </script>
 
-{%- if candle_club_locked -%}
+{%- if candle_club_locked or forestry_is_wholesale_product == 'true' -%}
   <style>
     #shopify-section-{{ section.id }} .shopify-payment-button,
     #shopify-section-{{ section.id }} [data-shopify="payment-button"],

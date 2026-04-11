@@ -1,0 +1,15 @@
+{%- liquid
+  assign forestry_collection_handle = collection_handle | default: collection.handle | default: '' | downcase
+  assign forestry_collection_id = collection_id | default: collection.id | default: '' | append: ''
+  assign forestry_is_wholesale_collection = false
+
+  if forestry_collection_handle contains 'wholesale'
+    assign forestry_is_wholesale_collection = true
+  endif
+
+  if forestry_collection_id == '149609283619' or forestry_collection_id == '241788256444' or forestry_collection_id == '241789599932' or forestry_collection_id == '241784979644' or forestry_collection_id == '241789731004' or forestry_collection_id == '241844125884' or forestry_collection_id == '241788780732' or forestry_collection_id == '241789829308'
+    assign forestry_is_wholesale_collection = true
+  endif
+-%}
+
+{%- if forestry_is_wholesale_collection -%}true{%- else -%}false{%- endif -%}

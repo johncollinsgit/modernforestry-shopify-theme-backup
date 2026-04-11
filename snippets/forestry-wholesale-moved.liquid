@@ -1,0 +1,50 @@
+{%- assign forestry_destination_key = destination_key | default: destination | default: 'line_sheet' | strip | downcase -%}
+{%- capture forestry_destination_url -%}{% render 'forestry-wholesale-url', key: forestry_destination_key %}{%- endcapture -%}
+{%- capture forestry_login_url -%}{% render 'forestry-wholesale-url', key: 'login' %}{%- endcapture -%}
+{%- assign forestry_destination_url = forestry_destination_url | strip -%}
+{%- assign forestry_login_url = forestry_login_url | strip -%}
+{%- assign forestry_moved_heading = headline | default: 'Wholesale ordering moved' -%}
+{%- assign forestry_moved_body = body_copy | default: 'Wholesale applications, ordering, and account access are now available on our dedicated wholesale storefront.' -%}
+
+<div class="Container">
+  <div class="PageContent PageContent--narrow Rte" style="text-align: center; padding: 3.5rem 0;">
+    <h1 class="Heading u-h1">{{ forestry_moved_heading }}</h1>
+    <p>{{ forestry_moved_body }}</p>
+    <p>You are being redirected now.</p>
+
+    <div class="ButtonGroup ButtonGroup--spacingSmall" style="justify-content: center;">
+      <a href="{{ forestry_destination_url }}" class="Button Button--primary">Continue to wholesale</a>
+      <a href="{{ forestry_login_url }}" class="Button Button--secondary">Wholesale Login</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var target = {{ forestry_destination_url | json }};
+    if (!target) {
+      return;
+    }
+
+    try {
+      var currentUrl = new URL(window.location.href);
+      var targetUrl = new URL(target);
+
+      currentUrl.searchParams.forEach(function (value, key) {
+        if (!targetUrl.searchParams.has(key)) {
+          targetUrl.searchParams.append(key, value);
+        }
+      });
+
+      if (!targetUrl.hash && currentUrl.hash) {
+        targetUrl.hash = currentUrl.hash;
+      }
+
+      if (window.location.href !== targetUrl.toString()) {
+        window.location.replace(targetUrl.toString());
+      }
+    } catch (error) {
+      window.location.replace(target);
+    }
+  })();
+</script>

@@ -1,4 +1,12 @@
 <div class="ProductItem {% if use_horizontal %}ProductItem--horizontal{% endif %}">
+  {%- capture forestry_is_wholesale_product -%}{% render 'forestry-wholesale-product-state', product: product, collection: collection %}{%- endcapture -%}
+  {%- capture forestry_wholesale_line_sheet_url -%}{% render 'forestry-wholesale-url', key: 'line_sheet' %}{%- endcapture -%}
+  {%- assign forestry_is_wholesale_product = forestry_is_wholesale_product | strip -%}
+  {%- assign forestry_wholesale_line_sheet_url = forestry_wholesale_line_sheet_url | strip -%}
+  {%- assign forestry_product_item_url = product.url -%}
+  {%- if forestry_is_wholesale_product == 'true' and forestry_wholesale_line_sheet_url != blank -%}
+    {%- assign forestry_product_item_url = forestry_wholesale_line_sheet_url -%}
+  {%- endif -%}
   <div class="ProductItem__Wrapper">
     {%- comment -%}
     We are using LazySizes to efficiently choose the most appropriate image in the set. However, because internally LazySizes uses srcset, we need to make
@@ -17,7 +25,7 @@
       {%- assign has_alternate_image = false -%}
     {%- endif -%}
 
-    <a href="{{ product.url }}" class="ProductItem__ImageWrapper {% if has_alternate_image %}ProductItem__ImageWrapper--withAlternateImage{% endif %}">
+    <a href="{{ forestry_product_item_url }}" class="ProductItem__ImageWrapper {% if has_alternate_image %}ProductItem__ImageWrapper--withAlternateImage{% endif %}">
       {%- if use_horizontal -%}
         {%- assign max_width = 125 -%}
       {%- else -%}
@@ -85,7 +93,7 @@
         {%- endif -%}
 
         <h2 class="ProductItem__Title Heading">
-          <a href="{{ product.url }}">{{ product.title }}</a>
+          <a href="{{ forestry_product_item_url }}">{{ product.title }}</a>
         </h2>
 
         {%- if settings.show_product_rating -%}
@@ -203,7 +211,11 @@
 
         {%- if use_horizontal != true and product.template_suffix != 'coming-soon' -%}
           <div class="ProductItem__Actions">
-            {%- if product.available -%}
+            {%- if forestry_is_wholesale_product == 'true' -%}
+              <a href="{{ forestry_wholesale_line_sheet_url }}" class="ProductItem__AddToCart Button Button--secondary Button--full">
+                Wholesale Ordering
+              </a>
+            {%- elsif product.available -%}
               {%- form 'product', product, class: 'ProductItem__AddToCartForm' -%}
                 <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
                 <button type="submit" class="ProductItem__AddToCart Button Button--primary Button--full">
@@ -225,7 +237,7 @@
     {%- endif -%}
   </div>
 
-  {%- if use_horizontal -%}
-    <a href="{{ product.url }}" class="ProductItem__ViewButton Button Button--secondary hidden-pocket">{{ 'collection.product.view_product' | t }}</a>
+{%- if use_horizontal -%}
+    <a href="{{ forestry_product_item_url }}" class="ProductItem__ViewButton Button Button--secondary hidden-pocket">{% if forestry_is_wholesale_product == 'true' %}Wholesale Catalog{% else %}{{ 'collection.product.view_product' | t }}{% endif %}</a>
   {%- endif -%}
 </div>

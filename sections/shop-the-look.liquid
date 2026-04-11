@@ -138,6 +138,11 @@
                   {%- continue -%}
                 {%- endif -%}
 
+                {%- capture forestry_is_wholesale_product -%}{% render 'forestry-wholesale-product-state', product: product %}{%- endcapture -%}
+                {%- if forestry_is_wholesale_product | strip == 'true' -%}
+                  {%- continue -%}
+                {%- endif -%}
+
                 {%- if first_product == blank -%}
                   {%- assign first_product = product -%}
                 {%- endif -%}
@@ -167,7 +172,8 @@
 
           <div class="ShopTheLook__ProductList Carousel Carousel--fadeIn hidden-pocket" data-flickity-config='{{ flickity_desktop_inner_options }}' data-look-index="{{ forloop.index0 }}">
             {{ shop_the_look_products }}
-            <a href="{{ first_product.url }}" class="ShopTheLook__ViewButton Button Button--primary Button--full">{{ 'home_page.shop_the_look.view_product' | t }}</a>
+            {%- capture forestry_shop_the_look_fallback_url -%}{% render 'forestry-wholesale-url', key: 'line_sheet' %}{%- endcapture -%}
+            <a href="{% if first_product %}{{ first_product.url }}{% else %}{{ forestry_shop_the_look_fallback_url | strip }}{% endif %}" class="ShopTheLook__ViewButton Button Button--primary Button--full">{% if first_product %}{{ 'home_page.shop_the_look.view_product' | t }}{% else %}Wholesale Catalog{% endif %}</a>
           </div>
         </div>
       </div>

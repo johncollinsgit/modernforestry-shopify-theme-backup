@@ -21,6 +21,18 @@
 {%- if cart_discount_label == blank or cart_discount_label_check contains 'translation missing:' -%}
   {%- assign cart_discount_label = 'Discount' -%}
 {%- endif -%}
+{%- assign forestry_cart_has_wholesale_items = false -%}
+{%- for line_item in cart.items -%}
+  {%- capture forestry_cart_line_is_wholesale -%}{% render 'forestry-wholesale-product-state', product: line_item.product %}{%- endcapture -%}
+  {%- if forestry_cart_line_is_wholesale | strip == 'true' -%}
+    {%- assign forestry_cart_has_wholesale_items = true -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- capture forestry_wholesale_line_sheet_url -%}{% render 'forestry-wholesale-url', key: 'line_sheet' %}{%- endcapture -%}
+{%- capture forestry_wholesale_login_url -%}{% render 'forestry-wholesale-url', key: 'login' %}{%- endcapture -%}
+{%- assign forestry_wholesale_line_sheet_url = forestry_wholesale_line_sheet_url | strip -%}
+{%- assign forestry_wholesale_login_url = forestry_wholesale_login_url | strip -%}
 
 <section data-section-id="{{ section.id }}" data-section-type="cart" data-section-settings='{{ section_settings }}'>
   {%- if cart.item_count == 0 -%}
@@ -112,14 +124,24 @@
 
               <p class="Cart__Total Heading u-h6" data-cart-total-line>{{ 'cart.general.total' | t }}: <span data-cart-total-display="with_currency">{{ cart.total_price | money_with_currency }}</span></p>
 
-              {%- if shipping_and_taxes_notice != blank -%}
-                <p class="Cart__Taxes Text--subdued">{{ shipping_and_taxes_notice }}</p>
-              {%- endif -%}
+	              {%- if shipping_and_taxes_notice != blank -%}
+	                <p class="Cart__Taxes Text--subdued">{{ shipping_and_taxes_notice }}</p>
+	              {%- endif -%}
 
-              <button type="submit" name="checkout" class="Cart__Checkout Button Button--primary Button--full">{{ 'cart.general.checkout' | t }}</button>
-            </div>
-          </footer>
-        </form>
+                {%- if forestry_cart_has_wholesale_items -%}
+                  <div class="Cart__WholesaleNotice">
+                    <p class="Cart__Taxes Text--subdued">Wholesale/case-pack items in this cart must be ordered on our wholesale storefront. Remove those items to continue with retail checkout.</p>
+                    <div class="ButtonGroup ButtonGroup--spacingSmall">
+                      <a href="{{ forestry_wholesale_line_sheet_url }}" class="Button Button--primary ButtonGroup__Item">Wholesale Line Sheet</a>
+                      <a href="{{ forestry_wholesale_login_url }}" class="Button Button--secondary ButtonGroup__Item">Wholesale Login</a>
+                    </div>
+                  </div>
+                {%- else -%}
+	                <button type="submit" name="checkout" class="Cart__Checkout Button Button--primary Button--full">{{ 'cart.general.checkout' | t }}</button>
+                {%- endif -%}
+	            </div>
+	          </footer>
+	        </form>
 
         {%- if section.settings.show_shipping_estimator -%}
           <div class="Section Section--spacingExtraLarge">

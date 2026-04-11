@@ -25,6 +25,8 @@ USEFUL VARIABLES
   {%- assign use_sidebar_menu = true -%}
 {%- endif -%}
 {%- assign forestry_native_wishlist_enabled = settings.native_wishlist_enabled -%}
+{%- capture forestry_wholesale_login_url -%}{% render 'forestry-wholesale-url', key: 'login' %}{%- endcapture -%}
+{%- assign forestry_wholesale_login_url = forestry_wholesale_login_url | strip -%}
 
 {%- comment -%}
 --------------------------------------------------------------------------------------------------------------------
@@ -195,6 +197,13 @@ HEADER CONTENT
           <ul class="HorizontalList HorizontalList--spacingExtraLoose">
             {%- for link in main_menu.links -%}
               {%- assign downcased_link_title = link.title | downcase | strip -%}
+              {%- capture forestry_primary_link_url -%}{% render 'forestry-wholesale-link-url', link_url: link.url, link_title: link.title %}{%- endcapture -%}
+              {%- assign forestry_primary_link_url = forestry_primary_link_url | strip -%}
+              {%- assign forestry_link_url_downcase = link.url | downcase -%}
+              {%- assign forestry_is_wholesale_nav_group = false -%}
+              {%- if downcased_link_title contains 'wholesale' or forestry_link_url_downcase contains '/apps/shop' or forestry_link_url_downcase contains '/pages/wholesale' or forestry_link_url_downcase contains '/collections/wholesale' -%}
+                {%- assign forestry_is_wholesale_nav_group = true -%}
+              {%- endif -%}
               {%- assign use_mega_menu = false -%}
 
               {%- capture menu_item_dropdown -%}
@@ -234,14 +243,28 @@ HEADER CONTENT
                     <div class="MegaMenu {% if push_image_count != 0 and link.links.size == 0 %}MegaMenu--spacingCenter{% elsif should_space_evenly %}MegaMenu--spacingEvenly{% endif %} {% if push_image_count == 0 and link.links.size > 4 %}MegaMenu--grid{% endif %}" aria-hidden="true" {{ block.shopify_attributes }}>
                       <div class="MegaMenu__Inner">
                         {%- for sub_link in link.links -%}
+                          {%- capture forestry_sub_link_url -%}{% render 'forestry-wholesale-link-url', link_url: sub_link.url, link_title: sub_link.title %}{%- endcapture -%}
+                          {%- assign forestry_sub_link_url = forestry_sub_link_url | strip -%}
+                          {%- assign forestry_sub_link_title_downcase = sub_link.title | downcase -%}
+                          {%- assign forestry_sub_link_url_downcase = sub_link.url | downcase -%}
+                          {%- if forestry_sub_link_title_downcase contains 'wholesale' or forestry_sub_link_title_downcase contains 'wholesaler' or forestry_sub_link_url_downcase contains '/apps/shop' or forestry_sub_link_url_downcase contains '/pages/wholesale' or forestry_sub_link_url_downcase contains '/collections/wholesale' -%}
+                            {%- assign forestry_is_wholesale_nav_group = true -%}
+                          {%- endif -%}
                           <div class="MegaMenu__Item MegaMenu__Item--fit">
-                            <a href="{{ sub_link.url }}" class="MegaMenu__Title Heading Text--subdued u-h7">{{ sub_link.title | title }}</a>
+                            <a href="{{ forestry_sub_link_url }}" class="MegaMenu__Title Heading Text--subdued u-h7">{{ sub_link.title | title }}</a>
 
                             {%- if sub_link.links != blank -%}
                               <ul class="Linklist">
                                 {%- for sub_sub_link in sub_link.links -%}
+                                  {%- capture forestry_sub_sub_link_url -%}{% render 'forestry-wholesale-link-url', link_url: sub_sub_link.url, link_title: sub_sub_link.title %}{%- endcapture -%}
+                                  {%- assign forestry_sub_sub_link_url = forestry_sub_sub_link_url | strip -%}
+                                  {%- assign forestry_sub_sub_link_title_downcase = sub_sub_link.title | downcase -%}
+                                  {%- assign forestry_sub_sub_link_url_downcase = sub_sub_link.url | downcase -%}
+                                  {%- if forestry_sub_sub_link_title_downcase contains 'wholesale' or forestry_sub_sub_link_title_downcase contains 'wholesaler' or forestry_sub_sub_link_url_downcase contains '/apps/shop' or forestry_sub_sub_link_url_downcase contains '/pages/wholesale' or forestry_sub_sub_link_url_downcase contains '/collections/wholesale' -%}
+                                    {%- assign forestry_is_wholesale_nav_group = true -%}
+                                  {%- endif -%}
                                   <li class="Linklist__Item">
-                                    <a href="{{ sub_sub_link.url }}" class="Link Link--secondary">{{ sub_sub_link.title | escape }}</a>
+                                    <a href="{{ forestry_sub_sub_link_url }}" class="Link Link--secondary">{{ sub_sub_link.title | escape }}</a>
                                   </li>
                                 {%- endfor -%}
                               </ul>
@@ -254,7 +277,13 @@ HEADER CONTENT
                             {%- if block.settings.push_1_image -%}
                               <div class="MegaMenu__Push {% if push_image_count == 2 %}MegaMenu__Push--shrink{% endif %}">
                                 {%- if block.settings.push_1_url != blank -%}
-                                  <a class="MegaMenu__PushLink" href="{{ block.settings.push_1_url }}">
+                                  {%- capture forestry_push_1_url -%}{% render 'forestry-wholesale-link-url', link_url: block.settings.push_1_url, link_title: block.settings.push_1_heading %}{%- endcapture -%}
+                                  {%- assign forestry_push_1_url_downcase = block.settings.push_1_url | downcase -%}
+                                  {%- assign forestry_push_1_heading_downcase = block.settings.push_1_heading | downcase -%}
+                                  {%- if forestry_push_1_heading_downcase contains 'wholesale' or forestry_push_1_url_downcase contains '/apps/shop' or forestry_push_1_url_downcase contains '/pages/wholesale' or forestry_push_1_url_downcase contains '/collections/wholesale' -%}
+                                    {%- assign forestry_is_wholesale_nav_group = true -%}
+                                  {%- endif -%}
+                                  <a class="MegaMenu__PushLink" href="{{ forestry_push_1_url | strip }}">
                                 {%- endif -%}
 
                                 {%- assign max_width = 370 | at_most: block.settings.push_1_image.width -%}
@@ -284,7 +313,13 @@ HEADER CONTENT
                             {%- if block.settings.push_2_image -%}
                               <div class="MegaMenu__Push {% if push_image_count == 2 %}MegaMenu__Push--shrink{% endif %}">
                                 {%- if block.settings.push_2_url != blank -%}
-                                  <a class="MegaMenu__PushLink" href="{{ block.settings.push_2_url }}">
+                                  {%- capture forestry_push_2_url -%}{% render 'forestry-wholesale-link-url', link_url: block.settings.push_2_url, link_title: block.settings.push_2_heading %}{%- endcapture -%}
+                                  {%- assign forestry_push_2_url_downcase = block.settings.push_2_url | downcase -%}
+                                  {%- assign forestry_push_2_heading_downcase = block.settings.push_2_heading | downcase -%}
+                                  {%- if forestry_push_2_heading_downcase contains 'wholesale' or forestry_push_2_url_downcase contains '/apps/shop' or forestry_push_2_url_downcase contains '/pages/wholesale' or forestry_push_2_url_downcase contains '/collections/wholesale' -%}
+                                    {%- assign forestry_is_wholesale_nav_group = true -%}
+                                  {%- endif -%}
+                                  <a class="MegaMenu__PushLink" href="{{ forestry_push_2_url | strip }}">
                                 {%- endif -%}
 
                                 {%- assign max_width = 370 | at_most: block.settings.push_2_image.width -%}
@@ -319,15 +354,29 @@ HEADER CONTENT
                   <div class="DropdownMenu" aria-hidden="true">
                     <ul class="Linklist">
                       {%- for sub_link in link.links -%}
+                        {%- capture forestry_sub_link_url -%}{% render 'forestry-wholesale-link-url', link_url: sub_link.url, link_title: sub_link.title %}{%- endcapture -%}
+                        {%- assign forestry_sub_link_url = forestry_sub_link_url | strip -%}
+                        {%- assign forestry_sub_link_title_downcase = sub_link.title | downcase -%}
+                        {%- assign forestry_sub_link_url_downcase = sub_link.url | downcase -%}
+                        {%- if forestry_sub_link_title_downcase contains 'wholesale' or forestry_sub_link_title_downcase contains 'wholesaler' or forestry_sub_link_url_downcase contains '/apps/shop' or forestry_sub_link_url_downcase contains '/pages/wholesale' or forestry_sub_link_url_downcase contains '/collections/wholesale' -%}
+                          {%- assign forestry_is_wholesale_nav_group = true -%}
+                        {%- endif -%}
                         <li class="Linklist__Item" {% if sub_link.links != blank %}aria-haspopup="true"{% endif %}>
-                          <a href="{{ sub_link.url }}" class="Link Link--secondary">{{ sub_link.title | escape }} {% if sub_link.links != blank %}{% render 'icon' with 'select-arrow-right' %}{% endif %}</a>
+                          <a href="{{ forestry_sub_link_url }}" class="Link Link--secondary">{{ sub_link.title | escape }} {% if sub_link.links != blank %}{% render 'icon' with 'select-arrow-right' %}{% endif %}</a>
 
                           {%- if sub_link.links != blank -%}
                             <div class="DropdownMenu" aria-hidden="true">
                               <ul class="Linklist">
                                 {%- for sub_sub_link in sub_link.links -%}
+                                  {%- capture forestry_sub_sub_link_url -%}{% render 'forestry-wholesale-link-url', link_url: sub_sub_link.url, link_title: sub_sub_link.title %}{%- endcapture -%}
+                                  {%- assign forestry_sub_sub_link_url = forestry_sub_sub_link_url | strip -%}
+                                  {%- assign forestry_sub_sub_link_title_downcase = sub_sub_link.title | downcase -%}
+                                  {%- assign forestry_sub_sub_link_url_downcase = sub_sub_link.url | downcase -%}
+                                  {%- if forestry_sub_sub_link_title_downcase contains 'wholesale' or forestry_sub_sub_link_title_downcase contains 'wholesaler' or forestry_sub_sub_link_url_downcase contains '/apps/shop' or forestry_sub_sub_link_url_downcase contains '/pages/wholesale' or forestry_sub_sub_link_url_downcase contains '/collections/wholesale' -%}
+                                    {%- assign forestry_is_wholesale_nav_group = true -%}
+                                  {%- endif -%}
                                   <li class="Linklist__Item">
-                                    <a href="{{ sub_sub_link.url }}" class="Link Link--secondary">{{ sub_sub_link.title | escape }}</a>
+                                    <a href="{{ forestry_sub_sub_link_url }}" class="Link Link--secondary">{{ sub_sub_link.title | escape }}</a>
                                   </li>
                                 {%- endfor -%}
                               </ul>
@@ -335,13 +384,18 @@ HEADER CONTENT
                           {%- endif -%}
                         </li>
                       {%- endfor -%}
+                      {%- if forestry_is_wholesale_nav_group and forestry_wholesale_login_url != blank -%}
+                        <li class="Linklist__Item">
+                          <a href="{{ forestry_wholesale_login_url }}" class="Link Link--secondary">Wholesale Login</a>
+                        </li>
+                      {%- endif -%}
                     </ul>
                   </div>
                 {%- endif -%}
               {%- endcapture -%}
 
               <li class="HorizontalList__Item {% if link.links == blank and link.active %}is-active{% endif %}" {% if menu_item_dropdown != blank %}aria-haspopup="true"{% endif %}>
-                <a href="{{ link.url }}" class="Heading u-h6">
+                <a href="{{ forestry_primary_link_url }}" class="Heading u-h6">
                   {{- link.title | escape -}}
 
                   {%- if use_mega_menu or menu_item_dropdown == blank -%}

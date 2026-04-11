@@ -1,0 +1,61 @@
+{%- capture forestry_wholesale_apply_url -%}{% render 'forestry-wholesale-url', key: 'apply' %}{%- endcapture -%}
+{%- capture forestry_wholesale_login_url -%}{% render 'forestry-wholesale-url', key: 'login' %}{%- endcapture -%}
+{%- capture forestry_wholesale_catalog_url -%}{% render 'forestry-wholesale-url', key: 'catalog' %}{%- endcapture -%}
+{%- capture forestry_wholesale_line_sheet_url -%}{% render 'forestry-wholesale-url', key: 'line_sheet' %}{%- endcapture -%}
+
+{%- liquid
+  assign forestry_wholesale_apply_url = forestry_wholesale_apply_url | strip
+  assign forestry_wholesale_login_url = forestry_wholesale_login_url | strip
+  assign forestry_wholesale_catalog_url = forestry_wholesale_catalog_url | strip
+  assign forestry_wholesale_line_sheet_url = forestry_wholesale_line_sheet_url | strip
+
+  assign forestry_source_url = link_url | default: '' | strip
+  assign forestry_source_url_downcase = forestry_source_url | downcase
+  assign forestry_source_title_downcase = link_title | default: '' | strip | downcase
+
+  assign forestry_is_wholesale_intent = false
+
+  if forestry_source_title_downcase contains 'wholesale' or forestry_source_title_downcase contains 'wholesaler'
+    assign forestry_is_wholesale_intent = true
+  endif
+
+  if forestry_source_url_downcase contains '/apps/shop'
+    assign forestry_is_wholesale_intent = true
+  endif
+
+  if forestry_source_url_downcase contains '/pages/wholesale'
+    assign forestry_is_wholesale_intent = true
+  endif
+
+  if forestry_source_url_downcase contains '/collections/wholesale'
+    assign forestry_is_wholesale_intent = true
+  endif
+
+  if forestry_source_url_downcase contains 'view=sc-qs' or forestry_source_url_downcase contains 'view=wof'
+    assign forestry_is_wholesale_intent = true
+  endif
+
+  assign forestry_target_url = forestry_source_url
+
+  if forestry_is_wholesale_intent
+    if forestry_source_title_downcase contains 'login' or forestry_source_title_downcase contains 'log in' or forestry_source_title_downcase contains 'approved'
+      assign forestry_target_url = forestry_wholesale_login_url
+    elsif forestry_source_url_downcase contains '/account/login' and forestry_source_title_downcase contains 'wholesale'
+      assign forestry_target_url = forestry_wholesale_login_url
+    elsif forestry_source_title_downcase contains 'application' or forestry_source_url_downcase contains '/pages/wholesale-application'
+      assign forestry_target_url = forestry_wholesale_apply_url
+    elsif forestry_source_title_downcase contains 'catalog'
+      assign forestry_target_url = forestry_wholesale_catalog_url
+    elsif forestry_source_url_downcase contains '/collections/wholesale' or forestry_source_url_downcase contains '/collections/all'
+      assign forestry_target_url = forestry_wholesale_catalog_url
+    elsif forestry_source_title_downcase contains 'line sheet' or forestry_source_title_downcase contains 'line-sheet' or forestry_source_title_downcase contains 'order form' or forestry_source_title_downcase contains 'previous orders' or forestry_source_title_downcase contains 'portal' or forestry_source_title_downcase contains 'shop'
+      assign forestry_target_url = forestry_wholesale_line_sheet_url
+    elsif forestry_source_url_downcase contains '/apps/shop' or forestry_source_url_downcase contains '/pages/wholesaleportal' or forestry_source_url_downcase contains '/pages/wholesale-portal' or forestry_source_url_downcase contains '/pages/sc-quick-shop' or forestry_source_url_downcase contains '/pages/sc-bulk-order-form'
+      assign forestry_target_url = forestry_wholesale_line_sheet_url
+    elsif forestry_source_title_downcase contains 'wholesale'
+      assign forestry_target_url = forestry_wholesale_line_sheet_url
+    endif
+  endif
+-%}
+
+{{- forestry_target_url -}}

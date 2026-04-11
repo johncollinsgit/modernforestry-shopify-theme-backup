@@ -5,7 +5,7 @@
     {%- else -%}
       {%- if search.types contains 'article' and search.types contains 'page' -%}
         <span class="Heading Text--subdued u-h7">{{ 'search.general.pages_and_articles' | t }}</span>
-        {%- elsif search.types contains 'article' -%}
+      {%- elsif search.types contains 'article' -%}
         <span class="Heading Text--subdued u-h7">{{ 'search.general.articles' | t }}</span>
       {%- else -%}
         <span class="Heading Text--subdued u-h7">{{ 'search.general.pages' | t }}</span>
@@ -17,31 +17,40 @@
     {%- endif -%}
   </div>
 
-
   <div class="Segment__Content">
     {%- if search.results_count == 0 -%}
       <p>{{ 'search.general.no_results' | t }}</p>
     {%- else -%}
       {%- if search.types contains 'product' -%}
         {%- if settings.search_mode == 'product' -%}
-          {%- assign results_count = 4 -%}
+          {%- assign forestry_results_limit = 4 -%}
         {%- else -%}
-          {%- assign results_count = 3 -%}
+          {%- assign forestry_results_limit = 3 -%}
         {%- endif -%}
 
-    
-{% if product.tags contains 'wholesale' %}
-<script> </script>
-{% else %}}
-  
-      <div class="Grid Grid--xl">
-          {%- for result in search.results limit: results_count -%}
-            {%- comment -%}The inline onclick is a bit hacky, but it's easier on mobile to have the full line clickable{%- endcomment -%}
-            <div class="Grid__Cell 1/{{ results_count }}--tablet-and-up" onclick="window.location.href = '{{ result.url }}'">
+        {%- assign forestry_visible_results = 0 -%}
+
+        <div class="Grid Grid--xl">
+          {%- for result in search.results -%}
+            {%- capture forestry_is_wholesale_product -%}{% render 'forestry-wholesale-product-state', product: result %}{%- endcapture -%}
+            {%- if forestry_is_wholesale_product | strip == 'true' -%}
+              {%- continue -%}
+            {%- endif -%}
+
+            <div class="Grid__Cell 1/{{ forestry_results_limit }}--tablet-and-up" onclick="window.location.href = '{{ result.url }}'">
               {%- render 'product-item', product: result, show_labels: false, show_product_info: true, show_vendor: false -%}
             </div>
+
+            {%- assign forestry_visible_results = forestry_visible_results | plus: 1 -%}
+            {%- if forestry_visible_results >= forestry_results_limit -%}
+              {%- break -%}
+            {%- endif -%}
           {%- endfor -%}
         </div>
+
+        {%- if forestry_visible_results == 0 -%}
+          <p>{{ 'search.general.no_results' | t }}</p>
+        {%- endif -%}
       {%- else -%}
         <ul class="Linklist">
           {%- for result in search.results limit: 6 -%}
@@ -54,8 +63,6 @@
     {%- endif -%}
   </div>
 </div>
-
-{% endif %}  
 
 {% schema %}
 {

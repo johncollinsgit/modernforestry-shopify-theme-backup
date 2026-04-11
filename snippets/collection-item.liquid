@@ -1,6 +1,14 @@
 {%- assign collection_image = block.settings.image | default: collection.image | default: collection.products.first.featured_image -%}
+{%- assign collection_item_link_url = block.settings.button_link | default: collection.url -%}
+{%- capture collection_item_is_wholesale_collection -%}{% render 'forestry-wholesale-collection-state', collection: collection %}{%- endcapture -%}
+{%- assign collection_item_is_wholesale_collection = collection_item_is_wholesale_collection | strip -%}
+{%- if collection_item_is_wholesale_collection == 'true' and block.settings.button_link == blank -%}
+  {%- capture collection_item_link_url -%}{% render 'forestry-wholesale-url', key: 'catalog' %}{%- endcapture -%}
+{%- endif -%}
+{%- capture collection_item_link_url -%}{% render 'forestry-wholesale-link-url', link_url: collection_item_link_url, link_title: block.settings.title | default: collection.title %}{%- endcapture -%}
+{%- assign collection_item_link_url = collection_item_link_url | strip -%}
 
-<a href="{{ block.settings.button_link | default: collection.url }}" {{ block.shopify_attributes }} class="CollectionItem {% if section.settings.expand_collection %}CollectionItem--expand{% endif %} Carousel__Cell {% if forloop.first %}is-selected{% endif %}" data-slide-index="{{ forloop.index0 }}">
+<a href="{{ collection_item_link_url }}" {{ block.shopify_attributes }} class="CollectionItem {% if section.settings.expand_collection %}CollectionItem--expand{% endif %} Carousel__Cell {% if forloop.first %}is-selected{% endif %}" data-slide-index="{{ forloop.index0 }}">
   {%- capture mobile_size -%}750x{% if collection_image.height >= 960 %}960{% else %}{{ collection_image.height }}{% endif %}{%- endcapture -%}
   {%- assign image_crop = block.settings.image_alignment | split: ' ' | last -%}
 

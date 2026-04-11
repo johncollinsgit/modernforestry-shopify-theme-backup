@@ -32,6 +32,10 @@
           {%- assign mobile_image = block.settings.mobile_image | default: block.settings.image -%}
           {%- assign button_1_is_candle_club = false -%}
           {%- assign button_2_is_candle_club = false -%}
+          {%- capture forestry_button_1_link -%}{% render 'forestry-wholesale-link-url', link_url: block.settings.button_1_link, link_title: block.settings.button_1_text %}{%- endcapture -%}
+          {%- capture forestry_button_2_link -%}{% render 'forestry-wholesale-link-url', link_url: block.settings.button_2_link, link_title: block.settings.button_2_text %}{%- endcapture -%}
+          {%- assign forestry_button_1_link = forestry_button_1_link | strip -%}
+          {%- assign forestry_button_2_link = forestry_button_2_link | strip -%}
           {%- if block.settings.button_1_link contains 'modern-forestry-candle-club-16oz-subscription-with-gifts' -%}
             {%- assign button_1_is_candle_club = true -%}
           {%- endif -%}
@@ -98,7 +102,7 @@
                     {%- if button_1_is_candle_club and candle_club_actionable == false -%}
                       {% render 'candle-club-coming-soon', compact: true, class: 'ButtonGroup__Item' %}
                     {%- else -%}
-                      <a href="{{ block.settings.button_1_link }}" class="ButtonGroup__Item Button Button--primary">{{ block.settings.button_1_text | escape }}</a>
+                      <a href="{{ forestry_button_1_link }}" class="ButtonGroup__Item Button Button--primary">{{ block.settings.button_1_text | escape }}</a>
                     {%- endif -%}
                   {%- endif -%}
 
@@ -106,7 +110,7 @@
                     {%- if button_2_is_candle_club and candle_club_actionable == false -%}
                       {% render 'candle-club-coming-soon', compact: true, class: 'ButtonGroup__Item' %}
                     {%- else -%}
-                      <a href="{{ block.settings.button_2_link }}" class="ButtonGroup__Item Button Button--primary">{{ block.settings.button_2_text | escape }}</a>
+                      <a href="{{ forestry_button_2_link }}" class="ButtonGroup__Item Button Button--primary">{{ block.settings.button_2_text | escape }}</a>
                     {%- endif -%}
                   {%- endif -%}
                 </div>
@@ -130,7 +134,7 @@
             {{- slide_content -}}
           </div>
         {%- elsif block.settings.button_1_text == blank and block.settings.button_1_link != blank -%}
-          <a href="{{ block.settings.button_1_link }}" id="Slide{{ block.id }}" class="Slideshow__Slide Carousel__Cell {% if forloop.first %}is-selected{% endif %}" {% if forloop.first %}style="visibility: visible"{% endif %} data-slide-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
+          <a href="{{ forestry_button_1_link }}" id="Slide{{ block.id }}" class="Slideshow__Slide Carousel__Cell {% if forloop.first %}is-selected{% endif %}" {% if forloop.first %}style="visibility: visible"{% endif %} data-slide-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
             {{- slide_content -}}
           </a>
         {%- else -%}

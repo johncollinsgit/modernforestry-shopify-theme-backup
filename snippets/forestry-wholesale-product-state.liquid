@@ -1,0 +1,56 @@
+{%- liquid
+  assign forestry_is_wholesale_product = false
+
+  if product != blank
+    assign forestry_product_handle = product.handle | default: '' | downcase
+    assign forestry_product_title = product.title | default: '' | downcase
+    assign forestry_product_type = product.type | default: '' | downcase
+    assign forestry_product_tags = product.tags | join: '||' | downcase
+    assign forestry_product_description = product.description | strip_html | downcase
+
+    if forestry_product_handle contains 'bulk-discount' or forestry_product_handle contains 'case-of'
+      assign forestry_is_wholesale_product = true
+    endif
+
+    if forestry_product_title contains 'case of' or forestry_product_title contains 'case-pack' or forestry_product_title contains 'case pack'
+      assign forestry_is_wholesale_product = true
+    endif
+
+    if forestry_product_type contains 'wholesale'
+      assign forestry_is_wholesale_product = true
+    endif
+
+    if forestry_product_tags contains 'wholesale' or forestry_product_tags contains 'case-pack' or forestry_product_tags contains 'case pack' or forestry_product_tags contains 'bulk'
+      assign forestry_is_wholesale_product = true
+    endif
+
+    if forestry_product_description contains 'wholesale pricing' or forestry_product_description contains 'wholesale packet' or forestry_product_description contains 'list sheet'
+      assign forestry_is_wholesale_product = true
+    endif
+
+    if forestry_is_wholesale_product == false and product.collections != blank
+      for forestry_collection in product.collections
+        capture forestry_collection_is_wholesale
+          render 'forestry-wholesale-collection-state', collection: forestry_collection
+        endcapture
+        assign forestry_collection_is_wholesale = forestry_collection_is_wholesale | strip
+        if forestry_collection_is_wholesale == 'true'
+          assign forestry_is_wholesale_product = true
+          break
+        endif
+      endfor
+    endif
+  endif
+
+  if forestry_is_wholesale_product == false and collection != blank
+    capture forestry_parent_collection_is_wholesale
+      render 'forestry-wholesale-collection-state', collection: collection
+    endcapture
+    assign forestry_parent_collection_is_wholesale = forestry_parent_collection_is_wholesale | strip
+    if forestry_parent_collection_is_wholesale == 'true'
+      assign forestry_is_wholesale_product = true
+    endif
+  endif
+-%}
+
+{%- if forestry_is_wholesale_product -%}true{%- else -%}false{%- endif -%}

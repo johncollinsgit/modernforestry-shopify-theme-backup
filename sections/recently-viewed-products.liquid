@@ -37,6 +37,10 @@
 
           {%- for product in search.results -%}
             {%- if product.id == id -%}
+              {%- capture forestry_is_wholesale_product -%}{% render 'forestry-wholesale-product-state', product: product %}{%- endcapture -%}
+              {%- if forestry_is_wholesale_product | strip == 'true' -%}
+                {%- continue -%}
+              {%- endif -%}
               <div class="Carousel__Cell">
                 {% render 'product-item', product: product, show_product_info: section.settings.show_product_info, show_vendor: section.settings.show_vendor, show_color_swatch: section.settings.show_color_swatch, show_labels: true, collection_handle: collection_handle, show_form: true %}
               </div>

@@ -15,6 +15,8 @@
 {%- else -%}
   {%- assign tablet_items_per_row = 2 -%}
 {%- endif -%}
+{%- capture forestry_is_wholesale_collection -%}{% render 'forestry-wholesale-collection-state', collection: collection %}{%- endcapture -%}
+{%- assign forestry_is_wholesale_collection = forestry_is_wholesale_collection | strip -%}
 
 {%- capture collection_inner -%}
   {%- comment -%}This is the common part to both template{%- endcomment -%}
@@ -24,7 +26,13 @@
     {%- paginate collection.products by section.settings.grid_items_per_page -%}
       <div class="ProductListWrapper">
         <div class="ProductList ProductList--grid {% if paginate.pages > 1 %}ProductList--removeMargin{% endif %} Grid" data-mobile-count="{{ mobile_items_per_row }}" data-desktop-count="{{ desktop_items_per_row }}">
+          {%- assign forestry_visible_products_count = 0 -%}
           {%- for product in collection.products -%}
+            {%- capture forestry_is_wholesale_product -%}{% render 'forestry-wholesale-product-state', product: product, collection: collection %}{%- endcapture -%}
+            {%- if forestry_is_wholesale_product | strip == 'true' -%}
+              {%- continue -%}
+            {%- endif -%}
+            {%- assign forestry_visible_products_count = forestry_visible_products_count | plus: 1 -%}
             <div class="Grid__Cell 1/{{ mobile_items_per_row }}--phone 1/{{ tablet_items_per_row }}--tablet-and-up 1/{{ desktop_items_per_row }}--{% if section.settings.filter_position == 'drawer' %}lap-and-up{% else %}desk{% endif %}">
               {%- render 'product-item', product: product, show_product_info: true, show_vendor: section.settings.show_vendor, show_color_swatch: section.settings.show_color_swatch, show_labels: true -%}
             </div>
@@ -32,7 +40,15 @@
         </div>
       </div>
 
-      {%- render 'pagination', paginate: paginate -%}
+      {%- if forestry_visible_products_count > 0 -%}
+        {%- render 'pagination', paginate: paginate -%}
+      {%- else -%}
+        <div class="EmptyState">
+          <div class="Container">
+            <h1 class="EmptyState__Title Heading u-h5">No retail products found in this collection.</h1>
+          </div>
+        </div>
+      {%- endif -%}
     {%- endpaginate -%}
   {%- else -%}
     <div class="EmptyState">
@@ -62,6 +78,13 @@
 }
 {%- endcapture -%}
 
+{%- if forestry_is_wholesale_collection == 'true' -%}
+  {% render 'forestry-wholesale-moved',
+    destination_key: 'catalog',
+    headline: 'Wholesale collection moved',
+    body_copy: 'Wholesale collections now live on our dedicated wholesale storefront catalog.'
+  %}
+{%- else -%}
 <section data-section-id="{{ section.id }}" data-section-type="collection" data-section-settings='{{ section_settings }}'>
   {%- comment -%}
   --------------------------------------------------------------------------------------------------------------------
@@ -196,8 +219,10 @@
               <div class="Collapsible__Content">
                 <ul class="Linklist">
                   {%- for link in quick_links.links -%}
+                    {%- capture forestry_quick_link_url -%}{% render 'forestry-wholesale-link-url', link_url: link.url, link_title: link.title %}{%- endcapture -%}
+                    {%- assign forestry_quick_link_url = forestry_quick_link_url | strip -%}
                     <li class="Linklist__Item {% if link.active %}is-selected{% endif %}">
-                      <a href="{{ link.url }}" class="Link Link--primary Text--subdued {% if link.active %}is-active{% endif %}">{{ link.title | escape }}</a>
+                      <a href="{{ forestry_quick_link_url }}" class="Link Link--primary Text--subdued {% if link.active %}is-active{% endif %}">{{ link.title | escape }}</a>
                     </li>
                   {%- endfor -%}
                 </ul>
@@ -386,6 +411,7 @@
     </div>
   {%- endif -%}
 </section>
+{%- endif -%}
 
 {% schema %}
 {

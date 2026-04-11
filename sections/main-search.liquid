@@ -39,7 +39,10 @@
 
           {%- for item in search.results -%}
             {%- if item.object_type == 'product' -%}
-              {%- assign has_product_results = true -%}
+              {%- capture forestry_is_wholesale_product -%}{% render 'forestry-wholesale-product-state', product: item %}{%- endcapture -%}
+              {%- if forestry_is_wholesale_product | strip != 'true' -%}
+                {%- assign has_product_results = true -%}
+              {%- endif -%}
             {%- else -%}
               {%- assign has_non_product_results = true -%}
             {%- endif -%}
@@ -50,6 +53,10 @@
               <div class="ProductList ProductList--grid {% if paginate.pages > 1 %}ProductList--removeMargin{% endif %} Grid" data-mobile-count="2" data-desktop-count="4">
                 {%- for item in search.results -%}
                   {%- if item.object_type == 'product' -%}
+                    {%- capture forestry_is_wholesale_product -%}{% render 'forestry-wholesale-product-state', product: item %}{%- endcapture -%}
+                    {%- if forestry_is_wholesale_product | strip == 'true' -%}
+                      {%- continue -%}
+                    {%- endif -%}
                     <div class="Grid__Cell 1/2--phone 1/3--tablet-and-up 1/4--lap-and-up">
                       {%- render 'product-item', product: item, show_product_info: true, show_vendor: settings.show_vendor, show_color_swatch: settings.show_color_swatch, show_labels: true -%}
                     </div>

@@ -3,6 +3,8 @@
 {%- if section.id == 'mini-cart' -%}
   {%- assign for_drawer = true -%}
 {%- endif -%}
+{%- capture forestry_wholesale_line_sheet_url -%}{% render 'forestry-wholesale-url', key: 'line_sheet' %}{%- endcapture -%}
+{%- assign forestry_wholesale_line_sheet_url = forestry_wholesale_line_sheet_url | strip -%}
 
 <div class="Cart__ItemList">
   {%- unless for_drawer -%}
@@ -15,6 +17,8 @@
   {%- endunless -%}
 
   {%- for line_item in cart.items -%}
+    {%- capture forestry_cart_line_is_wholesale -%}{% render 'forestry-wholesale-product-state', product: line_item.product %}{%- endcapture -%}
+    {%- assign forestry_cart_line_is_wholesale = forestry_cart_line_is_wholesale | strip -%}
     {%- if for_drawer -%}
       <div class="CartItemWrapper">
     {%- endif -%}
@@ -87,29 +91,38 @@
               </div>
             </div>
           {%- endif -%}
+
+          {%- if forestry_cart_line_is_wholesale == 'true' -%}
+            <p class="CartItem__Property Text--subdued">Wholesale ordering moved. Remove this item to complete retail checkout.</p>
+          {%- endif -%}
         </div>
 
         {%- capture item_actions -%}
           <div class="CartItem__Actions Heading Text--subdued" style="text-align: center">
-            <div class="CartItem__QuantitySelector">
-              <div class="QuantitySelector">
-                {%- assign quantity_minus_one = line_item.quantity | minus: 1 -%}
+            {%- if forestry_cart_line_is_wholesale == 'true' -%}
+              <a href="{{ forestry_wholesale_line_sheet_url }}" class="CartItem__Remove Link Link--underline Link--underlineShort">Order on wholesale store</a>
+              <a href="{{ routes.cart_change_url }}?quantity=0&line={{ forloop.index }}" class="CartItem__Remove Link Link--underline Link--underlineShort" data-quantity="0" data-line="{{ forloop.index }}" data-action="remove-item">{{ 'cart.items.remove' | t }}</a>
+            {%- else -%}
+              <div class="CartItem__QuantitySelector">
+                <div class="QuantitySelector">
+                  {%- assign quantity_minus_one = line_item.quantity | minus: 1 -%}
 
-                <a class="QuantitySelector__Button Link Link--primary" title="{{ 'cart.items.set_quantity' | t: new_quantity: quantity_minus_one }}" href="{{ routes.cart_change_url }}?quantity={{ quantity_minus_one }}&line={{ forloop.index }}" data-quantity="{{ quantity_minus_one }}" data-line="{{ forloop.index }}" data-action="update-item-quantity">
-                  {%- render 'icon' with 'minus' -%}
-                </a>
+                  <a class="QuantitySelector__Button Link Link--primary" title="{{ 'cart.items.set_quantity' | t: new_quantity: quantity_minus_one }}" href="{{ routes.cart_change_url }}?quantity={{ quantity_minus_one }}&line={{ forloop.index }}" data-quantity="{{ quantity_minus_one }}" data-line="{{ forloop.index }}" data-action="update-item-quantity">
+                    {%- render 'icon' with 'minus' -%}
+                  </a>
 
-                <input type="text" name="updates[]" id="updates_{{ line_item.key }}" class="QuantitySelector__CurrentQuantity" pattern="[0-9]*" data-line="{{ forloop.index }}" value="{{ line_item.quantity }}">
+                  <input type="text" name="updates[]" id="updates_{{ line_item.key }}" class="QuantitySelector__CurrentQuantity" pattern="[0-9]*" data-line="{{ forloop.index }}" value="{{ line_item.quantity }}">
 
-                {%- assign quantity_plus_one = line_item.quantity | plus: 1 -%}
+                  {%- assign quantity_plus_one = line_item.quantity | plus: 1 -%}
 
-                <a class="QuantitySelector__Button Link Link--primary" title="{{ 'cart.items.set_quantity' | t: new_quantity: quantity_plus_one }}" href="{{ routes.cart_change_url }}?quantity={{ quantity_plus_one }}&line={{ forloop.index }}" data-quantity="{{ quantity_plus_one }}" data-line="{{ forloop.index }}" data-action="update-item-quantity">
-                  {%- render 'icon' with 'plus' -%}
-                </a>
+                  <a class="QuantitySelector__Button Link Link--primary" title="{{ 'cart.items.set_quantity' | t: new_quantity: quantity_plus_one }}" href="{{ routes.cart_change_url }}?quantity={{ quantity_plus_one }}&line={{ forloop.index }}" data-quantity="{{ quantity_plus_one }}" data-line="{{ forloop.index }}" data-action="update-item-quantity">
+                    {%- render 'icon' with 'plus' -%}
+                  </a>
+                </div>
               </div>
-            </div>
 
-            <a href="{{ routes.cart_change_url }}?quantity=0&line={{ forloop.index }}" class="CartItem__Remove Link Link--underline Link--underlineShort" data-quantity="0" data-line="{{ forloop.index }}" data-action="remove-item">{{ 'cart.items.remove' | t }}</a>
+              <a href="{{ routes.cart_change_url }}?quantity=0&line={{ forloop.index }}" class="CartItem__Remove Link Link--underline Link--underlineShort" data-quantity="0" data-line="{{ forloop.index }}" data-action="remove-item">{{ 'cart.items.remove' | t }}</a>
+            {%- endif -%}
           </div>
         {%- endcapture -%}
 

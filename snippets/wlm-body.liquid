@@ -13,7 +13,21 @@
 		</div>
 	  </div>
 	  {% endcapture %}
-	  {% if wlmLockON %}
+    {%- assign forestry_request_path = request.path | default: '' | downcase -%}
+    {%- assign forestry_wholesale_destination_key = '' -%}
+    {%- if forestry_request_path == '/apps/shop' or forestry_request_path contains '/apps/shop/' -%}
+      {%- assign forestry_wholesale_destination_key = 'line_sheet' -%}
+    {%- elsif forestry_request_path == '/pages/wholesaleportal' or forestry_request_path == '/pages/wholesale-portal' -%}
+      {%- assign forestry_wholesale_destination_key = 'line_sheet' -%}
+    {%- endif -%}
+
+    {% if forestry_wholesale_destination_key != blank %}
+      {% render 'forestry-wholesale-moved',
+        destination_key: forestry_wholesale_destination_key,
+        headline: 'Wholesale ordering moved',
+        body_copy: 'Wholesale ordering now lives on our dedicated wholesale store.'
+      %}
+	  {% elsif wlmLockON %}
 		<div id="wlmpnf">{{ wlmPnfContent }}</div>
 	  {% else %}
 		<wlm class="wlm-content">

@@ -1,4 +1,22 @@
-{%- if request.page_type == 'page' and page.handle == 'rewards' -%}
+{%- assign forestry_page_handle = page.handle | default: '' | downcase -%}
+{%- assign forestry_wholesale_destination_key = '' -%}
+{%- if request.page_type == 'page' -%}
+  {%- if forestry_page_handle == 'wholesale-application' or forestry_page_handle == 'wholesale-application-submitted' -%}
+    {%- assign forestry_wholesale_destination_key = 'apply' -%}
+  {%- elsif forestry_page_handle == 'wholesale-catalog' -%}
+    {%- assign forestry_wholesale_destination_key = 'catalog' -%}
+  {%- elsif forestry_page_handle == 'wholesaleportal' or forestry_page_handle == 'wholesale-portal' or forestry_page_handle == 'wholesale-order-form' or forestry_page_handle == 'sc-quick-shop' or forestry_page_handle == 'sc-bulk-order-form' or forestry_page_handle == 'bulk-order-form' or forestry_page_handle == 'quick-shop' or forestry_page_handle == 'wholesale-line-sheet' -%}
+    {%- assign forestry_wholesale_destination_key = 'line_sheet' -%}
+  {%- endif -%}
+{%- endif -%}
+
+{%- if forestry_wholesale_destination_key != blank -%}
+  {% render 'forestry-wholesale-moved',
+    destination_key: forestry_wholesale_destination_key,
+    headline: 'Wholesale has moved',
+    body_copy: 'Wholesale applications and ordering now live on our dedicated wholesale storefront.'
+  %}
+{%- elsif request.page_type == 'page' and page.handle == 'rewards' -%}
   <!-- forestry-rewards-build-version: 2026-04-07-cachefix-1 -->
   {% render 'candle-cash-rewards-page',
     title: 'Candle Cash Central',

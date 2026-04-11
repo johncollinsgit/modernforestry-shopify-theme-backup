@@ -1,0 +1,29 @@
+{%- comment -%}
+  Centralized wholesale destination URLs.
+  Canonical line-sheet destination was verified on the wholesale storefront:
+  https://modernforestrywholesale.com/pages/wholesale-line-sheet
+{%- endcomment -%}
+
+{%- liquid
+  assign forestry_wholesale_base_url = 'https://modernforestrywholesale.com'
+  assign forestry_wholesale_login_url = forestry_wholesale_base_url | append: '/account/login'
+  assign forestry_wholesale_apply_url = forestry_wholesale_base_url | append: '/pages/wholesale-application-1'
+  assign forestry_wholesale_catalog_url = forestry_wholesale_base_url | append: '/collections/all'
+  assign forestry_wholesale_line_sheet_url = forestry_wholesale_base_url | append: '/pages/wholesale-line-sheet'
+  assign forestry_wholesale_key = key | default: 'base' | strip | downcase
+-%}
+
+{%- case forestry_wholesale_key -%}
+  {%- when 'base' -%}
+    {{- forestry_wholesale_base_url -}}
+  {%- when 'login' -%}
+    {{- forestry_wholesale_login_url -}}
+  {%- when 'apply' -%}
+    {{- forestry_wholesale_apply_url -}}
+  {%- when 'catalog' -%}
+    {{- forestry_wholesale_catalog_url -}}
+  {%- when 'line_sheet', 'line-sheet', 'linesheet', 'order', 'shop', 'portal' -%}
+    {{- forestry_wholesale_line_sheet_url -}}
+  {%- else -%}
+    {{- fallback | default: forestry_wholesale_base_url -}}
+{%- endcase -%}
