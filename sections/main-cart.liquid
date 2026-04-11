@@ -24,7 +24,8 @@
 {%- assign forestry_cart_has_wholesale_items = false -%}
 {%- for line_item in cart.items -%}
   {%- capture forestry_cart_line_is_wholesale -%}{% render 'forestry-wholesale-product-state', product: line_item.product %}{%- endcapture -%}
-  {%- if forestry_cart_line_is_wholesale | strip == 'true' -%}
+  {%- assign forestry_cart_line_is_wholesale = forestry_cart_line_is_wholesale | strip -%}
+  {%- if forestry_cart_line_is_wholesale == 'true' -%}
     {%- assign forestry_cart_has_wholesale_items = true -%}
     {%- break -%}
   {%- endif -%}

@@ -29,7 +29,8 @@
           {%- assign forestry_visible_products_count = 0 -%}
           {%- for product in collection.products -%}
             {%- capture forestry_is_wholesale_product -%}{% render 'forestry-wholesale-product-state', product: product, collection: collection %}{%- endcapture -%}
-            {%- if forestry_is_wholesale_product | strip == 'true' -%}
+            {%- assign forestry_is_wholesale_product = forestry_is_wholesale_product | strip -%}
+            {%- if forestry_is_wholesale_product == 'true' -%}
               {%- continue -%}
             {%- endif -%}
             {%- assign forestry_visible_products_count = forestry_visible_products_count | plus: 1 -%}

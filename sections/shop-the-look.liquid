@@ -139,7 +139,8 @@
                 {%- endif -%}
 
                 {%- capture forestry_is_wholesale_product -%}{% render 'forestry-wholesale-product-state', product: product %}{%- endcapture -%}
-                {%- if forestry_is_wholesale_product | strip == 'true' -%}
+                {%- assign forestry_is_wholesale_product = forestry_is_wholesale_product | strip -%}
+                {%- if forestry_is_wholesale_product == 'true' -%}
                   {%- continue -%}
                 {%- endif -%}
 

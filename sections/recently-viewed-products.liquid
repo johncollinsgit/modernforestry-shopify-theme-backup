@@ -38,7 +38,8 @@
           {%- for product in search.results -%}
             {%- if product.id == id -%}
               {%- capture forestry_is_wholesale_product -%}{% render 'forestry-wholesale-product-state', product: product %}{%- endcapture -%}
-              {%- if forestry_is_wholesale_product | strip == 'true' -%}
+              {%- assign forestry_is_wholesale_product = forestry_is_wholesale_product | strip -%}
+              {%- if forestry_is_wholesale_product == 'true' -%}
                 {%- continue -%}
               {%- endif -%}
               <div class="Carousel__Cell">

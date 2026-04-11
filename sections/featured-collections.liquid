@@ -69,7 +69,8 @@
             <div class="ProductList ProductList--grid ProductList--removeMargin Grid" data-mobile-count="{{ section.settings.grid_mobile_items_per_row }}" data-desktop-count="{{ section.settings.grid_desktop_items_per_row }}">
               {%- for product in collection.products limit: block.settings.grid_items_count -%}
                 {%- capture forestry_is_wholesale_product -%}{% render 'forestry-wholesale-product-state', product: product, collection: collection %}{%- endcapture -%}
-                {%- if forestry_is_wholesale_product | strip == 'true' -%}
+                {%- assign forestry_is_wholesale_product = forestry_is_wholesale_product | strip -%}
+                {%- if forestry_is_wholesale_product == 'true' -%}
                   {%- continue -%}
                 {%- endif -%}
                 <div class="Grid__Cell 1/{{ section.settings.grid_mobile_items_per_row }}--phone 1/2--tablet 1/{{ section.settings.grid_desktop_items_per_row }}--lap-and-up">
@@ -81,7 +82,8 @@
             <div class="ProductList ProductList--carousel Carousel" data-flickity-config='{{ flickity_options }}'>
               {%- for product in collection.products limit: block.settings.grid_items_count -%}
                 {%- capture forestry_is_wholesale_product -%}{% render 'forestry-wholesale-product-state', product: product, collection: collection %}{%- endcapture -%}
-                {%- if forestry_is_wholesale_product | strip == 'true' -%}
+                {%- assign forestry_is_wholesale_product = forestry_is_wholesale_product | strip -%}
+                {%- if forestry_is_wholesale_product == 'true' -%}
                   {%- continue -%}
                 {%- endif -%}
                 <div class="Carousel__Cell">
@@ -117,7 +119,8 @@
       {%- if block.settings.button_text != blank -%}
         {%- assign forestry_collection_link_url = collection.url -%}
         {%- capture forestry_is_wholesale_collection -%}{% render 'forestry-wholesale-collection-state', collection: collection %}{%- endcapture -%}
-        {%- if forestry_is_wholesale_collection | strip == 'true' -%}
+        {%- assign forestry_is_wholesale_collection = forestry_is_wholesale_collection | strip -%}
+        {%- if forestry_is_wholesale_collection == 'true' -%}
           {%- capture forestry_collection_link_url -%}{% render 'forestry-wholesale-url', key: 'catalog' %}{%- endcapture -%}
         {%- endif -%}
         {%- capture forestry_collection_link_url -%}{% render 'forestry-wholesale-link-url', link_url: forestry_collection_link_url, link_title: block.settings.button_text %}{%- endcapture -%}

@@ -35,7 +35,8 @@
         <div class="ProductList ProductList--carousel Carousel" data-flickity-config='{{ flickity_options }}'>
           {%- for recommended_product in recommendations.products -%}
             {%- capture forestry_is_wholesale_product -%}{% render 'forestry-wholesale-product-state', product: recommended_product %}{%- endcapture -%}
-            {%- if forestry_is_wholesale_product | strip == 'true' -%}
+            {%- assign forestry_is_wholesale_product = forestry_is_wholesale_product | strip -%}
+            {%- if forestry_is_wholesale_product == 'true' -%}
               {%- continue -%}
             {%- endif -%}
             {%- assign forestry_visible_recommendations = forestry_visible_recommendations | plus: 1 -%}
