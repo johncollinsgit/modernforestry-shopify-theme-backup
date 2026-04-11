@@ -2,6 +2,7 @@
 {%- assign main_menu = linklists[main_menu_handle] -%}
 {%- capture forestry_wholesale_login_url -%}{% render 'forestry-wholesale-url', key: 'login' %}{%- endcapture -%}
 {%- assign forestry_wholesale_login_url = forestry_wholesale_login_url | strip -%}
+{%- assign forestry_wholesale_login_href = forestry_wholesale_login_url | default: 'https://modernforestrywholesale.com/account/login' -%}
 
 <section id="sidebar-menu" class="SidebarMenu Drawer Drawer--small Drawer--fromLeft" aria-hidden="true" data-section-id="{{ section.id }}" data-section-type="sidebar-menu">
     <header class="Drawer__Header" data-drawer-animated-left>
@@ -103,11 +104,9 @@
                 <li class="Linklist__Item">
                   <a href="/pages/rewards" class="Text--subdued Link Link--primary">Candle Cash</a>
                 </li>
-                {%- if forestry_wholesale_login_url != blank -%}
-                  <li class="Linklist__Item">
-                    <a href="{{ forestry_wholesale_login_url }}" class="Text--subdued Link Link--primary">Wholesale Login</a>
-                  </li>
-                {%- endif -%}
+                <li class="Linklist__Item">
+                  <a href="{{ forestry_wholesale_login_href }}" class="Text--subdued Link Link--primary">Wholesale Login</a>
+                </li>
                 {%- if customer -%}
                   <li class="Linklist__Item ForestryRewardsSidebarMount">
                     {% render 'forestry-rewards-root',

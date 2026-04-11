@@ -27,6 +27,7 @@ USEFUL VARIABLES
 {%- assign forestry_native_wishlist_enabled = settings.native_wishlist_enabled -%}
 {%- capture forestry_wholesale_login_url -%}{% render 'forestry-wholesale-url', key: 'login' %}{%- endcapture -%}
 {%- assign forestry_wholesale_login_url = forestry_wholesale_login_url | strip -%}
+{%- assign forestry_wholesale_login_href = forestry_wholesale_login_url | default: 'https://modernforestrywholesale.com/account/login' -%}
 
 {%- comment -%}
 --------------------------------------------------------------------------------------------------------------------
@@ -478,11 +479,9 @@ HEADER CONTENT
                   {%- endif -%}
                 </div>
               </li>
-              {%- if forestry_wholesale_login_url != blank -%}
-                <li class="HorizontalList__Item">
-                  <a href="{{ forestry_wholesale_login_url }}" class="Heading Link Link--primary Text--subdued u-h8">Wholesale Login</a>
-                </li>
-              {%- endif -%}
+              <li class="HorizontalList__Item">
+                <a href="{{ forestry_wholesale_login_href }}" class="Heading Link Link--primary Text--subdued u-h8">Wholesale Login</a>
+              </li>
             {%- endif -%}
 
                 {%- if forestry_native_wishlist_enabled -%}
