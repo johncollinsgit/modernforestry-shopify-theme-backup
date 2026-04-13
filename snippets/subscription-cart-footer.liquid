@@ -139,29 +139,31 @@
 				terms_and_conditions: condition_values.join(', ')
 			};
 		}
-		function getNotes() {
-			// Find and return concatenated note values if visible
-			var note_selectors = [
-					'[name="note"]',
-				],
-				notes = document.querySelectorAll(note_selectors.join(',')),
-				notes_to_update = Array.prototype.slice.apply(notes),
-				notes_filtered = filterVisible(notes_to_update),
-				note_values = notes_filtered.map(function(elem) { return elem.value; });
-			var urlParams = new URLSearchParams(decodeURIComponent(window.location.search)),
-				noteFromUrl = urlParams.get('note');
-			if (ReCharge.cart.note) {
-				note_values.push(ReCharge.cart.note);
+			function getNotes() {
+				// Find and return one clean note value for checkout.
+				var note_selectors = [
+						'[name="note"]',
+					],
+					notes = document.querySelectorAll(note_selectors.join(',')),
+					notes_to_update = Array.prototype.slice.apply(notes),
+					notes_filtered = filterVisible(notes_to_update),
+					note_values = notes_filtered
+						.map(function(elem) { return (elem.value || '').trim(); })
+						.filter(function(value) { return value.length > 0; });
+				var urlParams = new URLSearchParams(decodeURIComponent(window.location.search)),
+					noteFromUrl = (urlParams.get('note') || '').trim(),
+					noteFromCart = ReCharge.cart && typeof ReCharge.cart.note === 'string' ? ReCharge.cart.note.trim() : '';
+
+				if (!note_values.length && noteFromUrl) {
+					note_values.push(noteFromUrl);
+				}
+				if (!note_values.length && noteFromCart) {
+					note_values.push(noteFromCart);
+				}
+				if (!note_values.length) return '';
+
+				return { note: note_values[0] };
 			}
-			if (noteFromUrl) {
-				note_values.push(noteFromUrl);
-			}
-			if (!note_values.length) return '';
-			var uniqueNoteValues = note_values.filter(function(element, index, array) {
-				return array.indexOf(element) === index;
-			});
-			return { note: uniqueNoteValues.join(', ') };
-		}
 		function getAttributes() {
 			// Find and return cart attributes
 			var attributeRegEx = /attributes\[(.*?)\]/,

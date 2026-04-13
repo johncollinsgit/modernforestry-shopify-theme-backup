@@ -82,9 +82,11 @@
           <footer class="Cart__Footer Cart__Footer--paired">
             {%- if settings.cart_enable_notes -%}
               <div class="Cart__NoteContainer Cart__NoteContainer--paired">
-                <span class="Cart__NoteButton">{{ 'cart.general.add_note' | t }}</span>
-                <div class="Cart__NoteCard">
-                  <textarea class="Cart__Note Form__Textarea" name="note" id="cart-note" rows="4" placeholder="{{ 'cart.general.note_placeholder' | t }}">{{ cart.note }}</textarea>
+                <div class="Cart__NoteCard Cart__NoteCard--page">
+                  <label for="cart-note" class="Cart__NoteTitle Heading u-h6">Order notes</label>
+                  <p class="Cart__NoteHelpText Text--subdued" id="cart-note-help-page">Optional: gift message, requested ship timing, handwritten note, or delivery context.</p>
+                  <textarea class="Cart__Note Form__Textarea" name="note" id="cart-note" rows="5" placeholder="{{ 'cart.general.note_placeholder' | t }}" data-cart-note-input aria-describedby="cart-note-help-page">{{ cart.note }}</textarea>
+                  <p class="Cart__NoteMeta Text--subdued">Saved with your cart and carried into checkout for order review.</p>
                 </div>
               </div>
             {%- endif -%}

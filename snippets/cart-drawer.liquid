@@ -109,6 +109,12 @@
             {%- else -%}
               <button type="button" class="Cart__NoteButton" data-action="toggle-cart-note">{{ 'cart.general.edit_note' | t }}</button>
             {%- endif -%}
+            <p class="Cart__NoteHelpText Text--subdued">Optional: gift message, requested ship timing, handwritten note, or delivery context.</p>
+            <p class="Cart__NotePreview Text--subdued{% if cart.note == blank %} is-hidden{% endif %}" data-cart-note-preview>
+              {%- if cart.note != blank -%}
+                <span class="Cart__NotePreviewLabel">Saved note:</span> {{ cart.note | strip_html | strip_newlines | escape | truncate: 120 }}
+              {%- endif -%}
+            </p>
           {%- endif -%}
 
           {%- if shipping_and_taxes_notice != blank -%}
@@ -135,14 +141,11 @@
 
         {%- if settings.cart_enable_notes -%}
           <div class="Cart__OffscreenNoteContainer" aria-hidden="true">
-            {%- if cart.note == blank -%}
-              <span class="Cart__NoteButton">{{ 'cart.general.add_note' | t }}</span>
-            {%- else -%}
-              <span class="Cart__NoteButton">{{ 'cart.general.edit_note' | t }}</span>
-            {%- endif -%}
+            <label for="cart-note" class="Cart__NoteTitle Heading u-h6">Order notes</label>
+            <p class="Cart__NoteHelpText Text--subdued" id="cart-note-help-drawer">Optional: gift message, requested ship timing, handwritten note, or delivery context.</p>
 
             <div class="Form__Item">
-              <textarea class="Cart__Note Form__Textarea" name="note" id="cart-note" rows="3" placeholder="{{ 'cart.general.note_placeholder' | t }}" data-scrollable>{{ cart.note }}</textarea>
+              <textarea class="Cart__Note Form__Textarea" name="note" id="cart-note" rows="4" placeholder="{{ 'cart.general.note_placeholder' | t }}" data-scrollable data-cart-note-input aria-describedby="cart-note-help-drawer">{{ cart.note }}</textarea>
             </div>
 
             <button type="button" class="Button Button--primary Button--full" data-action="toggle-cart-note">{{ 'cart.general.save_note' | t }}</button>

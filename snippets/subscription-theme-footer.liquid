@@ -35,8 +35,12 @@
 					var has_cart_note_or_attribute = false;
 					try {
 						var data = {};
-						if ($('[name="note"]').val() != undefined) {
-							var note = $('[name="note"]').val();
+						var noteInput = $('[data-cart-note-input]').first();
+						if (!noteInput.length) {
+							noteInput = $('[name="note"]').first();
+						}
+						if (noteInput.val() != undefined) {
+							var note = noteInput.val();
 							data['note'] = note;
 							has_cart_note_or_attribute = true;
 						}
@@ -62,7 +66,6 @@
 					if (!e.target.hasAttribute('data-disable-recharge')) {
 						e.preventDefault();
 						reChargeSaveCartNoteAndRedirectToCart();
-						window.location.href = '/cart';
 					} else {
 						console.info('ReCharge disabled');
 					}
