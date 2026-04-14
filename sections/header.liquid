@@ -446,29 +446,41 @@ HEADER CONTENT
       {%- else -%}
         <div class="Header__Logo">{{ header_logo }}</div>
       {%- endif -%}
+
+      {%- unless section.settings.show_icons or use_sidebar_menu -%}
+        <div class="ForestryHeaderCenteredSearch hidden-phone hidden-pocket hidden-lap">
+          <a href="{{ routes.search_url }}" class="Heading Link Link--primary Text--subdued u-h8" data-action="toggle-search">{{ 'header.navigation.search' | t }}</a>
+        </div>
+      {%- endunless -%}
     </div>
 
     <div class="Header__FlexItem Header__FlexItem--fill">
       {%- unless section.settings.show_icons or use_sidebar_menu -%}
         <nav class="Header__SecondaryNav hidden-phone">
-          <ul class="HorizontalList HorizontalList--spacingLoose hidden-pocket hidden-lap">
+          <ul class="HorizontalList HorizontalList--spacingLoose hidden-pocket hidden-lap ForestryHeaderTwoLineNav">
             {%- if localization_form != blank and section.settings.navigation_style == 'inline' or section.settings.navigation_style == 'logoLeft' -%}
-              <li class="HorizontalList__Item">
+              <li class="HorizontalList__Item ForestryHeaderNav__locale">
                 {{ localization_form }}
               </li>
             {%- endif -%}
 
             {%- if shop.customer_accounts_enabled -%}
-              <li class="HorizontalList__Item">
+              <li class="HorizontalList__Item ForestryHeaderNav__candle">
                 <a href="/pages/rewards" class="Heading Link Link--primary Text--subdued u-h8">Candle Cash</a>
               </li>
-              <li class="HorizontalList__Item ForestryRewardsHeaderMount">
-                <div class="ForestryRewardsHeaderMount__group">
-                  <a href="{{ routes.account_url }}" class="Heading Link Link--primary Text--subdued u-h8 ForestryRewardsHeaderMount__account">
-                    {{- 'header.navigation.account' | t -}}
-                  </a>
+              <li class="HorizontalList__Item ForestryRewardsHeaderMount ForestryHeaderNav__login">
+                <div class="ForestryRewardsHeaderMount__group ForestryHeaderLoginMenu">
+                  <details class="ForestryHeaderLoginMenu__details">
+                    <summary class="Heading Link Link--primary Text--subdued u-h8 ForestryHeaderLoginMenu__summary">Login</summary>
+                    <div class="ForestryHeaderLoginMenu__menu">
+                      <a href="{{ routes.account_url }}" class="Heading Link Link--primary Text--subdued u-h8 ForestryHeaderLoginMenu__link">
+                        {{- 'header.navigation.account' | t -}}
+                      </a>
+                      <a href="{{ forestry_wholesale_login_href }}" class="Heading Link Link--primary Text--subdued u-h8 ForestryHeaderLoginMenu__link">Wholesale Login</a>
+                    </div>
+                  </details>
                   {%- if customer -%}
-                    <span class="ForestryRewardsHeaderMount__inline">
+                    <span class="ForestryRewardsHeaderMount__inline ForestryHeaderLoginMenu__rewards">
                       {% render 'forestry-rewards-root',
                         surface: 'header',
                         title: 'Candle Cash',
@@ -479,13 +491,10 @@ HEADER CONTENT
                   {%- endif -%}
                 </div>
               </li>
-              <li class="HorizontalList__Item">
-                <a href="{{ forestry_wholesale_login_href }}" class="Heading Link Link--primary Text--subdued u-h8">Wholesale Login</a>
-              </li>
             {%- endif -%}
 
                 {%- if forestry_native_wishlist_enabled -%}
-                  <li class="HorizontalList__Item">
+                  <li class="HorizontalList__Item ForestryHeaderNav__wishlist">
                     <a
                       href="#sidebar-wishlist"
                       class="Heading Link Link--primary Text--subdued u-h8 ForestryWishlistHeaderTrigger"
@@ -499,11 +508,7 @@ HEADER CONTENT
               </li>
             {%- endif -%}
 
-            <li class="HorizontalList__Item">
-              <a href="{{ routes.search_url }}" class="Heading Link Link--primary Text--subdued u-h8" data-action="toggle-search">{{ 'header.navigation.search' | t }}</a>
-            </li>
-
-            <li class="HorizontalList__Item">
+            <li class="HorizontalList__Item ForestryHeaderNav__cart">
               <a href="{{ routes.cart_url }}" class="Heading u-h6" {% unless template == 'cart' or settings.cart_type == 'page' %}data-action="open-drawer" data-drawer-id="sidebar-cart" aria-label="{{ 'header.navigation.open_cart' | t }}"{% endunless %}>{{ 'header.navigation.cart' | t }} (<span class="Header__CartCount">{{ cart.item_count }}</span>)</a>
             </li>
           </ul>
@@ -609,6 +614,117 @@ HEADER CONTENT
       --header-is-transparent: 0;
     }
   {%- endif -%}
+
+  @media screen and (min-width: 1140px) {
+    .Header .Header__FlexItem--logo {
+      flex-direction: column;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .Header .ForestryHeaderCenteredSearch {
+      line-height: 1;
+      text-align: center;
+    }
+
+    .Header .ForestryHeaderCenteredSearch .Link {
+      display: inline-block;
+    }
+
+    .Header .ForestryHeaderTwoLineNav {
+      display: grid;
+      grid-template-columns: repeat(2, max-content);
+      justify-content: end;
+      align-items: center;
+      gap: 0.52rem 1.4rem;
+      margin: 0;
+      padding: 0.72rem 0.95rem;
+      border: 1px solid rgba(var(--text-color-rgb), 0.14);
+      border-radius: 12px;
+      background: rgba(var(--background-rgb), 0.62);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+
+    .Header .ForestryHeaderTwoLineNav > .HorizontalList__Item {
+      margin: 0;
+      display: block;
+    }
+
+    .Header .ForestryHeaderNav__locale {
+      display: none;
+    }
+
+    .Header .ForestryHeaderLoginMenu {
+      position: relative;
+      gap: 0.4rem;
+    }
+
+    .Header .ForestryHeaderLoginMenu__details {
+      position: relative;
+    }
+
+    .Header .ForestryHeaderLoginMenu__summary {
+      list-style: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.38rem;
+      white-space: nowrap;
+    }
+
+    .Header .ForestryHeaderLoginMenu__summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .Header .ForestryHeaderLoginMenu__summary::after {
+      content: "";
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid currentColor;
+      transform: translateY(1px);
+      transform-origin: center;
+    }
+
+    .Header .ForestryHeaderLoginMenu__details[open] .ForestryHeaderLoginMenu__summary::after {
+      transform: rotate(180deg) translateY(-1px);
+    }
+
+    .Header .ForestryHeaderLoginMenu__menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      z-index: 30;
+      min-width: 12rem;
+      display: grid;
+      gap: 0;
+      padding: 0.35rem 0;
+      border: 1px solid var(--header-border-color);
+      border-radius: 10px;
+      background: var(--header-background);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
+    }
+
+    .Header .ForestryHeaderLoginMenu__details:not([open]) .ForestryHeaderLoginMenu__menu {
+      display: none;
+    }
+
+    .Header .ForestryHeaderLoginMenu__link {
+      display: block;
+      padding: 0.46rem 0.82rem;
+      white-space: nowrap;
+    }
+
+    .Header .ForestryHeaderLoginMenu__link:hover {
+      background: rgba(var(--text-color-rgb), 0.06);
+    }
+
+    .Header .ForestryHeaderLoginMenu__rewards {
+      min-height: 0;
+    }
+  }
 </style>
 
 <script>
