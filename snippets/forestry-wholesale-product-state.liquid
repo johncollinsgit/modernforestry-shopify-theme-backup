@@ -3,16 +3,11 @@
 
   if product != blank
     assign forestry_product_handle = product.handle | default: '' | downcase
-    assign forestry_product_title = product.title | default: '' | downcase
     assign forestry_product_type = product.type | default: '' | downcase
-    assign forestry_product_tags = product.tags | join: '||' | downcase
     assign forestry_product_description = product.description | strip_html | downcase
+    assign forestry_has_wholesale_tag = false
 
-    if forestry_product_handle contains 'bulk-discount' or forestry_product_handle contains 'case-of'
-      assign forestry_is_wholesale_product = true
-    endif
-
-    if forestry_product_title contains 'case of' or forestry_product_title contains 'case-pack' or forestry_product_title contains 'case pack'
+    if forestry_product_handle contains 'wholesale'
       assign forestry_is_wholesale_product = true
     endif
 
@@ -20,7 +15,15 @@
       assign forestry_is_wholesale_product = true
     endif
 
-    if forestry_product_tags contains 'wholesale' or forestry_product_tags contains 'case-pack' or forestry_product_tags contains 'case pack' or forestry_product_tags contains 'bulk'
+    for forestry_product_tag in product.tags
+      assign forestry_product_tag_normalized = forestry_product_tag | strip | downcase
+      if forestry_product_tag_normalized == 'wholesale' or forestry_product_tag_normalized == 'wholesale-only' or forestry_product_tag_normalized == 'b2b' or forestry_product_tag_normalized == 'trade-only' or forestry_product_tag_normalized == 'trade'
+        assign forestry_has_wholesale_tag = true
+        break
+      endif
+    endfor
+
+    if forestry_has_wholesale_tag
       assign forestry_is_wholesale_product = true
     endif
 
