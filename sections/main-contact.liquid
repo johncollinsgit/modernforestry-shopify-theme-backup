@@ -13,7 +13,13 @@
 
   {%- assign business_address = business_address | strip -%}
 {%- endif -%}
-{%- assign formatted_business_address = business_address | escape | replace: '\\r\\n', '<br />' | replace: '\\n', '<br />' | newline_to_br -%}
+{%- assign normalized_business_address = business_address
+  | replace: '\r\n', '[[newline]]'
+  | replace: '\n', '[[newline]]'
+  | replace: '\\r\\n', '[[newline]]'
+  | replace: '\\n', '[[newline]]'
+-%}
+{%- assign formatted_business_address = normalized_business_address | strip | escape | replace: '[[newline]]', '<br />' | newline_to_br -%}
 
 {%- assign should_render_support_panel = false -%}
 {%- if support_email != blank or support_phone != blank or business_address != blank or section.settings.support_hours != blank -%}
