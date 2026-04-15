@@ -3,6 +3,13 @@
 {%- capture forestry_wholesale_login_url -%}{% render 'forestry-wholesale-url', key: 'login' %}{%- endcapture -%}
 {%- assign forestry_wholesale_login_url = forestry_wholesale_login_url | strip -%}
 {%- assign forestry_wholesale_login_href = forestry_wholesale_login_url | default: 'https://modernforestrywholesale.com/account/login' -%}
+{%- assign forestry_rewards_login_return_url = '/pages/rewards?candle_cash_welcome=login' | url_encode -%}
+{%- assign forestry_account_login_url = routes.account_login_url -%}
+{%- assign forestry_account_login_separator = '?' -%}
+{%- if forestry_account_login_url contains '?' -%}
+  {%- assign forestry_account_login_separator = '&' -%}
+{%- endif -%}
+{%- assign forestry_candle_cash_login_href = forestry_account_login_url | append: forestry_account_login_separator | append: 'return_url=' | append: forestry_rewards_login_return_url -%}
 
 <section id="sidebar-menu" class="SidebarMenu Drawer Drawer--small Drawer--fromLeft" aria-hidden="true" data-section-id="{{ section.id }}" data-section-type="sidebar-menu">
     <header class="Drawer__Header" data-drawer-animated-left>
@@ -99,7 +106,7 @@
 
               {%- if shop.customer_accounts_enabled -%}
                 <li class="Linklist__Item">
-                  <a href="{{ routes.account_url }}" class="Text--subdued Link Link--primary">{{ 'header.navigation.account' | t }}</a>
+                  <a href="{% if customer %}{{ routes.account_url }}{% else %}{{ forestry_candle_cash_login_href }}{% endif %}" class="Text--subdued Link Link--primary" {% unless customer %}data-forestry-auth-link="login" data-forestry-auth-return="rewards-login"{% endunless %}>{{ 'header.navigation.account' | t }}</a>
                 </li>
                 <li class="Linklist__Item">
                   <a href="/pages/rewards" class="Text--subdued Link Link--primary">Candle Cash</a>

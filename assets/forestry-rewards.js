@@ -22,6 +22,8 @@
   const REVIEW_PREFETCH_EVENT = 'forestry:prefetch-reviews';
   const CLASSIC_LOGIN_PATH = '/account/login';
   const DEFAULT_REWARDS_PATH = '/pages/rewards';
+  const POST_LOGIN_SMS_REDIRECT_KEY = 'forestryPostLoginSmsRedirect';
+  const POST_LOGIN_SMS_REDIRECT_MAX_AGE_MS = 30 * 60 * 1000;
   const runtime = window[RUNTIME_KEY] || {
     mounted: new Set(),
     state: new WeakMap(),
@@ -33,6 +35,7 @@
     reviewPrefetchTargets: new WeakMap(),
     rewardsPrefetchObserver: null,
     rewardsPrefetchTargets: new WeakMap(),
+    postLoginSmsRedirectHandled: false,
   };
 
   window[RUNTIME_KEY] = runtime;
@@ -81,6 +84,68 @@
     }
 
     return currentPageUrl();
+  }
+
+  function readSessionPayload(key) {
+    try {
+      const raw = window.sessionStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function writeSessionPayload(key, value) {
+    try {
+      window.sessionStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      // ignore
+    }
+  }
+
+  function clearSessionPayload(key) {
+    try {
+      window.sessionStorage.removeItem(key);
+    } catch (error) {
+      // ignore
+    }
+  }
+
+  function postLoginSmsRedirectMarker() {
+    const marker = readSessionPayload(POST_LOGIN_SMS_REDIRECT_KEY);
+
+    if (!marker) {
+      return null;
+    }
+
+    const createdAt = Number(marker.createdAt || 0);
+    if (!createdAt || (Date.now() - createdAt) > POST_LOGIN_SMS_REDIRECT_MAX_AGE_MS) {
+      clearSessionPayload(POST_LOGIN_SMS_REDIRECT_KEY);
+      return null;
+    }
+
+    return marker;
+  }
+
+  function clearPostLoginSmsRedirectMarker() {
+    clearSessionPayload(POST_LOGIN_SMS_REDIRECT_KEY);
+  }
+
+  function markPostLoginSmsRedirectIntent() {
+    const pathname = cleanString(window.location.pathname);
+    const url = new URL(window.location.href);
+    const loginPath = pathname === CLASSIC_LOGIN_PATH;
+    const hasReturnParam = url.searchParams.has(AUTH_RETURN_PARAM);
+
+    if (!loginPath && !hasReturnParam) {
+      return;
+    }
+
+    writeSessionPayload(POST_LOGIN_SMS_REDIRECT_KEY, {
+      createdAt: Date.now(),
+      sourcePath: pathname,
+      returnUrl: normalizeReturnUrl(url.searchParams.get(AUTH_RETURN_PARAM)) || '',
+    });
   }
 
   function rewardsWelcomeModeForTarget(target) {
@@ -219,6 +284,8 @@
     buildAuthUrl: buildAuthUrl,
     applyManagedLinks: applyManagedAuthLinks,
   });
+
+  markPostLoginSmsRedirectIntent();
 
   function escapeHtml(value) {
     return cleanString(value)
@@ -4025,6 +4092,40 @@
     }
   }
 
+  function maybeRedirectTextSubscriberToRewards(model) {
+    if (runtime.postLoginSmsRedirectHandled) {
+      return false;
+    }
+
+    if (!postLoginSmsRedirectMarker()) {
+      return false;
+    }
+
+    const pathname = cleanString(window.location.pathname);
+    if (pathname === DEFAULT_REWARDS_PATH) {
+      clearPostLoginSmsRedirectMarker();
+      return false;
+    }
+
+    if (pathname.indexOf('/account') !== 0) {
+      return false;
+    }
+
+    if (!model || !model.profileId) {
+      return false;
+    }
+
+    if (!model.consentSms) {
+      clearPostLoginSmsRedirectMarker();
+      return false;
+    }
+
+    runtime.postLoginSmsRedirectHandled = true;
+    clearPostLoginSmsRedirectMarker();
+    window.location.replace(returnUrlForAuthTarget('login', DEFAULT_REWARDS_PATH));
+    return true;
+  }
+
   function sameOriginUrl(url) {
     try {
       return new URL(url, window.location.origin).origin === window.location.origin;
@@ -4237,6 +4338,9 @@
       render(root, result.model);
       maybeTrackView(root, result.model);
       maybeHandleApplyMarker(root, result.model);
+      if (maybeRedirectTextSubscriberToRewards(result.model)) {
+        return;
+      }
     })().finally(function () {
       root.__forestryLoadPromise = null;
       if (root.__forestryNeedsReload && document.documentElement.contains(root)) {
