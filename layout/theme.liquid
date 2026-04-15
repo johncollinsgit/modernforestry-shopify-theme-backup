@@ -194,25 +194,53 @@
           return nativeReplaceChild.call(this, newNode, oldNode);
         };
 
-        document.addEventListener('DOMContentLoaded', function () {
-          [
-            '[id*="4000763c184adcdbd8"]',
-            '.gw-widget-placeholder-LC-wrapper',
-            '.gw-widget-placeholder-RC-wrapper',
-            '.gw-widget-placeholder-BR-wrapper',
-            '.gw-widget-placeholder-BL-wrapper',
-            '.gw-wl-drawer-widget-placeholder',
-            '.gw-reviews-drawer-widget-placeholder',
-            '.gw-reviews-modal-widget-placeholder',
-            '#ssw-widget-review-bar',
-            '#ssw-review-widget-content',
-            '#ssw-fave-side-bar',
-            '#ssw-fave-side-button'
-          ].forEach(function (selector) {
+        var legacyWidgetSelectors = [
+          '[id*="4000763c184adcdbd8"]',
+          '.gw-widget-placeholder-LC-wrapper',
+          '.gw-widget-placeholder-RC-wrapper',
+          '.gw-widget-placeholder-BR-wrapper',
+          '.gw-widget-placeholder-BL-wrapper',
+          '[class*="gw-widget-placeholder"]',
+          '.gw-wl-drawer-widget-placeholder',
+          '[class*="gw-wl-drawer-widget-placeholder"]',
+          '.gw-reviews-drawer-widget-placeholder',
+          '[class*="gw-reviews-drawer-widget-placeholder"]',
+          '.gw-reviews-modal-widget-placeholder',
+          '[class*="gw-reviews-modal-widget-placeholder"]',
+          '#ssw-widget-review-bar',
+          '[id^="ssw-widget-review-bar"]',
+          '#ssw-review-widget-content',
+          '[id^="ssw-review-widget-content"]',
+          '#ssw-fave-list-widget',
+          '#ssw-fave-side-button-wrapper',
+          '#ssw-fave-side-bar',
+          '[id^="ssw-fave-side-bar"]',
+          '#ssw-fave-side-button',
+          '[id^="ssw-fave-side-button"]'
+        ];
+
+        function removeLegacyWidgets() {
+          legacyWidgetSelectors.forEach(function (selector) {
             document.querySelectorAll(selector).forEach(function (node) {
               node.remove();
             });
           });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+          removeLegacyWidgets();
+
+          if (!window.MutationObserver || document.documentElement.__forestryLegacyWidgetObserverInstalled) {
+            return;
+          }
+
+          document.documentElement.__forestryLegacyWidgetObserverInstalled = true;
+
+          var observer = new MutationObserver(function () {
+            removeLegacyWidgets();
+          });
+
+          observer.observe(document.documentElement, { childList: true, subtree: true });
         });
       })();
     </script>
@@ -236,10 +264,17 @@
     {%- unless settings.growave_reviews_enabled -%}
       <style>
         #ssw-widget-review-bar,
+        [id^="ssw-widget-review-bar"],
         #ssw-review-widget-content,
+        [id^="ssw-review-widget-content"],
         .ssw-reviews-widget,
         .ssw-review-side-backdrop,
         .ssw-widget-avg-rate-listing,
+        .gw-reviews-drawer-widget-placeholder,
+        .gw-reviews-modal-widget-placeholder,
+        [class*="gw-reviews-drawer-widget-placeholder"],
+        [class*="gw-reviews-modal-widget-placeholder"],
+        [class*="gw-widget-placeholder"],
         [data-name="reviewsPopup"] {
           display: none !important;
           visibility: hidden !important;
@@ -250,13 +285,18 @@
       <style>
         #ssw-fave-list-widget,
         #ssw-fave-side-bar,
+        [id^="ssw-fave-side-bar"],
         #ssw-fave-side-button,
+        [id^="ssw-fave-side-button"],
+        #ssw-fave-side-button-wrapper,
         #ssw-fave-page-side-button,
         .ssw-faveappbtn,
         .ssw-fave-btn,
         .ssw-wishlist-element,
         .ssw-fave-wrapper,
         .ssw-wishlist-link,
+        .gw-wl-drawer-widget-placeholder,
+        [class*="gw-wl-drawer-widget-placeholder"],
         [data-name="favePopup"] {
           display: none !important;
           visibility: hidden !important;
