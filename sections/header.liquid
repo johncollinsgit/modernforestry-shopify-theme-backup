@@ -28,6 +28,13 @@ USEFUL VARIABLES
 {%- capture forestry_wholesale_login_url -%}{% render 'forestry-wholesale-url', key: 'login' %}{%- endcapture -%}
 {%- assign forestry_wholesale_login_url = forestry_wholesale_login_url | strip -%}
 {%- assign forestry_wholesale_login_href = forestry_wholesale_login_url | default: 'https://modernforestrywholesale.com/account/login' -%}
+{%- assign forestry_rewards_login_return_url = '/pages/rewards?candle_cash_welcome=login' | url_encode -%}
+{%- assign forestry_account_login_url = routes.account_login_url -%}
+{%- assign forestry_account_login_separator = '?' -%}
+{%- if forestry_account_login_url contains '?' -%}
+  {%- assign forestry_account_login_separator = '&' -%}
+{%- endif -%}
+{%- assign forestry_candle_cash_login_href = forestry_account_login_url | append: forestry_account_login_separator | append: 'return_url=' | append: forestry_rewards_login_return_url -%}
 
 {%- comment -%}
 --------------------------------------------------------------------------------------------------------------------
@@ -473,8 +480,12 @@ HEADER CONTENT
                   <details class="ForestryHeaderLoginMenu__details">
                     <summary class="Heading Link Link--primary Text--subdued u-h8 ForestryHeaderLoginMenu__summary">Login</summary>
                     <div class="ForestryHeaderLoginMenu__menu">
-                      <a href="{{ routes.account_url }}" class="Heading Link Link--primary Text--subdued u-h8 ForestryHeaderLoginMenu__link">
-                        {{- 'header.navigation.account' | t -}}
+                      <a href="{% if customer %}{{ routes.account_url }}{% else %}{{ forestry_candle_cash_login_href }}{% endif %}" class="Heading Link Link--primary Text--subdued u-h8 ForestryHeaderLoginMenu__link">
+                        {%- if customer -%}
+                          {{- 'header.navigation.account' | t -}}
+                        {%- else -%}
+                          Sign in
+                        {%- endif -%}
                       </a>
                       <a href="{{ forestry_wholesale_login_href }}" class="Heading Link Link--primary Text--subdued u-h8 ForestryHeaderLoginMenu__link">Wholesale Login</a>
                     </div>

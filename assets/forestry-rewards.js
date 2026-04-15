@@ -21,6 +21,7 @@
   const AUTH_WELCOME_PARAM = 'candle_cash_welcome';
   const REVIEW_PREFETCH_EVENT = 'forestry:prefetch-reviews';
   const CLASSIC_LOGIN_PATH = '/account/login';
+  const DEFAULT_REWARDS_PATH = '/pages/rewards';
   const runtime = window[RUNTIME_KEY] || {
     mounted: new Set(),
     state: new WeakMap(),
@@ -82,9 +83,28 @@
     return currentPageUrl();
   }
 
+  function rewardsWelcomeModeForTarget(target) {
+    const kind = cleanString(target).toLowerCase();
+    return kind === 'login' || kind === 'register' || kind === 'home' ? kind : '';
+  }
+
+  function defaultAuthReturnForTarget(target) {
+    const welcomeMode = rewardsWelcomeModeForTarget(target);
+    const params = new URLSearchParams();
+
+    if (welcomeMode) {
+      params.set(AUTH_WELCOME_PARAM, welcomeMode);
+    }
+
+    return DEFAULT_REWARDS_PATH + (params.toString() ? ('?' + params.toString()) : '');
+  }
+
   function returnUrlForAuthTarget(target, fallback) {
     const kind = cleanString(target).toLowerCase();
-    const normalized = normalizeReturnUrl(currentAuthReturnUrl(fallback));
+    const fallbackUrl = cleanString(fallback) || defaultAuthReturnForTarget(kind);
+    const normalized = normalizeReturnUrl(currentAuthReturnUrl(fallbackUrl))
+      || normalizeReturnUrl(defaultAuthReturnForTarget(kind))
+      || DEFAULT_REWARDS_PATH;
 
     if (!normalized) {
       return currentPageUrl();
@@ -94,8 +114,12 @@
       const url = new URL(normalized, window.location.origin);
       url.searchParams.delete(AUTH_PORTAL_PARAM);
 
-      if (url.pathname === '/pages/rewards' && (kind === 'login' || kind === 'register' || kind === 'home')) {
-        url.searchParams.set(AUTH_WELCOME_PARAM, kind);
+      if (url.pathname === DEFAULT_REWARDS_PATH) {
+        const welcomeMode = rewardsWelcomeModeForTarget(kind);
+
+        if (welcomeMode) {
+          url.searchParams.set(AUTH_WELCOME_PARAM, welcomeMode);
+        }
       }
 
       return url.pathname + url.search + url.hash;
@@ -113,9 +137,10 @@
 
     try {
       const url = new URL(cleanString(base) || fallbackBase, window.location.origin);
+      const defaultReturnUrl = defaultAuthReturnForTarget(kind);
       const returnUrl = normalizeReturnUrl(
         settings.returnUrl == null
-          ? currentAuthReturnUrl()
+          ? currentAuthReturnUrl(defaultReturnUrl || currentPageUrl())
           : settings.returnUrl
       );
 
@@ -162,7 +187,7 @@
       } else if (returnMode === 'account') {
         returnUrl = '/account';
       } else {
-        returnUrl = currentAuthReturnUrl();
+        returnUrl = currentAuthReturnUrl(defaultAuthReturnForTarget(kind));
       }
 
       link.href = buildAuthUrl(link.getAttribute('href') || authPathFor(kind), {
@@ -176,7 +201,7 @@
 
   function guestLoginUrl(root) {
     const loginUrl = cleanString(root && root.dataset && root.dataset.loginUrl) || CLASSIC_LOGIN_PATH;
-    const rewardsFallback = cleanString(root && root.dataset && root.dataset.rewardsUrl) || '/pages/rewards';
+    const rewardsFallback = cleanString(root && root.dataset && root.dataset.rewardsUrl) || DEFAULT_REWARDS_PATH;
 
     return buildAuthUrl(loginUrl, {
       kind: 'login',
@@ -5661,7 +5686,9 @@
   const STORAGE_KEY = 'candleCashIntroSeen';
   const DEBUG_PARAM = 'candle_cash_intro';
   const PORTAL_PARAM = 'candle_cash_portal';
+  const WELCOME_PARAM = 'candle_cash_welcome';
   const PORTAL_STORAGE_KEY = 'candleCashPortalTransition';
+  const REWARDS_PATH = '/pages/rewards';
   const INLINE_AUTH_BREAKPOINT = '(min-width: 901px)';
   const PORTAL_DURATION_MS = 560;
   const WHEEL_SKIP_THRESHOLD = 24;
@@ -5669,6 +5696,22 @@
 
   function cleanCinematicValue(value) {
     return value == null ? '' : String(value).trim();
+  }
+
+  function cinematicWelcomeMode(target) {
+    const kind = cleanCinematicValue(target).toLowerCase();
+    return kind === 'login' || kind === 'register' || kind === 'home' ? kind : '';
+  }
+
+  function defaultCinematicReturnPath(target) {
+    const welcomeMode = cinematicWelcomeMode(target);
+    const params = new URLSearchParams();
+
+    if (welcomeMode) {
+      params.set(WELCOME_PARAM, welcomeMode);
+    }
+
+    return REWARDS_PATH + (params.toString() ? ('?' + params.toString()) : '');
   }
 
   function cinematicInlineAuthEnabled() {
@@ -5779,6 +5822,7 @@
   function cinematicPortalUrl(href, target) {
     const destination = cleanCinematicValue(href);
     const portalTarget = cleanCinematicValue(target).toLowerCase();
+    const fallbackReturn = defaultCinematicReturnPath(portalTarget);
 
     if (!destination || !portalTarget) {
       return destination;
@@ -5799,7 +5843,7 @@
     return helpers.buildAuthUrl(destination, {
       kind: portalTarget,
       portal: portalTarget,
-      returnUrl: helpers.returnUrlForTarget(portalTarget),
+      returnUrl: helpers.returnUrlForTarget(portalTarget, fallbackReturn),
     });
   }
 
@@ -6478,6 +6522,7 @@
   const AUTH_PORTAL_SETTLE_MS = 1250;
   const AUTH_PORTAL_OUT_MS = 520;
   const WELCOME_PARAM = 'candle_cash_welcome';
+  const REWARDS_PATH = '/pages/rewards';
   const MIN_WELCOME_DURATION_MS = 1600;
   const MAX_WELCOME_WAIT_MS = 2600;
   const WELCOME_DISSOLVE_MS = 1100;
@@ -6486,6 +6531,22 @@
 
   function cleanValue(value) {
     return value == null ? '' : String(value).trim();
+  }
+
+  function authWelcomeMode(target) {
+    const kind = cleanValue(target).toLowerCase();
+    return kind === 'login' || kind === 'register' || kind === 'home' ? kind : '';
+  }
+
+  function defaultAuthReturnPath(target) {
+    const welcomeMode = authWelcomeMode(target);
+    const params = new URLSearchParams();
+
+    if (welcomeMode) {
+      params.set(WELCOME_PARAM, welcomeMode);
+    }
+
+    return REWARDS_PATH + (params.toString() ? ('?' + params.toString()) : '');
   }
 
   function readSessionJson(key) {
@@ -6526,6 +6587,7 @@
   function authPortalUrl(href, target) {
     const destination = cleanValue(href);
     const portalTarget = cleanValue(target).toLowerCase();
+    const fallbackReturn = defaultAuthReturnPath(portalTarget);
 
     if (!destination || !portalTarget) {
       return destination;
@@ -6546,7 +6608,7 @@
     return helpers.buildAuthUrl(destination, {
       kind: portalTarget,
       portal: portalTarget,
-      returnUrl: helpers.returnUrlForTarget(portalTarget),
+      returnUrl: helpers.returnUrlForTarget(portalTarget, fallbackReturn),
     });
   }
 
@@ -6595,7 +6657,7 @@
     const kind = cleanValue(container && container.getAttribute('data-candle-cash-auth')).toLowerCase();
     const input = form && form.querySelector('input[name="return_to"]');
     const helpers = authHelpers();
-    const fallback = cleanValue(input && input.value) || '/account';
+    const fallback = cleanValue(input && input.value) || defaultAuthReturnPath(kind || 'login');
 
     if (!input) {
       return;
@@ -6614,7 +6676,7 @@
     const kind = cleanValue(container && container.getAttribute('data-candle-cash-auth')).toLowerCase() || 'login';
     const helpers = authHelpers();
     const input = form && form.querySelector('input[name="return_to"]');
-    const fallback = cleanValue(input && input.value) || '/account';
+    const fallback = cleanValue(input && input.value) || defaultAuthReturnPath(kind);
     const baseAction = cleanValue(form && form.getAttribute('data-candle-cash-base-action')) || cleanValue(form && form.getAttribute('action')) || window.location.pathname;
 
     if (!form) {

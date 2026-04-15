@@ -12,7 +12,7 @@
   if account_login_url contains '?'
     assign account_link_separator = '&'
   endif
-  assign account_return_url = rewards_url | url_encode
+  assign account_return_url = '/pages/rewards?candle_cash_welcome=login' | url_encode
   assign account_link = account_login_url | append: account_link_separator | append: 'return_url=' | append: account_return_url
   assign hero_account_label = 'Sign in to view your balance'
   assign closing_account_label = 'Sign in or create account'
