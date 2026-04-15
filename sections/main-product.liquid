@@ -42,6 +42,10 @@
 {%- capture forestry_wholesale_login_url -%}{% render 'forestry-wholesale-url', key: 'login' %}{%- endcapture -%}
 {%- assign forestry_wholesale_line_sheet_url = forestry_wholesale_line_sheet_url | strip -%}
 {%- assign forestry_wholesale_login_url = forestry_wholesale_login_url | strip -%}
+{%- assign forestry_product_canonical_url = canonical_url -%}
+{%- if forestry_product_canonical_url == blank -%}
+  {%- assign forestry_product_canonical_url = shop.url | append: '/products/' | append: product.handle -%}
+{%- endif -%}
 
 {%- capture section_settings -%}
 {
@@ -100,7 +104,7 @@
             <span class="RoundButton__SecondaryState">{% render 'icon' with 'close' %}</span>
           </button>
 
-          {%- assign share_url = shop.url | append: product.url -%}
+          {%- assign share_url = forestry_product_canonical_url -%}
           {%- assign twitter_text = product.title -%}
           {%- assign pinterest_description = product.description | strip_html | truncatewords: 15 | url_param_escape -%}
           {%- assign pinterest_image = product.featured_media | img_url: '1024x' | prepend: 'https:' -%}
@@ -409,7 +413,7 @@
                   <div class="ProductMeta__ShareButtons hidden-pocket" {{ block.shopify_attributes }}>
                     <span class="ProductMeta__ShareTitle Heading Text--subdued u-h7">{{ 'product.form.share' | t }}</span>
 
-                    {%- assign share_url = shop.url | append: product.url -%}
+                    {%- assign share_url = forestry_product_canonical_url -%}
                     {%- assign twitter_text = product.title -%}
                     {%- assign pinterest_description = product.description | strip_html | truncatewords: 15 | url_param_escape -%}
                     {%- assign pinterest_image = product.featured_image | img_url: 'large' | prepend: 'https:' -%}

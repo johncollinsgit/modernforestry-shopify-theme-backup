@@ -16,7 +16,7 @@
     {%- if template.name == 'product' -%}
       {{- product.title -}}
     {%- else -%}
-      <a href="{{ product.url }}">{{ product.title }}</a>
+      <a href="/products/{{ product.handle }}">{{ product.title }}</a>
     {%- endif -%}
   </h1>
 

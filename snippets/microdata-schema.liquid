@@ -1,21 +1,92 @@
 {%- comment -%}
 This snippet structures the micro-data using JSON-LD specification. Please note that for Product especially,
 the schema often changes. We try to output as much info as possible, but Google may add new requirements over time,
-or change the format of some info
+or change the format of some info.
+
+Merchant listing guardrails:
+- Shipping and return policy fields are emitted only when explicitly configured and truthful.
+- This snippet cannot configure Merchant Center account-level shipping services.
 {%- endcomment -%}
+
+{%- assign forestry_search_target = shop.url | append: routes.search_url | append: '?q={search_term_string}' -%}
+
+{%- assign forestry_same_as_entries = '' -%}
+{%- assign forestry_same_as_count = 0 -%}
+{%- assign forestry_social_candidates = 'social_instagram,social_facebook,social_tiktok,social_pinterest,social_youtube,social_twitter,social_linkedin' | split: ',' -%}
+{%- for forestry_social_key in forestry_social_candidates -%}
+  {%- assign forestry_social_value = settings[forestry_social_key] | strip -%}
+  {%- if forestry_social_value != blank -%}
+    {%- if forestry_same_as_count > 0 -%}
+      {%- assign forestry_same_as_entries = forestry_same_as_entries | append: ',' -%}
+    {%- endif -%}
+    {%- assign forestry_same_as_entries = forestry_same_as_entries | append: forestry_social_value | json -%}
+    {%- assign forestry_same_as_count = forestry_same_as_count | plus: 1 -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- assign forestry_emit_return_policy = settings.merchant_schema_emit_return_policy -%}
+{%- assign forestry_accepts_returns = settings.merchant_accepts_returns -%}
+{%- assign forestry_return_country = settings.merchant_return_country | default: 'US' | strip | upcase -%}
+{%- assign forestry_return_days_raw = settings.merchant_return_days | strip -%}
+{%- assign forestry_return_days = forestry_return_days_raw | plus: 0 -%}
+{%- assign forestry_return_days_valid = false -%}
+{%- if forestry_return_days_raw != blank and forestry_return_days > 0 -%}
+  {%- assign forestry_return_days_valid = true -%}
+{%- endif -%}
+{%- assign forestry_return_policy_category = 'https://schema.org/MerchantReturnNotPermitted' -%}
+{%- if forestry_accepts_returns -%}
+  {%- assign forestry_return_policy_category = 'https://schema.org/MerchantReturnUnlimitedWindow' -%}
+  {%- if forestry_return_days_valid -%}
+    {%- assign forestry_return_policy_category = 'https://schema.org/MerchantReturnFiniteReturnWindow' -%}
+  {%- endif -%}
+{%- endif -%}
+
+{%- assign forestry_can_emit_return_policy = false -%}
+{%- if forestry_emit_return_policy and shop.refund_policy != blank and shop.refund_policy.url != blank -%}
+  {%- assign forestry_can_emit_return_policy = true -%}
+{%- endif -%}
+
+{%- if forestry_can_emit_return_policy -%}
+  {%- capture forestry_return_policy_microdata -%}
+    {
+      "@type": "MerchantReturnPolicy",
+      "url": {{ shop.url | append: shop.refund_policy.url | json }},
+      "applicableCountry": {{ forestry_return_country | json }},
+      "returnPolicyCategory": {{ forestry_return_policy_category | json }}{%- if forestry_accepts_returns and forestry_return_days_valid -%},
+      "merchantReturnDays": {{ forestry_return_days | json }}{%- endif -%}{%- if forestry_accepts_returns -%},
+      "returnMethod": "https://schema.org/ReturnByMail",
+      "returnFees": {%- if settings.merchant_return_fees_customer_responsibility -%}"https://schema.org/ReturnShippingFees"{%- else -%}"https://schema.org/FreeReturn"{%- endif -%}{%- endif -%}
+    }
+  {%- endcapture -%}
+{%- endif -%}
 
 {%- if request.page_type == 'product' -%}
   {%- assign forestry_native_reviews_enabled = settings.native_reviews_enabled -%}
   {%- assign forestry_currency_code = cart.currency.iso_code | default: shop.currency -%}
   {%- assign forestry_product_url = canonical_url -%}
   {%- if forestry_product_url == blank -%}
-    {%- assign forestry_product_url = shop.url | append: product.url -%}
+    {%- assign forestry_product_url = shop.url | append: '/products/' | append: product.handle -%}
   {%- endif -%}
+
   {%- assign forestry_product_image_url = blank -%}
   {%- if product.featured_media != blank -%}
     {%- assign forestry_product_image_url = product.featured_media | img_url: '1024x1024' | prepend: 'https:' -%}
   {%- endif -%}
-  {%- assign forestry_review_summary = product.metafields.forestry_reviews.review_summary.value -%}
+
+  {%- assign forestry_product_images_count = 0 -%}
+  {%- capture forestry_product_images_microdata -%}
+    [
+      {%- for media in product.media -%}
+        {%- if media.media_type == 'image' -%}
+          {%- if forestry_product_images_count > 0 -%},{%- endif -%}
+          {{ media | img_url: '2048x2048' | prepend: 'https:' | json }}
+          {%- assign forestry_product_images_count = forestry_product_images_count | plus: 1 -%}
+          {%- if forestry_product_images_count >= 8 -%}{%- break -%}{%- endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+    ]
+  {%- endcapture -%}
+
   {%- assign forestry_review_highlights = product.metafields.forestry_reviews.review_highlights.value -%}
   {%- assign forestry_review_count = product.metafields.forestry_reviews.review_count.value | default: 0 | plus: 0 -%}
   {%- assign forestry_review_average = product.metafields.forestry_reviews.average_rating.value | default: 0 | plus: 0 -%}
@@ -31,18 +102,133 @@ or change the format of some info
     {%- endif -%}
   {%- endif -%}
 
+  {%- assign forestry_offer_condition = settings.merchant_offer_condition | default: 'new' -%}
+  {%- assign forestry_offer_condition_url = 'https://schema.org/NewCondition' -%}
+  {%- case forestry_offer_condition -%}
+    {%- when 'used' -%}
+      {%- assign forestry_offer_condition_url = 'https://schema.org/UsedCondition' -%}
+    {%- when 'refurbished' -%}
+      {%- assign forestry_offer_condition_url = 'https://schema.org/RefurbishedCondition' -%}
+  {%- endcase -%}
+
+  {%- assign forestry_emit_shipping_details = settings.merchant_schema_emit_shipping_details -%}
+  {%- assign forestry_shipping_country = settings.merchant_shipping_country | default: 'US' | strip | upcase -%}
+  {%- assign forestry_shipping_currency = settings.merchant_shipping_currency | strip | upcase | default: forestry_currency_code -%}
+  {%- assign forestry_shipping_rate_raw = settings.merchant_shipping_rate | strip -%}
+  {%- assign forestry_shipping_rate_amount = forestry_shipping_rate_raw | plus: 0 -%}
+  {%- assign forestry_free_threshold_raw = settings.merchant_free_shipping_threshold | strip -%}
+  {%- assign forestry_free_threshold_amount = forestry_free_threshold_raw | plus: 0 -%}
+  {%- assign forestry_has_shipping_rate = false -%}
+  {%- assign forestry_has_free_threshold = false -%}
+  {%- if forestry_shipping_rate_raw != blank and forestry_shipping_rate_amount >= 0 -%}
+    {%- assign forestry_has_shipping_rate = true -%}
+  {%- endif -%}
+  {%- if forestry_free_threshold_raw != blank and forestry_free_threshold_amount > 0 -%}
+    {%- assign forestry_has_free_threshold = true -%}
+  {%- endif -%}
+
+  {%- assign forestry_can_emit_shipping_details = false -%}
+  {%- if forestry_emit_shipping_details and forestry_shipping_country != blank -%}
+    {%- if forestry_has_shipping_rate or forestry_has_free_threshold -%}
+      {%- assign forestry_can_emit_shipping_details = true -%}
+    {%- endif -%}
+  {%- endif -%}
+  {%- assign forestry_handling_min_days = settings.merchant_handling_min_days | plus: 0 -%}
+  {%- assign forestry_handling_max_days = settings.merchant_handling_max_days | plus: 0 -%}
+  {%- assign forestry_transit_min_days = settings.merchant_transit_min_days | plus: 0 -%}
+  {%- assign forestry_transit_max_days = settings.merchant_transit_max_days | plus: 0 -%}
+  {%- if forestry_handling_max_days < forestry_handling_min_days -%}
+    {%- assign forestry_handling_max_days = forestry_handling_min_days -%}
+  {%- endif -%}
+  {%- if forestry_transit_max_days < forestry_transit_min_days -%}
+    {%- assign forestry_transit_max_days = forestry_transit_min_days -%}
+  {%- endif -%}
+
+  {%- capture forestry_offer_shipping_details_microdata -%}
+    {
+      "@type": "OfferShippingDetails",
+      "shippingDestination": {
+        "@type": "DefinedRegion",
+        "addressCountry": {{ forestry_shipping_country | json }}
+      },
+      "deliveryTime": {
+        "@type": "ShippingDeliveryTime",
+        "handlingTime": {
+          "@type": "QuantitativeValue",
+          "minValue": {{ forestry_handling_min_days | json }},
+          "maxValue": {{ forestry_handling_max_days | json }},
+          "unitCode": "d"
+        },
+        "transitTime": {
+          "@type": "QuantitativeValue",
+          "minValue": {{ forestry_transit_min_days | json }},
+          "maxValue": {{ forestry_transit_max_days | json }},
+          "unitCode": "d"
+        }
+      },
+      "shippingRate": {
+        "@type": "MonetaryAmount",
+        "value": {%- if forestry_has_free_threshold -%}0{%- else -%}{{ forestry_shipping_rate_amount | json }}{%- endif -%},
+        "currency": {{ forestry_shipping_currency | json }}
+      }{%- if forestry_has_free_threshold -%},
+      "eligibleTransactionVolume": {
+        "@type": "PriceSpecification",
+        "priceCurrency": {{ forestry_shipping_currency | json }},
+        "price": {{ forestry_free_threshold_amount | json }}
+      }{%- endif -%}
+    }
+  {%- endcapture -%}
+
+  {%- assign forestry_combined_product_text = product.title | append: ' ' | append: product.type | append: ' ' | append: product.tags | join: ' ' | append: ' ' | append: product.description | strip_html | downcase -%}
+  {%- assign forestry_product_material = blank -%}
+  {%- if forestry_combined_product_text contains 'soy' and forestry_combined_product_text contains 'wax' -%}
+    {%- assign forestry_product_material = 'Soy wax' -%}
+  {%- endif -%}
+
+  {%- assign forestry_additional_property_count = 0 -%}
+  {%- capture forestry_additional_property_microdata -%}
+    [
+      {%- if forestry_product_material != blank -%}
+        {
+          "@type": "PropertyValue",
+          "name": "Material",
+          "value": {{ forestry_product_material | json }}
+        }
+        {%- assign forestry_additional_property_count = forestry_additional_property_count | plus: 1 -%}
+      {%- endif -%}
+      {%- for option in product.options_with_values -%}
+        {%- assign option_value = product.selected_or_first_available_variant.options[forloop.index0] -%}
+        {%- if option_value != blank and option_value != 'Default Title' -%}
+          {%- if forestry_additional_property_count > 0 -%},{%- endif -%}
+          {
+            "@type": "PropertyValue",
+            "name": {{ option.name | json }},
+            "value": {{ option_value | json }}
+          }
+          {%- assign forestry_additional_property_count = forestry_additional_property_count | plus: 1 -%}
+        {%- endif -%}
+      {%- endfor -%}
+    ]
+  {%- endcapture -%}
+
   {%- capture product_offers_microdata -%}
     [
       {%- for variant in product.variants -%}
+        {%- assign forestry_variant_url = forestry_product_url -%}
+        {%- if product.variants.size > 1 -%}
+          {%- assign forestry_variant_url = forestry_product_url | append: '?variant=' | append: variant.id -%}
+        {%- endif -%}
         {
           "@type": "Offer",
           "availability": {%- if variant.available -%}"https://schema.org/InStock"{%- else -%}"https://schema.org/OutOfStock"{%- endif -%},
+          "itemCondition": {{ forestry_offer_condition_url | json }},
           "price": {{ variant.price | divided_by: 100.0 | json }},
           "priceCurrency": {{ forestry_currency_code | json }},
           {%- if variant.sku != blank -%}
             "sku": {{ variant.sku | json }},
           {%- endif -%}
-          "url": {{ forestry_product_url | json }}
+          "url": {{ forestry_variant_url | json }}{%- if forestry_can_emit_shipping_details -%},
+          "shippingDetails": {{ forestry_offer_shipping_details_microdata }}{%- endif -%}
         }{%- unless forloop.last -%},{%- endunless -%}
       {%- endfor -%}
     ]
@@ -50,26 +236,33 @@ or change the format of some info
 
   {%- capture main_entity_microdata -%}
     "@type": "Product",
+    "@id": {{ forestry_product_url | append: '#product' | json }},
+    "mainEntityOfPage": {{ forestry_product_url | json }},
     "name": {{ product.title | json }},
     "description": {{ product.description | strip_html | json }},
-    {%- if product.vendor != blank -%}
     "brand": {
       "@type": "Brand",
-      "name": {{ product.vendor | json }}
+      "name": {{ product.vendor | default: shop.name | json }}
     },
-    {%- endif -%}
+    {%- if product.type != blank -%}
     "category": {{ product.type | json }},
+    {%- endif -%}
     "url": {{ forestry_product_url | json }},
     {%- if product.selected_or_first_available_variant.sku != blank -%}
     "sku": {{ product.selected_or_first_available_variant.sku | json }},
     {%- endif -%}
-    {%- if is_barcode_available and is_valid_gtin_length %}
+    {%- if is_barcode_available and is_valid_gtin_length -%}
     "{{ gtin_option }}": {{ product.selected_or_first_available_variant.barcode | json }},
-    {%- elsif is_barcode_available %}
+    {%- elsif is_barcode_available -%}
     "mpn": {{ product.selected_or_first_available_variant.barcode | json }},
-    {%- endif %}
-    {%- if forestry_product_image_url != blank -%}
+    {%- endif -%}
+    {%- if forestry_product_images_count > 0 -%}
+    "image": {{ forestry_product_images_microdata }},
+    {%- elsif forestry_product_image_url != blank -%}
     "image": {{ forestry_product_image_url | json }},
+    {%- endif -%}
+    {%- if forestry_additional_property_count > 0 -%}
+    "additionalProperty": {{ forestry_additional_property_microdata }},
     {%- endif -%}
     "offers": {{ product_offers_microdata }}{%- if forestry_native_reviews_enabled and forestry_review_count > 0 -%},
     "aggregateRating": {
@@ -232,8 +425,11 @@ or change the format of some info
     "@type": "Organization",
     "@id": "{{ shop.url }}#organization",
     "name": {{ shop.name | json }},
-    "url": {{ shop.url | json }}{%- if settings.logo != blank %},
-    "logo": {{ settings.logo | img_url: '200x' | prepend: 'https:' | json }}{%- endif %}
+    "url": {{ shop.url | json }}{%- if settings.logo != blank -%},
+    "logo": {{ settings.logo | img_url: '200x' | prepend: 'https:' | json }}{%- endif -%}{%- if shop.customer_email != blank -%},
+    "email": {{ shop.customer_email | json }}{%- endif -%}{%- if forestry_same_as_count > 0 -%},
+    "sameAs": [{{ forestry_same_as_entries }}]{%- endif -%}{%- if forestry_can_emit_return_policy -%},
+    "hasMerchantReturnPolicy": {{ forestry_return_policy_microdata }}{%- endif %}
   }
 {%- endcapture -%}
 
@@ -246,7 +442,7 @@ or change the format of some info
     "url": {{ shop.url | json }},
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "{{ shop.url }}{{ routes.search_url }}?q={search_term_string}",
+      "target": {{ forestry_search_target | json }},
       "query-input": "required name=search_term_string"
     }
   }
@@ -263,3 +459,11 @@ or change the format of some info
   {{ website_entity_microdata }}
   </script>
 {% endif %}
+
+{%- if request.page_type == 'product' and settings.merchant_schema_emit_shipping_details and forestry_can_emit_shipping_details == false -%}
+  <!-- Merchant schema notice: shippingDetails not emitted because merchant shipping settings are incomplete. -->
+{%- endif -%}
+
+{%- if settings.merchant_schema_emit_return_policy and forestry_can_emit_return_policy == false -%}
+  <!-- Merchant schema notice: return policy not emitted because a refund policy page or return settings are incomplete. -->
+{%- endif -%}

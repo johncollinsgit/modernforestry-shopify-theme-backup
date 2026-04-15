@@ -14,7 +14,7 @@
     data-product-variant-id="{{ product.selected_or_first_available_variant.id }}"
     data-product-handle="{{ product.handle | escape }}"
     data-product-title="{{ product.title | escape }}"
-    data-product-url="{{ product.url | escape }}"
+    data-product-url="/products/{{ product.handle | escape }}"
     data-marketing-profile-id="{{ forestry_wishlist_marketing_profile_id }}"
     data-customer-email="{{ customer.email | escape }}"
     data-customer-phone="{{ customer.phone | escape }}"

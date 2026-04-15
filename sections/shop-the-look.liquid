@@ -150,7 +150,7 @@
 
                 {%- assign products_count = products_count | plus: 1 -%}
 
-                <div class="ShopTheLook__ProductItem {% unless section.settings.show_mobile_product_info %}ShopTheLook__ProductItem--withHiddenInfo{% endunless %} Carousel__Cell {% if forloop.first %}is-selected{% endif %}" data-product-url="{{ product.url | escape }}">
+                <div class="ShopTheLook__ProductItem {% unless section.settings.show_mobile_product_info %}ShopTheLook__ProductItem--withHiddenInfo{% endunless %} Carousel__Cell {% if forloop.first %}is-selected{% endif %}" data-product-url="/products/{{ product.handle | escape }}">
                   {% render 'product-item', product: product, show_product_info: true, show_vendor: false, show_price_on_hover: false, show_color_swatch: false, show_labels: false %}
                 </div>
               {%- endfor -%}
@@ -174,7 +174,7 @@
           <div class="ShopTheLook__ProductList Carousel Carousel--fadeIn hidden-pocket" data-flickity-config='{{ flickity_desktop_inner_options }}' data-look-index="{{ forloop.index0 }}">
             {{ shop_the_look_products }}
             {%- capture forestry_shop_the_look_fallback_url -%}{% render 'forestry-wholesale-url', key: 'line_sheet' %}{%- endcapture -%}
-            <a href="{% if first_product %}{{ first_product.url }}{% else %}{{ forestry_shop_the_look_fallback_url | strip }}{% endif %}" class="ShopTheLook__ViewButton Button Button--primary Button--full">{% if first_product %}{{ 'home_page.shop_the_look.view_product' | t }}{% else %}Wholesale Catalog{% endif %}</a>
+            <a href="{% if first_product %}/products/{{ first_product.handle }}{% else %}{{ forestry_shop_the_look_fallback_url | strip }}{% endif %}" class="ShopTheLook__ViewButton Button Button--primary Button--full">{% if first_product %}{{ 'home_page.shop_the_look.view_product' | t }}{% else %}Wholesale Catalog{% endif %}</a>
           </div>
         </div>
       </div>

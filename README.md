@@ -107,6 +107,12 @@ After connection, merchant/admin theme edits can be tracked through the connecte
 - Keep this repo focused on backup and safe rollback.
 - Avoid adding build tooling unless intentionally moving to a development-first workflow.
 
+## Google Merchant Operations
+- Merchant remediation runbook: `docs/google-merchant-remediation.md`
+- Deterministic merchant audit script: `scripts/google-merchant-audit.rb`
+- Typical usage:
+  - `ruby scripts/google-merchant-audit.rb --store-domain theforestrystudio.com --issues-csv /path/to/product_issues.csv --missing-shipping-csv /path/to/missing_shipping.csv`
+
 ## New customer accounts migration end goal
 
 We are adopting Shopify **new customer accounts** for authentication (Shopify-managed, independent from theme Liquid customer templates).

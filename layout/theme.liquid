@@ -12,8 +12,31 @@
       {{ page_title }}{% if current_tags %}{% assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}{% unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless %}
     </title>
 
-    {%- if page_description -%}
-      <meta name="description" content="{{ page_description | escape }}">
+    {%- assign forestry_meta_description = page_description | strip -%}
+    {%- if forestry_meta_description == blank and request.page_type == 'product' -%}
+      {%- assign forestry_product_descriptor = product.title | append: ' ' | append: product.type | append: ' ' | append: product.tags | join: ' ' | append: ' ' | append: product.description | strip_html | downcase -%}
+      {%- assign forestry_material_phrase = 'hand-poured candle' -%}
+      {%- if forestry_product_descriptor contains 'soy' and forestry_product_descriptor contains 'wax' -%}
+        {%- assign forestry_material_phrase = 'hand-poured soy wax candle' -%}
+      {%- endif -%}
+      {%- assign forestry_use_case_phrase = '' -%}
+      {%- if forestry_product_descriptor contains 'hiking' or forestry_product_descriptor contains 'outdoor' or forestry_product_descriptor contains 'trail' -%}
+        {%- assign forestry_use_case_phrase = ' for hiking and outdoors' -%}
+      {%- elsif forestry_product_descriptor contains 'woodland' or forestry_product_descriptor contains 'forest' -%}
+        {%- assign forestry_use_case_phrase = ' with woodland-inspired notes' -%}
+      {%- elsif forestry_product_descriptor contains 'rustic' -%}
+        {%- assign forestry_use_case_phrase = ' with rustic cabin style' -%}
+      {%- endif -%}
+      {%- assign forestry_brand_name = product.vendor | default: shop.name -%}
+      {%- capture forestry_meta_description -%}
+        {{ product.title }} by {{ forestry_brand_name }}. {{ forestry_material_phrase | capitalize }}{{ forestry_use_case_phrase }}.
+      {%- endcapture -%}
+    {%- elsif forestry_meta_description == blank and request.page_type == 'collection' and collection.description != blank -%}
+      {%- assign forestry_meta_description = collection.description | strip_html -%}
+    {%- endif -%}
+
+    {%- if forestry_meta_description != blank -%}
+      <meta name="description" content="{{ forestry_meta_description | strip_html | strip_newlines | replace: '  ', ' ' | truncate: 160 | escape }}">
     {%- endif -%}
 
     <link rel="canonical" href="{{ canonical_url }}">

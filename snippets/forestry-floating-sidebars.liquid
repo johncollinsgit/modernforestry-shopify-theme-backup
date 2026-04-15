@@ -12,7 +12,7 @@
       data-current-product-variant-id="{% if forestry_floating_is_product_page %}{{ product.selected_or_first_available_variant.id }}{% endif %}"
       data-current-product-handle="{% if forestry_floating_is_product_page %}{{ product.handle | escape }}{% endif %}"
       data-current-product-title="{% if forestry_floating_is_product_page %}{{ product.title | escape }}{% endif %}"
-      data-current-product-url="{% if forestry_floating_is_product_page %}{{ product.url | escape }}{% endif %}"
+      data-current-product-url="{% if forestry_floating_is_product_page %}/products/{{ product.handle | escape }}{% endif %}"
       data-customer-email="{{ customer.email | escape }}"
       data-customer-phone="{{ customer.phone | escape }}"
       data-shopify-customer-id="{{ customer.id }}"

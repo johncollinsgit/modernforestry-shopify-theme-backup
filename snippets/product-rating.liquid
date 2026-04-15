@@ -10,7 +10,7 @@
     data-product-variant-id="{{ product.selected_or_first_available_variant.id }}"
     data-product-handle="{{ product.handle | escape }}"
     data-product-title="{{ product.title | escape }}"
-    data-product-url="{{ shop.url | append: product.url | escape }}"
+    data-product-url="{{ shop.url }}/products/{{ product.handle | escape }}"
     data-customer-email="{{ customer.email | escape }}"
     data-customer-phone="{{ customer.phone | escape }}"
     data-shopify-customer-id="{{ customer.id }}"

@@ -23,6 +23,7 @@
 {%- capture forestry_wholesale_login_url -%}{% render 'forestry-wholesale-url', key: 'login' %}{%- endcapture -%}
 {%- assign forestry_wholesale_line_sheet_url = forestry_wholesale_line_sheet_url | strip -%}
 {%- assign forestry_wholesale_login_url = forestry_wholesale_login_url | strip -%}
+{%- assign forestry_featured_product_url = '/products/' | append: product.handle -%}
 
 {%- capture section_settings -%}
 {
@@ -61,7 +62,7 @@
         {%- endcomment -%}
 
         {%- if product.media.size > 0 -%}
-          <a href="{{ product.url }}" class="FeaturedProduct__Gallery">
+          <a href="{{ forestry_featured_product_url }}" class="FeaturedProduct__Gallery">
             {%- capture supported_sizes -%}{%- render 'image-size', sizes: '200,300,400,600,700,800,900,1000', image: product.featured_media -%}{%- endcapture -%}
 
             {%- assign media_aspect_ratio = product.featured_media.aspect_ratio | default: product.featured_media.preview_image.aspect_ratio -%}
@@ -112,7 +113,7 @@
                   <div class="ProductMeta__ShareButtons hidden-pocket" {{ block.shopify_attributes }}>
                     <span class="ProductMeta__ShareTitle Heading Text--subdued u-h7">{{ 'product.form.share' | t }}</span>
 
-                    {%- assign share_url = shop.url | append: product.url -%}
+                    {%- assign share_url = shop.url | append: forestry_featured_product_url -%}
                     {%- assign twitter_text = product.title -%}
                     {%- assign pinterest_description = product.description | strip_html | truncatewords: 15 | url_param_escape -%}
                     {%- assign pinterest_image = product.featured_image | img_url: 'large' | prepend: 'https:' -%}
@@ -234,7 +235,7 @@
           {%- endform -%}
 
           <div class="FeaturedProduct__ViewWrapper">
-            <a href="{{ product.url }}" class="Link Link--underline">{{ 'home_page.featured_product.view_product' | t }}</a>
+            <a href="{{ forestry_featured_product_url }}" class="Link Link--underline">{{ 'home_page.featured_product.view_product' | t }}</a>
           </div>
         </div>
       {%- else -%}

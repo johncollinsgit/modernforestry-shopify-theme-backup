@@ -561,6 +561,141 @@
     ]
   },
   {
+    "name": "Merchant listings",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Product structured data"
+      },
+      {
+        "type": "paragraph",
+        "content": "These fields control machine-readable shipping and return policy data in product schema. Keep values aligned with real checkout rates and policy pages."
+      },
+      {
+        "type": "select",
+        "id": "merchant_offer_condition",
+        "label": "Item condition",
+        "options": [
+          {
+            "value": "new",
+            "label": "New"
+          },
+          {
+            "value": "refurbished",
+            "label": "Refurbished"
+          },
+          {
+            "value": "used",
+            "label": "Used"
+          }
+        ],
+        "default": "new"
+      },
+      {
+        "type": "header",
+        "content": "Shipping details"
+      },
+      {
+        "type": "checkbox",
+        "id": "merchant_schema_emit_shipping_details",
+        "label": "Emit shippingDetails in product schema",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "merchant_shipping_country",
+        "label": "Shipping country code",
+        "info": "Use ISO 3166-1 alpha-2 format (example: US).",
+        "default": "US"
+      },
+      {
+        "type": "text",
+        "id": "merchant_shipping_currency",
+        "label": "Shipping currency code",
+        "info": "Use ISO 4217 format (example: USD). Leave blank to use the shop currency."
+      },
+      {
+        "type": "text",
+        "id": "merchant_shipping_rate",
+        "label": "Flat shipping rate amount",
+        "info": "Numeric value only (example: 6.95). Leave blank if using free-shipping threshold only."
+      },
+      {
+        "type": "text",
+        "id": "merchant_free_shipping_threshold",
+        "label": "Free shipping threshold amount",
+        "info": "Numeric value only (example: 75). Optional."
+      },
+      {
+        "type": "range",
+        "id": "merchant_handling_min_days",
+        "label": "Handling time minimum (business days)",
+        "min": 0,
+        "max": 10,
+        "default": 1
+      },
+      {
+        "type": "range",
+        "id": "merchant_handling_max_days",
+        "label": "Handling time maximum (business days)",
+        "min": 0,
+        "max": 15,
+        "default": 2
+      },
+      {
+        "type": "range",
+        "id": "merchant_transit_min_days",
+        "label": "Transit time minimum (business days)",
+        "min": 0,
+        "max": 20,
+        "default": 2
+      },
+      {
+        "type": "range",
+        "id": "merchant_transit_max_days",
+        "label": "Transit time maximum (business days)",
+        "min": 0,
+        "max": 30,
+        "default": 5
+      },
+      {
+        "type": "header",
+        "content": "Return policy"
+      },
+      {
+        "type": "checkbox",
+        "id": "merchant_schema_emit_return_policy",
+        "label": "Emit MerchantReturnPolicy in Organization schema",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "merchant_accepts_returns",
+        "label": "Accept returns",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "merchant_return_country",
+        "label": "Return policy country code",
+        "info": "Use ISO 3166-1 alpha-2 format (example: US).",
+        "default": "US"
+      },
+      {
+        "type": "text",
+        "id": "merchant_return_days",
+        "label": "Return window in days",
+        "info": "Numeric value only (example: 30). Leave blank for unlimited window."
+      },
+      {
+        "type": "checkbox",
+        "id": "merchant_return_fees_customer_responsibility",
+        "label": "Customer pays return shipping",
+        "default": true
+      }
+    ]
+  },
+  {
     "name": "Social media",
     "settings": [
       {
