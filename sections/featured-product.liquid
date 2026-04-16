@@ -3,6 +3,10 @@
 {%- assign meta_block = section.blocks | where: 'type', 'product_meta' | first -%}
 {%- assign inventory_block = section.blocks | where: 'type', 'inventory' | first -%}
 {%- assign buy_buttons_block = section.blocks | where: 'type', 'buy_buttons' | first -%}
+{%- assign is_subscription_product = false -%}
+{%- if product and product.selling_plan_groups.size > 0 -%}
+  {%- assign is_subscription_product = true -%}
+{%- endif -%}
 {%- assign is_candle_club_product = false -%}
 {%- if product and product.handle == 'modern-forestry-candle-club-16oz-subscription-with-gifts' -%}
   {%- assign is_candle_club_product = true -%}
@@ -14,7 +18,7 @@
   {%- assign candle_club_actionable = true -%}
 {%- endif -%}
 {%- assign candle_club_locked = false -%}
-{%- if is_candle_club_product and candle_club_actionable == false -%}
+{%- if is_candle_club_product and candle_club_actionable == false and is_subscription_product == false -%}
   {%- assign candle_club_locked = true -%}
 {%- endif -%}
 {%- capture forestry_is_wholesale_product -%}{% render 'forestry-wholesale-product-state', product: product %}{%- endcapture -%}
