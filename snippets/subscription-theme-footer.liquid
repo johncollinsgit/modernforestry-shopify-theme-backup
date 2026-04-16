@@ -4,7 +4,19 @@
 	http://rechargepayments.com: v2
 	Updated: 2017/09/12
 -->
-{% if template and template != 'cart' %}
+{% assign has_legacy_recharge_subscriptions = false %}
+{% for item in cart.items %}
+	{% for property in item.properties %}
+		{% if property.first == 'shipping_interval_frequency' %}
+			{% assign has_legacy_recharge_subscriptions = true %}
+			{% break %}
+		{% endif %}
+	{% endfor %}
+	{% if has_legacy_recharge_subscriptions %}
+		{% break %}
+	{% endif %}
+{% endfor %}
+{% if template and template != 'cart' and has_legacy_recharge_subscriptions %}
 	<script>
 		// Subscriptions Powered by ReCharge Payments: JavaScript
 		(function() {
