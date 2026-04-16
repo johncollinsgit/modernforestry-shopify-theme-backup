@@ -1926,17 +1926,6 @@
   }
 }
 
-.CandleClubPerkLink {
-  margin-top: 1rem;
-  padding: 1rem 1.1rem;
-  border-radius: 22px;
-  border: 1px solid rgba(var(--text-color-rgb), 0.1);
-  background:
-    radial-gradient(circle at top left, rgba(var(--button-background-rgb), 0.08), transparent 42%),
-    rgba(var(--background-rgb), 0.8);
-}
-
-.CandleClubPerkLink__eyebrow,
 .CandleCashFaqPage__eyebrow,
 .CandleCashFaqPage__card-eyebrow {
   margin: 0;
@@ -1944,33 +1933,6 @@
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: rgba(var(--text-color-rgb), 0.56);
-}
-
-.CandleClubPerkLink__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-top: 0.45rem;
-  font-family: var(--heading-font-family);
-  font-size: 1rem;
-  color: var(--heading-color);
-  text-decoration: none;
-}
-
-.CandleClubPerkLink__link::after {
-  content: "->";
-  font-size: 0.85em;
-  letter-spacing: 0.08em;
-}
-
-.CandleClubPerkLink__copy {
-  margin-top: 0.45rem;
-  color: rgba(var(--text-color-rgb), 0.7);
-  line-height: 1.6;
-}
-
-.CandleClubPerkLink .CandleClubAccessNotice {
-  margin-top: 0.45rem;
 }
 
 .CandleCashFaqPage {
