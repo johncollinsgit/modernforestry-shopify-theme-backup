@@ -564,6 +564,8 @@ HEADER CONTENT
         <span class="hidden-phone">{%- render 'icon' with 'cart-desktop' -%}</span>
         <span class="Header__CartDot {% if cart.item_count > 0 %}is-visible{% endif %}"></span>
       </a>
+
+      <a href="{% if customer %}/pages/rewards{% else %}{{ forestry_candle_cash_login_href }}{% endif %}" class="Header__CandleCashPill Heading Link Link--primary hidden-tablet-and-up" {% unless customer %}data-forestry-auth-link="login" data-forestry-auth-return="rewards-login"{% endunless %} aria-label="Candle Cash">candle cash</a>
     </div>
   </div>
 
@@ -625,6 +627,36 @@ HEADER CONTENT
       --header-is-transparent: 0;
     }
   {%- endif -%}
+
+  @media screen and (max-width: 640px) {
+    .Header__CandleCashPill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 8px;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      font-size: 10px;
+      line-height: 1;
+      letter-spacing: 0.03em;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .Header__Icon + .Header__Icon {
+      margin-left: 10px;
+    }
+
+    .Header__Icon + .Header__CandleCashPill {
+      margin-left: 8px;
+    }
+  }
+
+  @media screen and (max-width: 370px) {
+    .Header__Icon[data-action='toggle-search'] {
+      display: none;
+    }
+  }
 
   @media screen and (min-width: 1140px) {
     .Header .Header__FlexItem--logo {
