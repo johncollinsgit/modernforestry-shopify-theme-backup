@@ -4580,7 +4580,7 @@
 
 @media screen and (max-width: 1023px) {
   .ForestryRewardsCard--birthday {
-    display: none !important;
+    display: block;
   }
 }
 
