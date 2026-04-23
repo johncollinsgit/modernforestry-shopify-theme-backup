@@ -26,7 +26,16 @@
 (function () {
   var NOTE_INPUT_SELECTOR = '[data-cart-note-input]';
   var NOTE_PREVIEW_SELECTOR = '[data-cart-note-preview]';
+  var CART_ADD_FORM_SELECTOR = 'form[action^="/cart/add"]';
+  var CART_SYNC_FORM_SELECTOR = 'form[action="/cart"], form[action="/checkout"]';
   var CHECKOUT_TRIGGER_SELECTOR = '[name="checkout"], [href="/checkout"], form[action="/checkout"] [type="submit"]';
+  var TRACKING_FIELD_PREFIX = '_mf_';
+  var TRACKING_FIELD_KEYS = {
+    session_key: true,
+    client_id: true,
+    fbp: true,
+    fbc: true
+  };
   var NOTE_SAVE_DELAY = 320;
   var noteSaveTimer = null;
   var lastSavedNote = null;
@@ -59,12 +68,137 @@
     return (value || '').replace(/\r\n/g, '\n');
   }
 
+  function normalizeTrackingFieldKey(value) {
+    return String(value || '').trim().toLowerCase();
+  }
+
+  function isNoisyTrackingField(value) {
+    var normalizedValue = normalizeTrackingFieldKey(value);
+
+    if (!normalizedValue) {
+      return false;
+    }
+
+    if (normalizedValue.indexOf(TRACKING_FIELD_PREFIX) === 0) {
+      return true;
+    }
+
+    return !!TRACKING_FIELD_KEYS[normalizedValue];
+  }
+
+  function extractBracketKey(inputName, prefix) {
+    var keyMatch;
+
+    if (typeof inputName !== 'string') {
+      return '';
+    }
+
+    keyMatch = inputName.match(new RegExp('^' + prefix + '\\[(.+)\\]$'));
+    return keyMatch && keyMatch[1] ? keyMatch[1] : '';
+  }
+
+  function buildTrackingAttributeCleanup() {
+    var cleanup = {};
+
+    Object.keys(TRACKING_FIELD_KEYS).forEach(function (fieldKey) {
+      cleanup[fieldKey] = '';
+      cleanup[TRACKING_FIELD_PREFIX + fieldKey] = '';
+    });
+
+    return cleanup;
+  }
+
+  function sanitizeCartAddForm(form) {
+    var propertyInputs;
+    var i;
+
+    if (!matchesSelector(form, CART_ADD_FORM_SELECTOR)) {
+      return;
+    }
+
+    propertyInputs = form.querySelectorAll('[name^="properties["]');
+
+    for (i = 0; i < propertyInputs.length; i += 1) {
+      var propertyInput = propertyInputs[i];
+      var propertyName = extractBracketKey(propertyInput.getAttribute('name'), 'properties');
+
+      if (!isNoisyTrackingField(propertyName)) {
+        continue;
+      }
+
+      if (propertyInput.parentNode) {
+        propertyInput.parentNode.removeChild(propertyInput);
+      }
+    }
+  }
+
+  function sanitizeCartAddFormData(formData) {
+    var keysToDelete = [];
+
+    if (!formData || typeof formData.forEach !== 'function') {
+      return;
+    }
+
+    formData.forEach(function (_, key) {
+      var propertyName;
+
+      if (typeof key !== 'string') {
+        return;
+      }
+
+      if (key.indexOf('properties[') !== 0) {
+        return;
+      }
+
+      propertyName = extractBracketKey(key, 'properties');
+
+      if (isNoisyTrackingField(propertyName)) {
+        keysToDelete.push(key);
+      }
+    });
+
+    keysToDelete.forEach(function (key) {
+      formData.delete(key);
+    });
+  }
+
+  function sanitizeAllCartAddForms() {
+    var forms = document.querySelectorAll(CART_ADD_FORM_SELECTOR);
+    var i;
+
+    for (i = 0; i < forms.length; i += 1) {
+      sanitizeCartAddForm(forms[i]);
+    }
+  }
+
   function getCartUpdateUrl() {
     if (window.routes && window.routes.cartUrl) {
       return window.routes.cartUrl + '/update.js';
     }
 
     return '/cart/update.js';
+  }
+
+  function postCartUpdate(payload, options) {
+    var requestOptions = options || {};
+
+    var fetchOptions = {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify(payload)
+    };
+
+    if (requestOptions.keepalive) {
+      fetchOptions.keepalive = true;
+    }
+
+    fetch(getCartUpdateUrl(), fetchOptions)["catch"](function () {
+      // Cart note persistence should never block checkout.
+    });
   }
 
   function saveCartNote(note, options) {
@@ -77,25 +211,16 @@
 
     lastSavedNote = normalizedNote;
 
-    var fetchOptions = {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-      },
-      body: JSON.stringify({
-        note: normalizedNote
-      })
-    };
+    postCartUpdate({
+      note: normalizedNote,
+      attributes: buildTrackingAttributeCleanup()
+    }, requestOptions);
+  }
 
-    if (requestOptions.keepalive) {
-      fetchOptions.keepalive = true;
-    }
-
-    fetch(getCartUpdateUrl(), fetchOptions)["catch"](function () {
-      // Cart note persistence should never block checkout.
-    });
+  function clearTrackingCartAttributes(options) {
+    postCartUpdate({
+      attributes: buildTrackingAttributeCleanup()
+    }, options || {});
   }
 
   function truncatePreviewText(value) {
@@ -141,6 +266,8 @@
   function syncNoteStateFromDom() {
     var noteInput = getPrimaryNoteInput();
 
+    sanitizeAllCartAddForms();
+
     if (!noteInput) {
       return;
     }
@@ -179,6 +306,9 @@
     var noteInput = getPrimaryNoteInput();
 
     if (!noteInput) {
+      clearTrackingCartAttributes({
+        keepalive: true
+      });
       return;
     }
 
@@ -193,13 +323,18 @@
   document.addEventListener('submit', function (event) {
     var submittedForm = event.target;
 
-    if (!matchesSelector(submittedForm, 'form[action="/cart"], form[action="/checkout"]')) {
+    sanitizeCartAddForm(submittedForm);
+
+    if (!matchesSelector(submittedForm, CART_SYNC_FORM_SELECTOR)) {
       return;
     }
 
     var noteInput = submittedForm.querySelector(NOTE_INPUT_SELECTOR) || getPrimaryNoteInput();
 
     if (!noteInput) {
+      clearTrackingCartAttributes({
+        keepalive: true
+      });
       return;
     }
 
@@ -210,6 +345,15 @@
       keepalive: true
     });
   }, true);
+
+  document.addEventListener('formdata', function (event) {
+    if (!matchesSelector(event.target, CART_ADD_FORM_SELECTOR)) {
+      return;
+    }
+
+    sanitizeCartAddForm(event.target);
+    sanitizeCartAddFormData(event.formData);
+  });
 
   document.addEventListener('theme:loading:end', function () {
     window.setTimeout(syncNoteStateFromDom, 0);
