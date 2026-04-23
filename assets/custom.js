@@ -34,11 +34,13 @@
     session_key: true,
     client_id: true,
     fbp: true,
-    fbc: true
+    fbc: true,
+    cart_token: true
   };
   var NOTE_SAVE_DELAY = 320;
   var noteSaveTimer = null;
   var lastSavedNote = null;
+  var isCheckoutSyncInFlight = false;
 
   function matchesSelector(element, selector) {
     if (!element || element.nodeType !== 1) {
@@ -196,7 +198,7 @@
       fetchOptions.keepalive = true;
     }
 
-    fetch(getCartUpdateUrl(), fetchOptions)["catch"](function () {
+    return fetch(getCartUpdateUrl(), fetchOptions)["catch"](function () {
       // Cart note persistence should never block checkout.
     });
   }
@@ -221,6 +223,32 @@
     postCartUpdate({
       attributes: buildTrackingAttributeCleanup()
     }, options || {});
+  }
+
+  function syncCartBeforeCheckout(noteInput, onComplete) {
+    var payload;
+    var done = typeof onComplete === 'function' ? onComplete : function () {};
+
+    if (isCheckoutSyncInFlight) {
+      return;
+    }
+
+    isCheckoutSyncInFlight = true;
+    payload = {
+      attributes: buildTrackingAttributeCleanup()
+    };
+
+    if (noteInput) {
+      payload.note = normalizeNote(noteInput.value);
+      lastSavedNote = payload.note;
+      updateNotePreview(noteInput.value);
+      window.clearTimeout(noteSaveTimer);
+    }
+
+    postCartUpdate(payload, {}).then(function () {
+      isCheckoutSyncInFlight = false;
+      done();
+    });
   }
 
   function truncatePreviewText(value) {
@@ -298,25 +326,39 @@
 
   document.addEventListener('click', function (event) {
     var checkoutTrigger = closestSelector(event.target, CHECKOUT_TRIGGER_SELECTOR);
+    var noteInput;
+    var href;
+    var isCheckoutLink;
 
     if (!checkoutTrigger) {
       return;
     }
 
-    var noteInput = getPrimaryNoteInput();
+    noteInput = getPrimaryNoteInput();
+    href = checkoutTrigger.getAttribute && checkoutTrigger.getAttribute('href');
+    isCheckoutLink = typeof href === 'string' && href.indexOf('/checkout') === 0;
 
-    if (!noteInput) {
-      clearTrackingCartAttributes({
+    if (!isCheckoutLink) {
+      if (!noteInput) {
+        clearTrackingCartAttributes({
+          keepalive: true
+        });
+        return;
+      }
+
+      updateNotePreview(noteInput.value);
+      window.clearTimeout(noteSaveTimer);
+      saveCartNote(noteInput.value, {
+        force: true,
         keepalive: true
       });
       return;
     }
 
-    updateNotePreview(noteInput.value);
-    window.clearTimeout(noteSaveTimer);
-    saveCartNote(noteInput.value, {
-      force: true,
-      keepalive: true
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    syncCartBeforeCheckout(noteInput, function () {
+      window.location.href = '/checkout';
     });
   }, true);
 
@@ -331,18 +373,10 @@
 
     var noteInput = submittedForm.querySelector(NOTE_INPUT_SELECTOR) || getPrimaryNoteInput();
 
-    if (!noteInput) {
-      clearTrackingCartAttributes({
-        keepalive: true
-      });
-      return;
-    }
-
-    updateNotePreview(noteInput.value);
-    window.clearTimeout(noteSaveTimer);
-    saveCartNote(noteInput.value, {
-      force: true,
-      keepalive: true
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    syncCartBeforeCheckout(noteInput, function () {
+      submittedForm.submit();
     });
   }, true);
 
