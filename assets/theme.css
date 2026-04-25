@@ -7022,6 +7022,39 @@ body:not(.features--show-image-zooming) .Image--lazyLoaded.Image--zoomOut {
   margin-bottom: 8px;
 }
 
+.Cart__TermsAgreement {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 4px 0 2px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(var(--text-color-rgb), 0.9);
+}
+
+.Cart__TermsCheckbox {
+  -webkit-appearance: checkbox;
+  appearance: checkbox;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.Cart__TermsLabel {
+  margin: 0;
+}
+
+.Cart__TermsLabel a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.Cart__TermsAgreement.is-invalid .Cart__TermsLabel {
+  color: #a54131;
+}
+
 .Cart .Drawer__Footer .Cart__Taxes {
   margin-top: 2px;
 }

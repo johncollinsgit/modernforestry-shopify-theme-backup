@@ -29,6 +29,8 @@
   var CART_ADD_FORM_SELECTOR = 'form[action^="/cart/add"]';
   var CART_SYNC_FORM_SELECTOR = 'form[action="/cart"], form[action="/checkout"]';
   var CHECKOUT_TRIGGER_SELECTOR = '[name="checkout"], [href="/checkout"], form[action="/checkout"] [type="submit"]';
+  var CART_TERMS_CHECKBOX_SELECTOR = '[data-cart-terms-checkbox]';
+  var CART_CHECKOUT_TRIGGER_SELECTOR = '[data-cart-checkout-trigger], [name="checkout"], [href="/checkout"]';
   var REQUIRED_SELLING_PLAN_SELECTOR = 'form[data-requires-selling-plan="true"]';
   var TRACKING_FIELD_PREFIX = '_mf_';
   var TRACKING_FIELD_KEYS = {
@@ -229,6 +231,114 @@
     }
   }
 
+  function getCartTermsCheckbox(form) {
+    if (!form || !form.querySelector) {
+      return null;
+    }
+
+    return form.querySelector(CART_TERMS_CHECKBOX_SELECTOR);
+  }
+
+  function ensureLegacyTermsCheckboxAlias(form, termsCheckbox) {
+    var existingAlias = document.getElementById('effectiveAppsAgreeCB');
+    var checkboxId;
+    var linkedLabel;
+
+    if (!termsCheckbox) {
+      return;
+    }
+
+    if (existingAlias && existingAlias !== termsCheckbox) {
+      return;
+    }
+
+    checkboxId = termsCheckbox.getAttribute('id');
+
+    if (checkboxId === 'effectiveAppsAgreeCB') {
+      return;
+    }
+
+    if (!checkboxId) {
+      checkboxId = 'cart-terms-agree';
+      termsCheckbox.setAttribute('id', checkboxId);
+    }
+
+    linkedLabel = form.querySelector('label[for="' + checkboxId + '"]');
+    termsCheckbox.setAttribute('id', 'effectiveAppsAgreeCB');
+
+    if (linkedLabel) {
+      linkedLabel.setAttribute('for', 'effectiveAppsAgreeCB');
+    }
+  }
+
+  function setCartTermsCheckoutState(form) {
+    var termsCheckbox = getCartTermsCheckbox(form);
+    var checkoutTriggers;
+    var i;
+
+    if (!termsCheckbox) {
+      return;
+    }
+
+    ensureLegacyTermsCheckboxAlias(form, termsCheckbox);
+    checkoutTriggers = form.querySelectorAll(CART_CHECKOUT_TRIGGER_SELECTOR);
+
+    for (i = 0; i < checkoutTriggers.length; i += 1) {
+      var trigger = checkoutTriggers[i];
+      var tagName = trigger.tagName ? trigger.tagName.toLowerCase() : '';
+      var canDisable = tagName === 'button' || (tagName === 'input' && trigger.type !== 'hidden');
+
+      if (canDisable) {
+        trigger.disabled = !termsCheckbox.checked;
+      }
+
+      trigger.setAttribute('aria-disabled', termsCheckbox.checked ? 'false' : 'true');
+    }
+  }
+
+  function clearCartTermsValidation(termsCheckbox) {
+    var termsWrapper = closestSelector(termsCheckbox, '[data-cart-terms-wrapper]');
+
+    if (termsWrapper) {
+      termsWrapper.classList.remove('is-invalid');
+    }
+
+    if (termsCheckbox) {
+      termsCheckbox.removeAttribute('aria-invalid');
+    }
+  }
+
+  function markCartTermsValidation(termsCheckbox) {
+    var termsWrapper = closestSelector(termsCheckbox, '[data-cart-terms-wrapper]');
+
+    if (termsWrapper) {
+      termsWrapper.classList.add('is-invalid');
+    }
+
+    termsCheckbox.setAttribute('aria-invalid', 'true');
+    termsCheckbox.focus();
+  }
+
+  function shouldBlockCheckoutForTerms(form) {
+    var termsCheckbox = getCartTermsCheckbox(form);
+
+    if (!termsCheckbox || termsCheckbox.checked) {
+      return false;
+    }
+
+    markCartTermsValidation(termsCheckbox);
+    return true;
+  }
+
+  function syncCartTermsStateFromDom() {
+    var cartForms = document.querySelectorAll(CART_SYNC_FORM_SELECTOR);
+    var i;
+
+    for (i = 0; i < cartForms.length; i += 1) {
+      setCartTermsCheckoutState(cartForms[i]);
+    }
+  }
+
   function ensureRequiredSellingPlanInput(form) {
     var sellingPlanId;
     var sellingPlanInput;
@@ -412,6 +522,7 @@
     var noteInput = getPrimaryNoteInput();
 
     sanitizeAllCartAddForms();
+    syncCartTermsStateFromDom();
 
     if (!noteInput) {
       return;
@@ -431,6 +542,15 @@
   });
 
   document.addEventListener('change', function (event) {
+    var termsForm;
+
+    if (matchesSelector(event.target, CART_TERMS_CHECKBOX_SELECTOR)) {
+      termsForm = closestSelector(event.target, CART_SYNC_FORM_SELECTOR);
+      clearCartTermsValidation(event.target);
+      setCartTermsCheckoutState(termsForm);
+      return;
+    }
+
     if (!matchesSelector(event.target, NOTE_INPUT_SELECTOR)) {
       return;
     }
@@ -443,6 +563,7 @@
 
   document.addEventListener('click', function (event) {
     var checkoutTrigger = closestSelector(event.target, CHECKOUT_TRIGGER_SELECTOR);
+    var checkoutForm;
     var noteInput;
     var href;
     var isCheckoutLink;
@@ -454,6 +575,18 @@
     }
 
     if (!checkoutTrigger) {
+      return;
+    }
+
+    checkoutForm = closestSelector(checkoutTrigger, CART_SYNC_FORM_SELECTOR);
+
+    if (!checkoutForm) {
+      checkoutForm = closestSelector(event.target, CART_SYNC_FORM_SELECTOR);
+    }
+
+    if (shouldBlockCheckoutForTerms(checkoutForm)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
       return;
     }
 
@@ -499,6 +632,12 @@
 
     noteInput = submittedForm.querySelector(NOTE_INPUT_SELECTOR) || getPrimaryNoteInput();
     checkoutSubmit = isCheckoutSubmit(submittedForm, event);
+
+    if (checkoutSubmit && shouldBlockCheckoutForTerms(submittedForm)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      return;
+    }
 
     event.preventDefault();
     event.stopImmediatePropagation();

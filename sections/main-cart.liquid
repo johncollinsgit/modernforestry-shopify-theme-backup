@@ -165,7 +165,20 @@
                     </div>
                   </div>
                 {%- else -%}
-	                <button type="submit" name="checkout" class="Cart__Checkout Button Button--primary Button--full">{{ 'cart.general.checkout' | t }}</button>
+                  <div class="Cart__TermsAgreement" data-cart-terms-wrapper>
+                    <input
+                      type="checkbox"
+                      id="effectiveAppsAgreeCB"
+                      class="Cart__TermsCheckbox"
+                      data-cart-terms-checkbox
+                      value="agree"
+                      required
+                    >
+                    <label for="effectiveAppsAgreeCB" class="Cart__TermsLabel">
+                      I agree to the <a href="/policies/terms-of-service" target="_blank" rel="noopener">terms and conditions</a>.
+                    </label>
+                  </div>
+	                <button type="submit" name="checkout" class="Cart__Checkout Button Button--primary Button--full" data-cart-checkout-trigger tac-ignore="true">{{ 'cart.general.checkout' | t }}</button>
                 {%- endif -%}
 	            </div>
 	          </footer>

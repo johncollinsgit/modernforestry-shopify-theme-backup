@@ -142,7 +142,7 @@
     "blocks": {
       "534977871531306417": {
         "type": "shopify://apps/tnc-terms-and-conditions-cbox/blocks/app-embed/2b45c8fb-5ee2-4392-8a72-b663da1d38ad",
-        "disabled": false,
+        "disabled": true,
         "settings": {}
       },
       "5149645339031002760": {
