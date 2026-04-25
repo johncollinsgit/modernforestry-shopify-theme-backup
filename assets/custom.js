@@ -29,6 +29,7 @@
   var CART_ADD_FORM_SELECTOR = 'form[action^="/cart/add"]';
   var CART_SYNC_FORM_SELECTOR = 'form[action="/cart"], form[action="/checkout"]';
   var CHECKOUT_TRIGGER_SELECTOR = '[name="checkout"], [href="/checkout"], form[action="/checkout"] [type="submit"]';
+  var REQUIRED_SELLING_PLAN_SELECTOR = 'form[data-requires-selling-plan="true"]';
   var TRACKING_FIELD_PREFIX = '_mf_';
   var TRACKING_FIELD_KEYS = {
     session_key: true,
@@ -170,6 +171,122 @@
 
     for (i = 0; i < forms.length; i += 1) {
       sanitizeCartAddForm(forms[i]);
+    }
+  }
+
+  function getFormSubmitter(event, form) {
+    var activeElement;
+
+    if (event && event.submitter) {
+      return event.submitter;
+    }
+
+    activeElement = document.activeElement;
+    if (activeElement && form && form.contains(activeElement)) {
+      return closestSelector(activeElement, 'button, input, [name="checkout"]');
+    }
+
+    return null;
+  }
+
+  function isCheckoutSubmit(form, event) {
+    var submitter = getFormSubmitter(event, form);
+
+    if (matchesSelector(form, 'form[action="/checkout"]')) {
+      return true;
+    }
+
+    if (!matchesSelector(form, 'form[action="/cart"]')) {
+      return false;
+    }
+
+    if (submitter && submitter.getAttribute && submitter.getAttribute('name') === 'checkout') {
+      return true;
+    }
+
+    return !!form.querySelector('[name="checkout"]');
+  }
+
+  function ensureCheckoutInput(form) {
+    var checkoutInput;
+
+    if (!form || form.querySelector('input[type="hidden"][name="checkout"]')) {
+      return;
+    }
+
+    checkoutInput = document.createElement('input');
+    checkoutInput.type = 'hidden';
+    checkoutInput.name = 'checkout';
+    checkoutInput.value = 'Checkout';
+    form.appendChild(checkoutInput);
+  }
+
+  function removeSyntheticCheckoutInput(form) {
+    var checkoutInput = form && form.querySelector('input[type="hidden"][name="checkout"]');
+
+    if (checkoutInput && checkoutInput.parentNode) {
+      checkoutInput.parentNode.removeChild(checkoutInput);
+    }
+  }
+
+  function ensureRequiredSellingPlanInput(form) {
+    var sellingPlanId;
+    var sellingPlanInput;
+    var sellingPlanInputs;
+    var i;
+
+    if (!matchesSelector(form, REQUIRED_SELLING_PLAN_SELECTOR)) {
+      return;
+    }
+
+    sellingPlanInputs = form.querySelectorAll('[name="selling_plan"]');
+    for (i = 0; i < sellingPlanInputs.length; i += 1) {
+      if (String(sellingPlanInputs[i].value || '').trim() !== '') {
+        return;
+      }
+    }
+
+    sellingPlanId = form.getAttribute('data-default-selling-plan-id');
+    if (!sellingPlanId) {
+      return;
+    }
+
+    sellingPlanInput = form.querySelector('input[name="selling_plan"][data-forestry-selling-plan-fallback]');
+
+    if (!sellingPlanInput) {
+      sellingPlanInput = document.createElement('input');
+      sellingPlanInput.type = 'hidden';
+      sellingPlanInput.name = 'selling_plan';
+      sellingPlanInput.setAttribute('data-forestry-selling-plan-fallback', 'true');
+      form.appendChild(sellingPlanInput);
+    }
+
+    sellingPlanInput.value = sellingPlanId;
+  }
+
+  function ensureRequiredSellingPlanFormData(form, formData) {
+    var hasSellingPlan = false;
+    var sellingPlanId;
+
+    if (!matchesSelector(form, REQUIRED_SELLING_PLAN_SELECTOR) || !formData || typeof formData.append !== 'function') {
+      return;
+    }
+
+    if (typeof formData.forEach === 'function') {
+      formData.forEach(function (value, key) {
+        if (key === 'selling_plan' && String(value || '').trim() !== '') {
+          hasSellingPlan = true;
+        }
+      });
+    }
+
+    if (hasSellingPlan) {
+      return;
+    }
+
+    sellingPlanId = form.getAttribute('data-default-selling-plan-id');
+    if (sellingPlanId) {
+      formData.append('selling_plan', sellingPlanId);
     }
   }
 
@@ -329,6 +446,12 @@
     var noteInput;
     var href;
     var isCheckoutLink;
+    var cartAddForm;
+
+    cartAddForm = closestSelector(event.target, CART_ADD_FORM_SELECTOR);
+    if (cartAddForm) {
+      ensureRequiredSellingPlanInput(cartAddForm);
+    }
 
     if (!checkoutTrigger) {
       return;
@@ -364,18 +487,27 @@
 
   document.addEventListener('submit', function (event) {
     var submittedForm = event.target;
+    var noteInput;
+    var checkoutSubmit;
 
     sanitizeCartAddForm(submittedForm);
+    ensureRequiredSellingPlanInput(submittedForm);
 
     if (!matchesSelector(submittedForm, CART_SYNC_FORM_SELECTOR)) {
       return;
     }
 
-    var noteInput = submittedForm.querySelector(NOTE_INPUT_SELECTOR) || getPrimaryNoteInput();
+    noteInput = submittedForm.querySelector(NOTE_INPUT_SELECTOR) || getPrimaryNoteInput();
+    checkoutSubmit = isCheckoutSubmit(submittedForm, event);
 
     event.preventDefault();
     event.stopImmediatePropagation();
     syncCartBeforeCheckout(noteInput, function () {
+      if (checkoutSubmit) {
+        ensureCheckoutInput(submittedForm);
+      } else {
+        removeSyntheticCheckoutInput(submittedForm);
+      }
       submittedForm.submit();
     });
   }, true);
@@ -386,6 +518,7 @@
     }
 
     sanitizeCartAddForm(event.target);
+    ensureRequiredSellingPlanFormData(event.target, event.formData);
     sanitizeCartAddFormData(event.formData);
   });
 

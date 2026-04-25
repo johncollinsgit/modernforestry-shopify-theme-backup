@@ -1683,6 +1683,22 @@
     return clean(window.theme && window.theme.strings && window.theme.strings.productFormAddToCart) || 'Add to cart';
   }
 
+  function sellingPlanProductUrl(root) {
+    const productUrl = clean(root && root.dataset && root.dataset.productUrl);
+    const sellingPlanId = clean(root && root.dataset && root.dataset.productDefaultSellingPlanId);
+    if (!productUrl || !sellingPlanId) {
+      return productUrl;
+    }
+
+    try {
+      const url = new URL(productUrl, window.location.origin);
+      url.searchParams.set('selling_plan', sellingPlanId);
+      return url.pathname + url.search + url.hash;
+    } catch (error) {
+      return productUrl + (productUrl.indexOf('?') >= 0 ? '&' : '?') + 'selling_plan=' + encodeURIComponent(sellingPlanId);
+    }
+  }
+
   function normalizeCompactWishlistButton(root) {
     if (!root || !root.classList.contains('ForestryWishlistRoot--compact')) {
       return;
@@ -1713,6 +1729,16 @@
 
     const actions = document.createElement('div');
     actions.className = 'ProductItem__Actions';
+
+    if (clean(root.dataset && root.dataset.productRequiresSellingPlan).toLowerCase() === 'true') {
+      const link = document.createElement('a');
+      link.className = 'ProductItem__AddToCart Button Button--primary Button--full';
+      link.href = sellingPlanProductUrl(root);
+      link.textContent = 'View product';
+      actions.appendChild(link);
+      info.insertBefore(actions, root);
+      return;
+    }
 
     const form = document.createElement('form');
     form.method = 'post';

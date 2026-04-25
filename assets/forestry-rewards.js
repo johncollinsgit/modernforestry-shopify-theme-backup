@@ -3356,6 +3356,10 @@
   function renderCompactSurface(root, model, uiState) {
     const viewState = birthdayViewState(model);
     const surface = cleanString(root.dataset.surface || 'cart');
+    if (model && model.cartSubscriptionOnly) {
+      root.innerHTML = '';
+      return;
+    }
     const state = compactHelperState(model);
     const reward = state.reward || {};
     const rules = redemptionRules(model);
@@ -3749,6 +3753,11 @@
   function computeModel(root, statusResult, cartState) {
     // Liquid fallback keeps Candle Cash renderable until the external loyalty contract is fully connected.
     const fallback = fallbackModel(root);
+    const surface = cleanString(root && root.dataset && root.dataset.surface).toLowerCase();
+    const cartHasSubscriptionItems = cleanString(root && root.dataset && root.dataset.cartHasSubscriptionItems).toLowerCase() === 'true';
+    const hasEligibleAttr = cleanString(root && root.dataset && root.dataset.cartHasEligibleItems) !== '';
+    const cartHasEligibleItems = !hasEligibleAttr || cleanString(root && root.dataset && root.dataset.cartHasEligibleItems).toLowerCase() === 'true';
+    const cartEligibleSubtotal = amountNumber(root && root.dataset && root.dataset.cartRewardsEligibleSubtotalAmount);
     const data = mergeObject((statusResult && statusResult.data) || {}, fallback);
     const birthday = mergeObject(data.birthday || {}, fallback.birthday || {});
     const issuance = birthday.issuance || null;
@@ -3826,7 +3835,13 @@
         lockMessage: cleanString(membership.lock_message || membership.lockMessage || root.dataset.candleClubLockMessage) || 'Candle Cash',
       },
       celebrationState: mergeObject(data.celebration_state || {}, fallback.celebration_state || {}),
-      cartTotalAmount: cartState && cartState.ok ? amountNumber((cartState.data.total_price || 0) / 100) : 0,
+      cartTotalAmount: surface === 'cart' || surface === 'drawer'
+        ? (hasEligibleAttr ? cartEligibleSubtotal : (cartState && cartState.ok ? amountNumber((cartState.data.total_price || 0) / 100) : 0))
+        : (cartState && cartState.ok ? amountNumber((cartState.data.total_price || 0) / 100) : 0),
+      cartHasSubscriptionItems: cartHasSubscriptionItems,
+      cartHasEligibleItems: cartHasEligibleItems,
+      cartSubscriptionOnly: (surface === 'cart' || surface === 'drawer') && cartHasSubscriptionItems && !cartHasEligibleItems,
+      cartRewardsEligibleSubtotalAmount: cartEligibleSubtotal,
       orderContext: {
         number: cleanString(root.dataset.orderNumber),
         totalAmount: amountNumber(root.dataset.orderTotalAmount),

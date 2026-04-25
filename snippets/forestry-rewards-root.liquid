@@ -4,6 +4,9 @@
 {%- assign rewards_page_url = rewards_url | default: '/pages/rewards' -%}
 {%- assign rewards_account_url = account_url | default: routes.account_url -%}
 {%- assign candle_club_url = candle_club_url | default: '/products/modern-forestry-candle-club-16oz-subscription-with-gifts?selling_plan=11300438275' -%}
+{%- assign cart_has_subscription_items = cart_has_subscription_items | default: false -%}
+{%- assign cart_has_one_time_items = cart_has_one_time_items | default: true -%}
+{%- assign cart_rewards_eligible_subtotal = cart_rewards_eligible_subtotal | default: blank -%}
 {%- assign candle_club_actionable = true -%}
 {%- assign candle_club_lock_message = 'Candle Club only' -%}
 {%- assign rewards_marketing_profile_id = marketing_profile_id | default: customer.metafields.custom.marketing_profile_id.value | default: '' -%}
@@ -248,6 +251,9 @@
   data-order-number="{{ order.name | escape }}"
   data-order-total-amount="{{ order.total_price | divided_by: 100.0 }}"
   data-order-created-at="{{ order.created_at | date: '%s' }}"
+  data-cart-has-subscription-items="{{ cart_has_subscription_items }}"
+  data-cart-has-eligible-items="{{ cart_has_one_time_items }}"
+  data-cart-rewards-eligible-subtotal-amount="{% if cart_rewards_eligible_subtotal != blank %}{{ cart_rewards_eligible_subtotal | divided_by: 100.0 }}{% endif %}"
   data-endpoint-candle-cash-status="/apps/forestry/candle-cash/status"
   data-endpoint-candle-cash-task-submit="/apps/forestry/candle-cash/tasks/submit"
   data-endpoint-google-review-start="/apps/forestry/google-business/review/start"

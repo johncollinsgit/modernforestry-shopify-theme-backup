@@ -4,8 +4,28 @@
   {%- assign forestry_is_wholesale_product = forestry_is_wholesale_product | strip -%}
   {%- assign forestry_wholesale_line_sheet_url = forestry_wholesale_line_sheet_url | strip -%}
   {%- assign forestry_product_item_url = '/products/' | append: product.handle -%}
+  {%- assign forestry_product_item_selling_plan_url = forestry_product_item_url -%}
+  {%- assign forestry_product_item_default_selling_plan_id = '' -%}
+  {%- if product.selected_selling_plan -%}
+    {%- assign forestry_product_item_default_selling_plan_id = product.selected_selling_plan.id -%}
+  {%- endif -%}
+  {%- if forestry_product_item_default_selling_plan_id == blank -%}
+    {%- for selling_plan_group in product.selling_plan_groups -%}
+      {%- for selling_plan in selling_plan_group.selling_plans -%}
+        {%- assign forestry_product_item_default_selling_plan_id = selling_plan.id -%}
+        {%- break -%}
+      {%- endfor -%}
+      {%- if forestry_product_item_default_selling_plan_id != blank -%}
+        {%- break -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+  {%- if product.requires_selling_plan and forestry_product_item_default_selling_plan_id != blank -%}
+    {%- assign forestry_product_item_selling_plan_url = forestry_product_item_url | append: '?selling_plan=' | append: forestry_product_item_default_selling_plan_id -%}
+  {%- endif -%}
   {%- if forestry_is_wholesale_product == 'true' and forestry_wholesale_line_sheet_url != blank -%}
     {%- assign forestry_product_item_url = forestry_wholesale_line_sheet_url -%}
+    {%- assign forestry_product_item_selling_plan_url = forestry_wholesale_line_sheet_url -%}
   {%- endif -%}
   <div class="ProductItem__Wrapper">
     {%- comment -%}
@@ -214,6 +234,10 @@
             {%- if forestry_is_wholesale_product == 'true' -%}
               <a href="{{ forestry_wholesale_line_sheet_url }}" class="ProductItem__AddToCart Button Button--secondary Button--full">
                 Wholesale Ordering
+              </a>
+            {%- elsif product.available and product.selling_plan_groups.size > 0 -%}
+              <a href="{{ forestry_product_item_selling_plan_url }}" class="ProductItem__AddToCart Button Button--primary Button--full">
+                {{ 'collection.product.view_product' | t }}
               </a>
             {%- elsif product.available -%}
               {%- form 'product', product, class: 'ProductItem__AddToCartForm' -%}

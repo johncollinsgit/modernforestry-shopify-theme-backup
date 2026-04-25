@@ -17,12 +17,32 @@
   {%- assign cart_discount_label = 'Discount' -%}
 {%- endif -%}
 {%- assign forestry_cart_has_wholesale_items = false -%}
+{%- assign forestry_cart_has_subscription_items = false -%}
+{%- assign forestry_cart_has_one_time_items = false -%}
+{%- assign forestry_cart_rewards_eligible_subtotal_cents = 0 -%}
 {%- for line_item in cart.items -%}
   {%- capture forestry_cart_line_is_wholesale -%}{% render 'forestry-wholesale-product-state', product: line_item.product %}{%- endcapture -%}
   {%- assign forestry_cart_line_is_wholesale = forestry_cart_line_is_wholesale | strip -%}
   {%- if forestry_cart_line_is_wholesale == 'true' -%}
     {%- assign forestry_cart_has_wholesale_items = true -%}
-    {%- break -%}
+  {%- endif -%}
+  {%- assign forestry_cart_line_is_subscription = false -%}
+  {%- if line_item.selling_plan_allocation -%}
+    {%- assign forestry_cart_line_is_subscription = true -%}
+  {%- endif -%}
+  {%- if line_item.properties != empty -%}
+    {%- for property in line_item.properties -%}
+      {%- if property.first == 'shipping_interval_frequency' or property.first == 'subscription_id' -%}
+        {%- assign forestry_cart_line_is_subscription = true -%}
+        {%- break -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+  {%- if forestry_cart_line_is_subscription -%}
+    {%- assign forestry_cart_has_subscription_items = true -%}
+  {%- else -%}
+    {%- assign forestry_cart_has_one_time_items = true -%}
+    {%- assign forestry_cart_rewards_eligible_subtotal_cents = forestry_cart_rewards_eligible_subtotal_cents | plus: line_item.final_line_price -%}
   {%- endif -%}
 {%- endfor -%}
 {%- capture forestry_wholesale_line_sheet_url -%}{% render 'forestry-wholesale-url', key: 'line_sheet' %}{%- endcapture -%}
@@ -70,13 +90,18 @@
 
     {%- unless cart.item_count == 0 -%}
       <div class="Drawer__Footer" data-drawer-animated-bottom>
-        <div class="ForestryRewardsCartMount">
-          {% render 'forestry-rewards-root',
-            surface: 'drawer',
-            title: 'Candle Cash',
-            subtitle: ''
-          %}
-        </div>
+        {%- if forestry_cart_has_one_time_items -%}
+          <div class="ForestryRewardsCartMount">
+            {% render 'forestry-rewards-root',
+              surface: 'drawer',
+              title: 'Candle Cash',
+              subtitle: '',
+              cart_has_subscription_items: forestry_cart_has_subscription_items,
+              cart_has_one_time_items: forestry_cart_has_one_time_items,
+              cart_rewards_eligible_subtotal: forestry_cart_rewards_eligible_subtotal_cents
+            %}
+          </div>
+        {%- endif -%}
 
         {%- capture shipping_and_taxes_notice -%}{{ 'cart.general.shipping_and_taxes_notice' | t }}{%- endcapture -%}
 
@@ -92,7 +117,7 @@
             data-cart-discount-row
           >
             <span data-cart-discount-label>
-              {%- if cart.cart_level_discount_applications != blank -%}
+              {%- if cart.cart_level_discount_applications != blank and forestry_cart_has_one_time_items -%}
                 Candle Cash Applied
               {%- else -%}
                 {{ cart_discount_label }}

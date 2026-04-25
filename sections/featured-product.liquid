@@ -7,6 +7,21 @@
 {%- if product and product.selling_plan_groups.size > 0 -%}
   {%- assign is_subscription_product = true -%}
 {%- endif -%}
+{%- assign default_selling_plan_id = '' -%}
+{%- if product and product.selected_selling_plan -%}
+  {%- assign default_selling_plan_id = product.selected_selling_plan.id -%}
+{%- endif -%}
+{%- if product and default_selling_plan_id == blank -%}
+  {%- for selling_plan_group in product.selling_plan_groups -%}
+    {%- for selling_plan in selling_plan_group.selling_plans -%}
+      {%- assign default_selling_plan_id = selling_plan.id -%}
+      {%- break -%}
+    {%- endfor -%}
+    {%- if default_selling_plan_id != blank -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
 {%- assign is_candle_club_product = false -%}
 {%- if product and product.handle == 'modern-forestry-candle-club-16oz-subscription-with-gifts' -%}
   {%- assign is_candle_club_product = true -%}
@@ -86,7 +101,7 @@
         <div class="FeaturedProduct__Info">
           {%- assign has_ouputted_variant_selector = false -%}
 
-          {%- form 'product', product, data-productid: product.id, class: 'ProductForm' -%}
+          {%- form 'product', product, data-productid: product.id, class: 'ProductForm', data-requires-selling-plan: product.requires_selling_plan, data-default-selling-plan-id: default_selling_plan_id -%}
 
 
 

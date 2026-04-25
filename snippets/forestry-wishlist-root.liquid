@@ -1,6 +1,21 @@
 {%- if settings.native_wishlist_enabled -%}
   {%- assign forestry_wishlist_marketing_profile_id = customer.metafields.custom.marketing_profile_id.value | default: '' -%}
   {%- assign forestry_wishlist_compact = compact | default: false -%}
+  {%- assign forestry_wishlist_default_selling_plan_id = '' -%}
+  {%- if product.selected_selling_plan -%}
+    {%- assign forestry_wishlist_default_selling_plan_id = product.selected_selling_plan.id -%}
+  {%- endif -%}
+  {%- if forestry_wishlist_default_selling_plan_id == blank -%}
+    {%- for selling_plan_group in product.selling_plan_groups -%}
+      {%- for selling_plan in selling_plan_group.selling_plans -%}
+        {%- assign forestry_wishlist_default_selling_plan_id = selling_plan.id -%}
+        {%- break -%}
+      {%- endfor -%}
+      {%- if forestry_wishlist_default_selling_plan_id != blank -%}
+        {%- break -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
   {%- assign button_classes = 'ForestryWishlistRoot__button' -%}
   {%- if forestry_wishlist_compact -%}
     {%- assign button_classes = button_classes | append: ' ForestryWishlistRoot__button--compact ForestryWishlistRoot__button--link' -%}
@@ -13,9 +28,11 @@
     data-product-id="{{ product.id }}"
     data-product-variant-id="{{ product.selected_or_first_available_variant.id }}"
     data-product-handle="{{ product.handle | escape }}"
-    data-product-title="{{ product.title | escape }}"
-    data-product-url="/products/{{ product.handle | escape }}"
-    data-marketing-profile-id="{{ forestry_wishlist_marketing_profile_id }}"
+	    data-product-title="{{ product.title | escape }}"
+	    data-product-url="/products/{{ product.handle | escape }}"
+	    data-product-requires-selling-plan="{{ product.requires_selling_plan }}"
+	    data-product-default-selling-plan-id="{{ forestry_wishlist_default_selling_plan_id }}"
+	    data-marketing-profile-id="{{ forestry_wishlist_marketing_profile_id }}"
     data-customer-email="{{ customer.email | escape }}"
     data-customer-phone="{{ customer.phone | escape }}"
     data-shopify-customer-id="{{ customer.id }}"
