@@ -356,6 +356,82 @@
     return true;
   }
 
+  function cartItemIsGiftCard(item) {
+    var type = String(item && (item.product_type || item.productType) || '').toLowerCase();
+    var handle = String(item && (item.handle || item.product_handle || item.productHandle) || '').toLowerCase();
+    var title = String(item && item.title || '').toLowerCase();
+
+    return !!(item && item.gift_card) ||
+      type.indexOf('gift card') >= 0 ||
+      type.indexOf('giftcard') >= 0 ||
+      handle.indexOf('gift-card') >= 0 ||
+      handle.indexOf('gift_card') >= 0 ||
+      handle.indexOf('giftcard') >= 0 ||
+      title.indexOf('gift card') >= 0;
+  }
+
+  function cartHasGiftCardItems(cartData) {
+    return !!(cartData && Array.isArray(cartData.items) && cartData.items.some(cartItemIsGiftCard));
+  }
+
+  function discountLooksLikeCandleCash(discount) {
+    var label = String(discount && (discount.title || discount.code || discount.discount_code || discount.description) || '').toUpperCase();
+
+    return label.indexOf('CANDLE CASH') >= 0 || label.indexOf('CC-') >= 0;
+  }
+
+  function cartHasCandleCashDiscount(cartData) {
+    var cartDiscounts = cartData && Array.isArray(cartData.cart_level_discount_applications) ? cartData.cart_level_discount_applications : [];
+    var discountCodes = cartData && Array.isArray(cartData.discount_codes) ? cartData.discount_codes : [];
+
+    return cartDiscounts.some(discountLooksLikeCandleCash) || discountCodes.some(discountLooksLikeCandleCash);
+  }
+
+  function replaceRewardsMountWithGiftCardNotice(mount) {
+    var previous = mount && mount.previousElementSibling;
+
+    if (previous && previous.classList && previous.classList.contains('Cart__NoteButton--static')) {
+      previous.parentNode.removeChild(previous);
+    }
+
+    mount.innerHTML = '<div class="Cart__CandleCashGiftCardNotice" data-candle-cash-gift-card-notice tabindex="-1"><p>Candle Cash cannot be used on gift cards. Remove gift cards to redeem Candle Cash on eligible products.</p></div>';
+  }
+
+  function syncCandleCashGiftCardCartUi() {
+    if (!window.fetch) {
+      return;
+    }
+
+    window.fetch('/cart.js', {
+      credentials: 'same-origin',
+      headers: { Accept: 'application/json' }
+    }).then(function (response) {
+      return response.ok ? response.json() : null;
+    }).then(function (cartData) {
+      var mounts;
+      var cartForms;
+      var i;
+
+      if (!cartHasGiftCardItems(cartData)) {
+        return;
+      }
+
+      mounts = document.querySelectorAll('.ForestryRewardsCartMount');
+      for (i = 0; i < mounts.length; i += 1) {
+        replaceRewardsMountWithGiftCardNotice(mounts[i]);
+      }
+
+      if (cartHasCandleCashDiscount(cartData)) {
+        cartForms = document.querySelectorAll(CART_SYNC_FORM_SELECTOR);
+        for (i = 0; i < cartForms.length; i += 1) {
+          cartForms[i].setAttribute('data-candle-cash-gift-card-block', 'true');
+        }
+      }
+    }).catch(function () {
+      // Liquid handles the normal render; this only covers stale cart sections.
+    });
+  }
+
   function syncCartTermsStateFromDom() {
     var cartForms = document.querySelectorAll(CART_SYNC_FORM_SELECTOR);
     var i;
@@ -705,11 +781,16 @@
 
   document.documentElement.addEventListener('cart:refresh', function () {
     window.setTimeout(syncNoteStateFromDom, 350);
+    window.setTimeout(syncCandleCashGiftCardCartUi, 400);
   });
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', syncNoteStateFromDom);
+    document.addEventListener('DOMContentLoaded', function () {
+      syncNoteStateFromDom();
+      syncCandleCashGiftCardCartUi();
+    });
   } else {
     syncNoteStateFromDom();
+    syncCandleCashGiftCardCartUi();
   }
 })();

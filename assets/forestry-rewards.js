@@ -480,6 +480,7 @@
         amount: 0,
       },
       cartTotalAmount: 0,
+      cartHasGiftCardItems: false,
       orderContext: {
         number: '',
         totalAmount: 0,
@@ -3360,6 +3361,13 @@
       root.innerHTML = '';
       return;
     }
+    if (model && model.cartHasGiftCardItems) {
+      root.innerHTML = '' +
+        '<div class="Cart__CandleCashGiftCardNotice" data-candle-cash-gift-card-notice tabindex="-1">' +
+          '<p>Candle Cash cannot be used on gift cards. Remove gift cards to redeem Candle Cash on eligible products.</p>' +
+        '</div>';
+      return;
+    }
     const state = compactHelperState(model);
     const reward = state.reward || {};
     const rules = redemptionRules(model);
@@ -3750,6 +3758,26 @@
     }).filter(Boolean);
   }
 
+  function cartLineIsGiftCard(item) {
+    const type = cleanString(item && (item.product_type || item.productType)).toLowerCase();
+    const handle = cleanString(item && (item.handle || item.product_handle || item.productHandle)).toLowerCase();
+    const title = cleanString(item && item.title).toLowerCase();
+
+    return bool(item && item.gift_card)
+      || type.indexOf('gift card') >= 0
+      || type.indexOf('giftcard') >= 0
+      || handle.indexOf('gift-card') >= 0
+      || handle.indexOf('gift_card') >= 0
+      || handle.indexOf('giftcard') >= 0
+      || title.indexOf('gift card') >= 0;
+  }
+
+  function cartHasGiftCardItems(cartData) {
+    const items = Array.isArray(cartData && cartData.items) ? cartData.items : [];
+
+    return items.some(cartLineIsGiftCard);
+  }
+
   function computeModel(root, statusResult, cartState) {
     // Liquid fallback keeps Candle Cash renderable until the external loyalty contract is fully connected.
     const fallback = fallbackModel(root);
@@ -3771,6 +3799,9 @@
     const cartDiscountCodeRows = cartState && cartState.ok && Array.isArray(cartState.data.discount_codes)
       ? cartState.data.discount_codes
       : [];
+    const hasGiftCardItems = (cartState && cartState.ok)
+      ? cartHasGiftCardItems(cartState.data)
+      : cleanString(root && root.dataset && root.dataset.cartHasGiftCardItems).toLowerCase() === 'true';
     const cartDiscountTitles = matchingCartDiscountTitles(cartDiscounts);
     const cartDiscountCodes = matchingCartDiscountCodes(cartDiscountCodeRows);
     const birthdayApplied = Boolean(issuance && rewardMatchesCart({
@@ -3840,6 +3871,7 @@
         : (cartState && cartState.ok ? amountNumber((cartState.data.total_price || 0) / 100) : 0),
       cartHasSubscriptionItems: cartHasSubscriptionItems,
       cartHasEligibleItems: cartHasEligibleItems,
+      cartHasGiftCardItems: hasGiftCardItems,
       cartSubscriptionOnly: (surface === 'cart' || surface === 'drawer') && cartHasSubscriptionItems && !cartHasEligibleItems,
       cartRewardsEligibleSubtotalAmount: cartEligibleSubtotal,
       orderContext: {
