@@ -10283,6 +10283,68 @@ shopify-payment-terms {
   text-underline-position: under;
 }
 
+.Product__Info .ProductForm > select,
+.Product__Info .ProductForm > div:not(.ProductForm__Variants):not(.ProductForm__BuyButtons) select,
+.Product__Info .ProductForm select[name^="properties["],
+.Product__Info .ProductForm select[name*="properties["],
+.Product__Info .ProductForm select[name^="properties_"],
+.Product__Info .ProductForm select[name*="custom" i],
+.Product__Info .ProductForm select[id*="custom" i],
+.Product__Info .ProductForm select[class*="custom" i] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  margin: 6px 0 12px;
+  padding: 12px 42px 12px 14px;
+  overflow: hidden;
+  border: 1px solid rgba(var(--text-color-rgb), 0.16);
+  border-radius: 8px;
+  background-color: rgba(250, 247, 240, 0.72);
+  background-image:
+    linear-gradient(to right, rgba(250, 247, 240, 0), rgba(250, 247, 240, 0.94) 28%, rgba(250, 247, 240, 0.98)),
+    url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.25 6 6.25l5-5' fill='none' stroke='%23312c28' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: right 0 top 0, right 15px center;
+  background-size: 4.8rem 100%, 12px 8px;
+  background-repeat: no-repeat;
+  color: var(--text-color);
+  box-shadow: 0 8px 22px rgba(var(--text-color-rgb), 0.05);
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+}
+
+.Product__Info .ProductForm > select:focus,
+.Product__Info .ProductForm > div:not(.ProductForm__Variants):not(.ProductForm__BuyButtons) select:focus,
+.Product__Info .ProductForm select[name^="properties["]:focus,
+.Product__Info .ProductForm select[name*="properties["]:focus,
+.Product__Info .ProductForm select[name^="properties_"]:focus,
+.Product__Info .ProductForm select[name*="custom" i]:focus,
+.Product__Info .ProductForm select[id*="custom" i]:focus,
+.Product__Info .ProductForm select[class*="custom" i]:focus {
+  border-color: rgba(var(--text-color-rgb), 0.44);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(var(--text-color-rgb), 0.08), 0 8px 22px rgba(var(--text-color-rgb), 0.05);
+}
+
+.Product__Info .ProductForm label {
+  max-width: 100%;
+}
+
+.Product__Info .ProductForm label + select,
+.Product__Info .ProductForm label + select[name^="properties["],
+.Product__Info .ProductForm label + select[name*="properties["],
+.Product__Info .ProductForm label + select[name^="properties_"],
+.Product__Info .ProductForm label + select[name*="custom" i],
+.Product__Info .ProductForm label + select[id*="custom" i],
+.Product__Info .ProductForm label + select[class*="custom" i] {
+  margin-top: 7px;
+}
+
 .ProductForm__SelectedValue {
   display: inline-block;
   white-space: nowrap;
