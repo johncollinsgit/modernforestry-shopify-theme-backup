@@ -18,6 +18,7 @@
 {%- endif -%}
 {%- assign forestry_cart_has_wholesale_items = false -%}
 {%- assign forestry_cart_has_subscription_items = false -%}
+{%- assign forestry_cart_has_candle_club_subscription_items = false -%}
 {%- assign forestry_cart_has_one_time_items = false -%}
 {%- assign forestry_cart_has_gift_card_items = false -%}
 {%- assign forestry_cart_rewards_eligible_subtotal_cents = 0 -%}
@@ -46,6 +47,12 @@
   {%- endif -%}
   {%- if forestry_cart_line_is_subscription -%}
     {%- assign forestry_cart_has_subscription_items = true -%}
+    {%- assign forestry_cart_product_handle = line_item.product.handle | default: '' | downcase -%}
+    {%- assign forestry_cart_product_title = line_item.product.title | default: '' | downcase -%}
+    {%- assign forestry_cart_product_description = line_item.product.description | default: '' | strip_html | downcase -%}
+    {%- if forestry_cart_product_handle contains 'candle-club' or forestry_cart_product_title contains 'candle club' or forestry_cart_product_description contains 'minimum 6 month commitment' or forestry_cart_product_description contains 'minimum of six months' or forestry_cart_product_description contains 'six month commitment' -%}
+      {%- assign forestry_cart_has_candle_club_subscription_items = true -%}
+    {%- endif -%}
   {%- elsif forestry_cart_line_is_gift_card == 'true' -%}
     {%- assign forestry_cart_has_gift_card_items = true -%}
   {%- else -%}
@@ -203,18 +210,20 @@
             </div>
           </div>
         {%- else -%}
-          <div class="Cart__TermsAgreement" data-cart-terms-wrapper>
-            <input
-              type="checkbox"
-              id="cart-drawer-terms-agree"
-              class="Cart__TermsCheckbox"
-              data-cart-terms-checkbox
-              required
-            >
-            <label for="cart-drawer-terms-agree" class="Cart__TermsLabel">
-              I agree to the <a href="/policies/terms-of-service" target="_blank" rel="noopener">terms and conditions</a>.
-            </label>
-          </div>
+          {%- if forestry_cart_has_candle_club_subscription_items -%}
+            <div class="Cart__TermsAgreement" data-cart-terms-wrapper>
+              <input
+                type="checkbox"
+                id="cart-drawer-terms-agree"
+                class="Cart__TermsCheckbox"
+                data-cart-terms-checkbox
+                required
+              >
+              <label for="cart-drawer-terms-agree" class="Cart__TermsLabel">
+                I understand Candle Club subscriptions require a minimum 6 month commitment before cancellation.
+              </label>
+            </div>
+          {%- endif -%}
           <button type="submit" name="checkout" class="Cart__Checkout Button Button--primary Button--full" data-cart-checkout-trigger tac-ignore="true">
             <span>{{- 'cart.general.checkout' | t -}}</span>
             <span class="Button__SeparatorDot"></span>
