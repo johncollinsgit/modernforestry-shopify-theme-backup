@@ -997,6 +997,34 @@
   position: static;
 }
 
+.Cart__CandleCashGiftCardNotice {
+  width: 100%;
+  margin: 0 0 0.95rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid rgba(var(--text-color-rgb), 0.18);
+  border-left: 3px solid #8f5e2f;
+  border-radius: 6px;
+  background: rgba(250, 247, 240, 0.92);
+  color: var(--text-color);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  outline: none;
+}
+
+.Cart__CandleCashGiftCardNotice p {
+  margin: 0;
+}
+
+.Cart__CandleCashGiftCardNotice a {
+  display: inline-block;
+  margin-top: 0.45rem;
+}
+
+.Cart__CandleCashGiftCardNotice.is-invalid {
+  border-color: #8f5e2f;
+  box-shadow: 0 0 0 2px rgba(143, 94, 47, 0.15);
+}
+
 .ForestryRewardsFallback {
   text-align: left;
 }

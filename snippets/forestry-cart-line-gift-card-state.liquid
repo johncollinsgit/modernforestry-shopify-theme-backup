@@ -1,0 +1,28 @@
+{%- liquid
+  assign forestry_is_gift_card = false
+  assign forestry_product_type = product.type | default: '' | downcase
+  assign forestry_product_template_suffix = product.template_suffix | default: '' | downcase
+  assign forestry_product_handle = product.handle | default: '' | downcase
+  assign forestry_product_tags = product.tags | join: ',' | downcase
+
+  if product.gift_card?
+    assign forestry_is_gift_card = true
+  endif
+
+  if forestry_product_type contains 'gift card' or forestry_product_type contains 'giftcard'
+    assign forestry_is_gift_card = true
+  endif
+
+  if forestry_product_template_suffix contains 'gift-card' or forestry_product_template_suffix contains 'gift_card'
+    assign forestry_is_gift_card = true
+  endif
+
+  if forestry_product_handle contains 'gift-card' or forestry_product_handle contains 'gift_card' or forestry_product_handle contains 'giftcard'
+    assign forestry_is_gift_card = true
+  endif
+
+  if forestry_product_tags contains 'gift-card' or forestry_product_tags contains 'gift_card' or forestry_product_tags contains 'giftcard'
+    assign forestry_is_gift_card = true
+  endif
+-%}
+{{- forestry_is_gift_card -}}

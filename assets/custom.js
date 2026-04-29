@@ -31,6 +31,8 @@
   var CHECKOUT_TRIGGER_SELECTOR = '[name="checkout"], [href="/checkout"], form[action="/checkout"] [type="submit"]';
   var CART_TERMS_CHECKBOX_SELECTOR = '[data-cart-terms-checkbox]';
   var CART_CHECKOUT_TRIGGER_SELECTOR = '[data-cart-checkout-trigger], [name="checkout"], [href="/checkout"]';
+  var CANDLE_CASH_GIFT_CARD_NOTICE_SELECTOR = '[data-candle-cash-gift-card-notice]';
+  var CANDLE_CASH_GIFT_CARD_BLOCK_MESSAGE = 'Candle Cash cannot be used when gift cards are in the cart. Remove the gift card or remove Candle Cash before checkout.';
   var REQUIRED_SELLING_PLAN_SELECTOR = 'form[data-requires-selling-plan="true"]';
   var TRACKING_FIELD_PREFIX = '_mf_';
   var TRACKING_FIELD_KEYS = {
@@ -330,6 +332,30 @@
     return true;
   }
 
+  function markCandleCashGiftCardValidation(form) {
+    var notice = form && form.querySelector(CANDLE_CASH_GIFT_CARD_NOTICE_SELECTOR);
+
+    if (!notice) {
+      notice = document.querySelector(CANDLE_CASH_GIFT_CARD_NOTICE_SELECTOR);
+    }
+
+    if (notice) {
+      notice.classList.add('is-invalid');
+      notice.focus();
+    }
+
+    window.alert(CANDLE_CASH_GIFT_CARD_BLOCK_MESSAGE);
+  }
+
+  function shouldBlockCheckoutForGiftCardRewards(form) {
+    if (!form || form.getAttribute('data-candle-cash-gift-card-block') !== 'true') {
+      return false;
+    }
+
+    markCandleCashGiftCardValidation(form);
+    return true;
+  }
+
   function syncCartTermsStateFromDom() {
     var cartForms = document.querySelectorAll(CART_SYNC_FORM_SELECTOR);
     var i;
@@ -590,6 +616,12 @@
       return;
     }
 
+    if (shouldBlockCheckoutForGiftCardRewards(checkoutForm)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      return;
+    }
+
     noteInput = getPrimaryNoteInput();
     href = checkoutTrigger.getAttribute && checkoutTrigger.getAttribute('href');
     isCheckoutLink = typeof href === 'string' && href.indexOf('/checkout') === 0;
@@ -634,6 +666,12 @@
     checkoutSubmit = isCheckoutSubmit(submittedForm, event);
 
     if (checkoutSubmit && shouldBlockCheckoutForTerms(submittedForm)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      return;
+    }
+
+    if (checkoutSubmit && shouldBlockCheckoutForGiftCardRewards(submittedForm)) {
       event.preventDefault();
       event.stopImmediatePropagation();
       return;

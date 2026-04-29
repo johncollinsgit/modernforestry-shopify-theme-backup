@@ -19,12 +19,18 @@
 {%- assign forestry_cart_has_wholesale_items = false -%}
 {%- assign forestry_cart_has_subscription_items = false -%}
 {%- assign forestry_cart_has_one_time_items = false -%}
+{%- assign forestry_cart_has_gift_card_items = false -%}
 {%- assign forestry_cart_rewards_eligible_subtotal_cents = 0 -%}
 {%- for line_item in cart.items -%}
   {%- capture forestry_cart_line_is_wholesale -%}{% render 'forestry-wholesale-product-state', product: line_item.product %}{%- endcapture -%}
   {%- assign forestry_cart_line_is_wholesale = forestry_cart_line_is_wholesale | strip -%}
+  {%- capture forestry_cart_line_is_gift_card -%}{% render 'forestry-cart-line-gift-card-state', product: line_item.product %}{%- endcapture -%}
+  {%- assign forestry_cart_line_is_gift_card = forestry_cart_line_is_gift_card | strip -%}
   {%- if forestry_cart_line_is_wholesale == 'true' -%}
     {%- assign forestry_cart_has_wholesale_items = true -%}
+  {%- endif -%}
+  {%- if forestry_cart_line_is_gift_card == 'true' -%}
+    {%- assign forestry_cart_has_gift_card_items = true -%}
   {%- endif -%}
   {%- assign forestry_cart_line_is_subscription = false -%}
   {%- if line_item.selling_plan_allocation -%}
@@ -40,11 +46,43 @@
   {%- endif -%}
   {%- if forestry_cart_line_is_subscription -%}
     {%- assign forestry_cart_has_subscription_items = true -%}
+  {%- elsif forestry_cart_line_is_gift_card == 'true' -%}
+    {%- assign forestry_cart_has_gift_card_items = true -%}
   {%- else -%}
     {%- assign forestry_cart_has_one_time_items = true -%}
     {%- assign forestry_cart_rewards_eligible_subtotal_cents = forestry_cart_rewards_eligible_subtotal_cents | plus: line_item.final_line_price -%}
   {%- endif -%}
 {%- endfor -%}
+{%- assign forestry_cart_has_candle_cash_discount = false -%}
+{%- if cart.cart_level_discount_applications != blank -%}
+  {%- for discount_application in cart.cart_level_discount_applications -%}
+    {%- assign forestry_cart_discount_title = discount_application.title | default: '' | upcase -%}
+    {%- if forestry_cart_discount_title contains 'CANDLE CASH' or forestry_cart_discount_title contains 'CC-' -%}
+      {%- assign forestry_cart_has_candle_cash_discount = true -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
+{%- unless forestry_cart_has_candle_cash_discount -%}
+  {%- for line_item in cart.items -%}
+    {%- if line_item.line_level_discount_allocations != blank -%}
+      {%- for discount_allocation in line_item.line_level_discount_allocations -%}
+        {%- assign forestry_cart_line_discount_title = discount_allocation.discount_application.title | default: '' | upcase -%}
+        {%- if forestry_cart_line_discount_title contains 'CANDLE CASH' or forestry_cart_line_discount_title contains 'CC-' -%}
+          {%- assign forestry_cart_has_candle_cash_discount = true -%}
+          {%- break -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endif -%}
+    {%- if forestry_cart_has_candle_cash_discount -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endunless -%}
+{%- assign forestry_cart_candle_cash_gift_card_block = false -%}
+{%- if forestry_cart_has_gift_card_items and forestry_cart_has_candle_cash_discount -%}
+  {%- assign forestry_cart_candle_cash_gift_card_block = true -%}
+{%- endif -%}
 {%- capture forestry_wholesale_line_sheet_url -%}{% render 'forestry-wholesale-url', key: 'line_sheet' %}{%- endcapture -%}
 {%- capture forestry_wholesale_login_url -%}{% render 'forestry-wholesale-url', key: 'login' %}{%- endcapture -%}
 {%- assign forestry_wholesale_line_sheet_url = forestry_wholesale_line_sheet_url | strip -%}
@@ -59,7 +97,7 @@
       </button>
   </div>
 
-  <form class="Cart Drawer__Content" action="{{ routes.cart_url }}" method="POST" novalidate>
+  <form class="Cart Drawer__Content" action="{{ routes.cart_url }}" method="POST" novalidate data-candle-cash-gift-card-block="{{ forestry_cart_candle_cash_gift_card_block }}">
     <div class="Drawer__Main" data-scrollable>
       {%- if settings.cart_show_free_shipping_threshold -%}
         {%- assign threshold_in_cents = settings.cart_free_shipping_threshold | times: 100 -%}
@@ -90,7 +128,14 @@
 
     {%- unless cart.item_count == 0 -%}
       <div class="Drawer__Footer" data-drawer-animated-bottom>
-        {%- if forestry_cart_has_one_time_items -%}
+        {%- if forestry_cart_has_gift_card_items -%}
+          <div class="Cart__CandleCashGiftCardNotice" data-candle-cash-gift-card-notice tabindex="-1">
+            <p>Candle Cash cannot be used on gift cards. Remove gift cards to redeem Candle Cash on eligible products.</p>
+            {%- if forestry_cart_has_candle_cash_discount -%}
+              <a href="/discount/CLEAR?redirect=/cart" class="Link Link--underline Link--underlineShort">Remove Candle Cash</a>
+            {%- endif -%}
+          </div>
+        {%- elsif forestry_cart_has_one_time_items -%}
           <div class="ForestryRewardsCartMount">
             {% render 'forestry-rewards-root',
               surface: 'drawer',
