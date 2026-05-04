@@ -198,6 +198,13 @@ Behavior summary for this change:
   - `templates/index.ssw-async.liquid`
 - Live push completed to `rewards-cache-reset-20260407` (`#159737250051`).
 
+## Latest live change (2026-05-04)
+- Retail bulk-discount candle case products remain purchasable on the retail storefront.
+- `snippets/forestry-retail-product-override-state.liquid` explicitly recognizes retail candle-box and retail `bulk discount` / `case of 12` soy candle products.
+- `snippets/forestry-wholesale-product-state.liquid` also carries exact-handle protection for the 4oz, 8oz, and 16oz retail bulk-discount candle case pages.
+- `snippets/forestry-wholesale-product-state.liquid` still redirects true wholesale products, but skips wholesale collection/description inheritance for those retail override products.
+- This protects products whose retail descriptions mention wholesale contact details, packets, or line sheets without turning the product itself into a wholesale-only item.
+
 ## Latest live change (2026-04-01)
 - Theme `review-cutover-staging-20260323` (`#159310446851`) updated and pushed.
 - Birthday reward card is desktop-only (hidden <1024px).

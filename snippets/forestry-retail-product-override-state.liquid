@@ -25,6 +25,10 @@
       assign forestry_is_retail_override_product = true
     elsif forestry_retail_override_text contains 'candle boxes'
       assign forestry_is_retail_override_product = true
+    elsif forestry_retail_override_text contains 'bulk discount' and forestry_retail_override_text contains 'candle'
+      assign forestry_is_retail_override_product = true
+    elsif forestry_retail_override_text contains 'case of 12' and forestry_retail_override_text contains 'soy candle'
+      assign forestry_is_retail_override_product = true
     endif
   endif
 -%}

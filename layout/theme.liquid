@@ -445,6 +445,7 @@
   {%- endif -%}
 
   <body class="prestige--v4 {{ classes }} {% if template.directory %}template-{{ template.directory | handle }}{% endif %} template-{{ template.name | handle }}">
+    <!-- mf-retail-case-pack-fix-20260504 -->
     {%- comment -%}Common SVG definitions that we are re-using in several places{%- endcomment -%}
     <svg class="u-visually-hidden">
       <linearGradient id="rating-star-gradient-half">
