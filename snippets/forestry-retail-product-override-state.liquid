@@ -1,0 +1,32 @@
+{%- liquid
+  assign forestry_is_retail_override_product = false
+
+  if product != blank
+    capture forestry_retail_override_text
+      echo product.title
+      echo ' '
+      echo product.handle
+      echo ' '
+      echo product.type
+      echo ' '
+      for forestry_product_tag in product.tags
+        echo forestry_product_tag
+        echo ' '
+      endfor
+    endcapture
+
+    assign forestry_retail_override_text = forestry_retail_override_text | strip_html | downcase | replace: '-', ' ' | replace: '_', ' '
+
+    if forestry_retail_override_text contains 'box of' and forestry_retail_override_text contains 'candle'
+      assign forestry_is_retail_override_product = true
+    elsif forestry_retail_override_text contains 'boxes of' and forestry_retail_override_text contains 'candle'
+      assign forestry_is_retail_override_product = true
+    elsif forestry_retail_override_text contains 'candle box'
+      assign forestry_is_retail_override_product = true
+    elsif forestry_retail_override_text contains 'candle boxes'
+      assign forestry_is_retail_override_product = true
+    endif
+  endif
+-%}
+
+{%- if forestry_is_retail_override_product -%}true{%- else -%}false{%- endif -%}

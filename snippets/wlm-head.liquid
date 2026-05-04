@@ -23,7 +23,16 @@
 
 {% unless wlmLockON or wlmSuperPage or template == 'customers/register' %}
 {% assign wlmLockedContent = false %}
+{% assign forestry_wlm_is_retail_override_product = false %}
+{% if product %}
+{% capture forestry_wlm_retail_override_check %}{% render 'forestry-retail-product-override-state', product: product %}{% endcapture %}
+{% assign forestry_wlm_retail_override_check = forestry_wlm_retail_override_check | strip %}
+{% if forestry_wlm_retail_override_check == 'true' %}
+{% assign forestry_wlm_is_retail_override_product = true %}
+{% endif %}
+{% endif %}
 {% if template contains "collection" or template contains "product" %}
+{% unless forestry_wlm_is_retail_override_product %}
 {% if product.collections %}
 {% for c in product.collections %}
 {% if c.id == 149609283619 or c.id == 241788256444 or c.id == 241789599932 or c.id == 241784979644 or c.id == 241789731004 or c.id == 241844125884 or c.id == 241788780732 or c.id == 241789829308 %} 
@@ -31,13 +40,16 @@
 {% endif %}
 {% endfor %}
 {% endif %}
+{% endunless %}
 {% endif %}
 {% if template contains 'collection' or template contains 'product' %}
+{% unless forestry_wlm_is_retail_override_product %}
 {% if collection %}
 {% if   collection.handle == 'wholesale-collection' or  collection.handle == 'wholesale-fall-candle-collection' or  collection.handle == 'wholesale-holiday-collection' or  collection.handle == 'wholesale-room-sprays' or  collection.handle == 'wholesale-spring-collection' or  collection.handle == 'wholesale-summer-collection' or  collection.handle == 'wholesale-winter-fall-collection' or  collection.handle == 'wholesale-year-round-collection' %}
 {% assign wlmLockedContent = true %}
 {% endif %}
 {% endif %}
+{% endunless %}
 {% endif %}
 {% if wlmLockedContent %}
 {% unless customer %}
