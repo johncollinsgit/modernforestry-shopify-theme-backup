@@ -23,10 +23,19 @@
             {%- for i in (1..3) -%}
               {%- assign article_option = 'article_' | append: i -%}
               {%- assign article = articles[block.settings[article_option]] -%}
+              {%- assign fallback_slot = forloop.index0 | modulo: 3 -%}
+              {%- case fallback_slot -%}
+                {%- when 0 -%}
+                  {%- assign fallback_image = section.settings.fallback_image_1 -%}
+                {%- when 1 -%}
+                  {%- assign fallback_image = section.settings.fallback_image_2 -%}
+                {%- else -%}
+                  {%- assign fallback_image = section.settings.fallback_image_3 -%}
+              {%- endcase -%}
 
               {%- unless article == empty -%}
                 <div class="Grid__Cell 1/2--tablet 1/3--lap-and-up {% if forloop.index == 3 %}hidden-tablet{% endif %}">
-                  {%- render 'article-item', block: block, article: article -%}
+                  {%- render 'article-item', block: block, article: article, fallback_image: fallback_image -%}
                 </div>
 
                 {%- assign show_placeholders = false -%}
@@ -37,8 +46,18 @@
             {%- assign blog = blogs[block.settings.blog] -%}
 
             {%- for article in blog.articles limit: 3 -%}
+              {%- assign fallback_slot = forloop.index0 | modulo: 3 -%}
+              {%- case fallback_slot -%}
+                {%- when 0 -%}
+                  {%- assign fallback_image = section.settings.fallback_image_1 -%}
+                {%- when 1 -%}
+                  {%- assign fallback_image = section.settings.fallback_image_2 -%}
+                {%- else -%}
+                  {%- assign fallback_image = section.settings.fallback_image_3 -%}
+              {%- endcase -%}
+
               <div class="Grid__Cell 1/2--tablet 1/3--lap-and-up {% if forloop.index == 3 %}hidden-tablet{% endif %}">
-                {%- render 'article-item', block: block, article: article -%}
+                {%- render 'article-item', block: block, article: article, fallback_image: fallback_image -%}
               </div>
 
               {%- assign show_placeholders = false -%}
@@ -99,6 +118,24 @@
       "id": "title",
       "label": "Heading",
       "default": "Blog posts"
+    },
+    {
+      "type": "image_picker",
+      "id": "fallback_image_1",
+      "label": "Fallback article image 1",
+      "info": "Used when an article does not have its own image."
+    },
+    {
+      "type": "image_picker",
+      "id": "fallback_image_2",
+      "label": "Fallback article image 2",
+      "info": "Used when an article does not have its own image."
+    },
+    {
+      "type": "image_picker",
+      "id": "fallback_image_3",
+      "label": "Fallback article image 3",
+      "info": "Used when an article does not have its own image."
     },
     {
       "type": "checkbox",

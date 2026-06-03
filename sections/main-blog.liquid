@@ -44,25 +44,38 @@
         {%- paginate blog.articles by articles_per_page -%}
           {% assign is_first_article_featured = false %}
 
-          {%- if section.settings.show_featured_article and current_tags == blank and blog.articles.first.image -%}
+          {%- assign first_article_fallback_image = section.settings.fallback_image_1 -%}
+          {%- assign first_article_display_image = blog.articles.first.image | default: first_article_fallback_image -%}
+
+          {%- if section.settings.show_featured_article and current_tags == blank and first_article_display_image != blank -%}
             {%- assign is_first_article_featured = true -%}
           {%- endif -%}
 
           <div class="ArticleListWrapper">
             <div class="ArticleList {% if is_first_article_featured %}ArticleList--withFeatured{% endif %} Grid Grid--m">
               {%- for article in blog.articles -%}
+                {%- assign fallback_slot = forloop.index0 | modulo: 3 -%}
+                {%- case fallback_slot -%}
+                  {%- when 0 -%}
+                    {%- assign fallback_image = section.settings.fallback_image_1 -%}
+                  {%- when 1 -%}
+                    {%- assign fallback_image = section.settings.fallback_image_2 -%}
+                  {%- else -%}
+                    {%- assign fallback_image = section.settings.fallback_image_3 -%}
+                {%- endcase -%}
+
                 {%- if is_first_article_featured and forloop.first -%}
                   <div class="Grid__Cell hidden-phone">
                     <div class="FlexboxIeFix">
-                      <div class="ImageHero ImageHero--small" style="background: url({{ article.image | img_url: '1x1', format: 'jpg' }})">
+                      <div class="ImageHero ImageHero--small" style="background: url({{ first_article_display_image | img_url: '1x1', format: 'jpg' }})">
                         <div class="ImageHero__ImageWrapper">
                           <div class="ImageHero__Image Image--lazyLoad Image--zoomOut"
                                data-optimumx="1.4"
-                               data-bgset="{{ article.image | img_url: mobile_size, crop: 'center' }} 750w, {{ article.image | img_url: '1000x' }} 1000w, {{ article.image | img_url: '1500x' }} 1500w">
+                               data-bgset="{{ first_article_display_image | img_url: mobile_size, crop: 'center' }} 750w, {{ first_article_display_image | img_url: '1000x' }} 1000w, {{ first_article_display_image | img_url: '1500x' }} 1500w">
                           </div>
 
                           <noscript>
-                            <div class="ImageHero__Image" style="background-image: url({{ article.image | img_url: '1000x' }})"></div>
+                            <div class="ImageHero__Image" style="background-image: url({{ first_article_display_image | img_url: '1000x' }})"></div>
                           </noscript>
                         </div>
 
@@ -87,7 +100,7 @@
                 {%- endif -%}
 
                 <div class="Grid__Cell {% if is_first_article_featured and forloop.first %}hidden-tablet-and-up{% else %}1/2--tablet 1/3--lap-and-up{% endif %}">
-                  {%- render 'article-item', article: article -%}
+                  {%- render 'article-item', article: article, fallback_image: fallback_image -%}
                 </div>
               {%- endfor -%}
             </div>
@@ -128,6 +141,24 @@
       "id": "show_featured_article",
       "label": "Show featured article",
       "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "fallback_image_1",
+      "label": "Fallback article image 1",
+      "info": "Used when an article does not have its own image."
+    },
+    {
+      "type": "image_picker",
+      "id": "fallback_image_2",
+      "label": "Fallback article image 2",
+      "info": "Used when an article does not have its own image."
+    },
+    {
+      "type": "image_picker",
+      "id": "fallback_image_3",
+      "label": "Fallback article image 3",
+      "info": "Used when an article does not have its own image."
     },
     {
       "type": "checkbox",

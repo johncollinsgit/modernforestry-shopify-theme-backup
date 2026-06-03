@@ -11,7 +11,11 @@
   "sections": {
     "main": {
       "type": "main-blog",
-      "settings": {}
+      "settings": {
+        "fallback_image_1": "shopify://shop_images/bright-fuschia-spring-blossoms_638cad68-df20-4a7b-b482-68abb3beb3bf.jpg",
+        "fallback_image_2": "shopify://shop_images/easter-mini-eggs.jpg",
+        "fallback_image_3": "shopify://shop_images/magnolia-bloom-opening.jpg"
+      }
     },
     "shop-now": {
       "type": "shop-now",

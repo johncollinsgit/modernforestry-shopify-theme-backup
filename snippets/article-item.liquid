@@ -1,18 +1,36 @@
-<article class="ArticleItem" {% if block %}{{ block.shopify_attributes }}{% endif %}>
-  {%- if article.image != blank -%}
-    {%- capture supported_sizes -%}{%- render 'image-size', sizes: '200,400,600,700,800,900,1000,1200', image: article.image -%}{%- endcapture -%}
-    {%- assign image_url = article.image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+{%- assign display_image = article.image | default: fallback_image -%}
 
-    <a class="ArticleItem__ImageWrapper AspectRatio AspectRatio--withFallback" style="background: url({{ article.image | img_url: '1x1', format: 'jpg' }}); padding-bottom: 58%; --aspect-ratio: 1.7" href="{{ article.url }}">
+<article class="ArticleItem" {% if block %}{{ block.shopify_attributes }}{% endif %}>
+  {%- if display_image != blank -%}
+    {%- capture supported_sizes -%}{%- render 'image-size', sizes: '200,400,600,700,800,900,1000,1200', image: display_image -%}{%- endcapture -%}
+    {%- assign image_url = display_image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+
+    <a class="ArticleItem__ImageWrapper AspectRatio AspectRatio--withFallback" style="background: url({{ display_image | img_url: '1x1', format: 'jpg' }}); padding-bottom: 58%; --aspect-ratio: 1.7" href="{{ article.url }}">
       <img class="ArticleItem__Image Image--lazyLoad Image--fadeIn"
            data-src="{{ image_url }}"
            data-widths="[{{ supported_sizes }}]"
            data-sizes="auto"
-           alt="{{ article.image.alt | escape }}">
+           width="{{ display_image.width }}"
+           height="{{ display_image.height }}"
+           alt="{{ display_image.alt | default: article.title | escape }}">
 
       <noscript>
-        <img class="ArticleItem__Image" src="{{ article.image | img_url: '600x' }}" alt="{{ article.image.alt | escape }}">
+        <img class="ArticleItem__Image" src="{{ display_image | img_url: '600x' }}" width="{{ display_image.width }}" height="{{ display_image.height }}" alt="{{ display_image.alt | default: article.title | escape }}">
       </noscript>
+    </a>
+  {%- else -%}
+    <a class="ArticleItem__ImageWrapper ArticleItem__ImageWrapper--fallback AspectRatio AspectRatio--withFallback" style="padding-bottom: 58%; --aspect-ratio: 1.7" href="{{ article.url }}" aria-label="{{ article.title | escape }}">
+      <div class="ArticleItem__Fallback">
+        {%- if section.settings.show_category and article.tags != empty -%}
+          <span class="ArticleItem__FallbackCategory Heading u-h6">{{ article.tags.first }}</span>
+        {%- elsif blog and blog.title != blank -%}
+          <span class="ArticleItem__FallbackCategory Heading u-h6">{{ blog.title }}</span>
+        {%- endif -%}
+
+        <span class="ArticleItem__FallbackTitle Heading">{{ article.title }}</span>
+
+        <span class="ArticleItem__FallbackMeta Heading Text--subdued u-h8">{{ article.published_at | date: format: 'month_day_year' }}</span>
+      </div>
     </a>
   {%- endif -%}
 
