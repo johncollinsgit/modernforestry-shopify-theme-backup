@@ -1,4 +1,5 @@
 {%- assign display_image = article.image | default: fallback_image -%}
+{%- assign display_image_alt = display_image.alt | default: article.title -%}
 
 <article class="ArticleItem" {% if block %}{{ block.shopify_attributes }}{% endif %}>
   {%- if display_image != blank -%}
@@ -12,10 +13,10 @@
            data-sizes="auto"
            width="{{ display_image.width }}"
            height="{{ display_image.height }}"
-           alt="{{ display_image.alt | default: article.title | escape }}">
+           alt="{{ display_image_alt | escape }}">
 
       <noscript>
-        <img class="ArticleItem__Image" src="{{ display_image | img_url: '600x' }}" width="{{ display_image.width }}" height="{{ display_image.height }}" alt="{{ display_image.alt | default: article.title | escape }}">
+        <img class="ArticleItem__Image" src="{{ display_image | img_url: '600x' }}" width="{{ display_image.width }}" height="{{ display_image.height }}" alt="{{ display_image_alt | escape }}">
       </noscript>
     </a>
   {%- else -%}
