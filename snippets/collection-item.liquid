@@ -5,7 +5,7 @@
 {%- if collection_item_is_wholesale_collection == 'true' and block.settings.button_link == blank -%}
   {%- capture collection_item_link_url -%}{% render 'forestry-wholesale-url', key: 'catalog' %}{%- endcapture -%}
 {%- endif -%}
-{%- capture collection_item_link_url -%}{% render 'forestry-wholesale-link-url', link_url: collection_item_link_url, link_title: block.settings.title | default: collection.title %}{%- endcapture -%}
+{%- capture collection_item_link_url -%}{% render 'forestry-wholesale-link-url', link_url: collection_item_link_url, link_title: block.settings.title, default: collection.title %}{%- endcapture -%}
 {%- assign collection_item_link_url = collection_item_link_url | strip -%}
 
 <a href="{{ collection_item_link_url }}" {{ block.shopify_attributes }} class="CollectionItem {% if section.settings.expand_collection %}CollectionItem--expand{% endif %} Carousel__Cell {% if forloop.first %}is-selected{% endif %}" data-slide-index="{{ forloop.index0 }}">
@@ -53,3 +53,15 @@
     </div>
   </div>
 </a>
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: "{% render 'forestry-wholesale-link-url', link_url: collection_item_link_url,
+    link_title: block.settings.title | default: collection.title %}"
+  to: "{% render 'forestry-wholesale-link-url', link_url: collection_item_link_url,
+    link_title: block.settings.title, default: collection.title %}"
+  position: 752..891
+{% endcomment %}

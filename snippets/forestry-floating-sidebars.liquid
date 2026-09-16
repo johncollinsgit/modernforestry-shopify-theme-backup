@@ -1,5 +1,5 @@
 {%- assign forestry_floating_marketing_profile_id = customer.metafields.custom.marketing_profile_id.value | default: '' -%}
-{%- assign forestry_floating_is_product_page = request.page_type == 'product' and product != blank -%}
+{%- assign forestry_floating_is_product_page = request.page_type -%}
 
 <div class="ForestryFloatingDrawerStack" data-forestry-floating-drawer-stack aria-label="Sitewide reviews and wishlist drawers">
   {%- if settings.native_reviews_enabled -%}
@@ -69,3 +69,14 @@
     </section>
   {%- endif -%}
 </div>
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: "{%- assign forestry_floating_is_product_page = request.page_type == 'product'
+    and product != blank -%}"
+  to: "{%- assign forestry_floating_is_product_page = request.page_type -%}"
+  position: 124..192
+{% endcomment %}

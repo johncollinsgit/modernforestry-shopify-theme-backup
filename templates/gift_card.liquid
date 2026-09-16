@@ -23,7 +23,7 @@
         {%- if gift_card.enabled and gift_card.expired == false -%}
           <div class="Alert Alert--success">
             {%- assign formatted_initial_value = gift_card.initial_value | money -%}
-            <p>{{ 'gift_card.issued.initial_amount_html' | t: initial_amount: formatted_initial_value }}</p>
+            <p>{{ 'gift_card.issued.initial_amount_html' | t: initial_amount: formatted_initial_value }}</p>
 
             {%- if gift_card.balance != gift_card.initial_value -%}
               {%- assign formatted_balance = gift_card.balance | money -%}
@@ -73,4 +73,15 @@
 
 <script>
   document.documentElement.style.setProperty('--header-height', document.getElementById('shopify-section-header').offsetHeight + 'px');
-</script>
+</script>{%- comment -%}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: "{{ 'gift_card.issued.initial_amount_html' | t: initial_amount: formatted_initial_value
+    }}"
+  to: "{{ 'gift_card.issued.initial_amount_html' | t: initial_amount: formatted_initial_value
+    }}"
+  position: 1125..1214
+{%- endcomment -%}
