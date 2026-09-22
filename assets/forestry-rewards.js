@@ -16,11 +16,13 @@
   };
   const CART_DISCOUNT_SYNC_TIMEOUT_MS = 2500;
   const CART_DISCOUNT_SYNC_POLL_MS = 200;
-  const AUTH_RETURN_PARAM = 'return_url';
+  const AUTH_RETURN_PARAM = 'return_to';
+  const LEGACY_AUTH_RETURN_PARAM = 'return_url';
   const AUTH_PORTAL_PARAM = 'candle_cash_portal';
   const AUTH_WELCOME_PARAM = 'candle_cash_welcome';
   const REVIEW_PREFETCH_EVENT = 'forestry:prefetch-reviews';
   const CLASSIC_LOGIN_PATH = '/account/login';
+  const STOREFRONT_LOGIN_PATH = '/customer_authentication/login';
   const DEFAULT_REWARDS_PATH = '/pages/rewards';
   const POST_LOGIN_SMS_REDIRECT_KEY = 'forestryPostLoginSmsRedirect';
   const POST_LOGIN_SMS_REDIRECT_MAX_AGE_MS = 30 * 60 * 1000;
@@ -45,7 +47,7 @@
   }
 
   function authPathFor(kind) {
-    return CLASSIC_LOGIN_PATH;
+    return STOREFRONT_LOGIN_PATH;
   }
 
   function normalizeReturnUrl(value) {
@@ -72,7 +74,9 @@
 
   function currentAuthReturnUrl(fallback) {
     const url = new URL(window.location.href);
-    const explicitReturn = normalizeReturnUrl(url.searchParams.get(AUTH_RETURN_PARAM));
+    const explicitReturn = normalizeReturnUrl(
+      url.searchParams.get(AUTH_RETURN_PARAM) || url.searchParams.get(LEGACY_AUTH_RETURN_PARAM)
+    );
 
     if (explicitReturn) {
       return explicitReturn;
@@ -134,8 +138,8 @@
   function markPostLoginSmsRedirectIntent() {
     const pathname = cleanString(window.location.pathname);
     const url = new URL(window.location.href);
-    const loginPath = pathname === CLASSIC_LOGIN_PATH;
-    const hasReturnParam = url.searchParams.has(AUTH_RETURN_PARAM);
+    const loginPath = pathname === CLASSIC_LOGIN_PATH || pathname === STOREFRONT_LOGIN_PATH;
+    const hasReturnParam = url.searchParams.has(AUTH_RETURN_PARAM) || url.searchParams.has(LEGACY_AUTH_RETURN_PARAM);
 
     if (!loginPath && !hasReturnParam) {
       return;
@@ -144,7 +148,7 @@
     writeSessionPayload(POST_LOGIN_SMS_REDIRECT_KEY, {
       createdAt: Date.now(),
       sourcePath: pathname,
-      returnUrl: normalizeReturnUrl(url.searchParams.get(AUTH_RETURN_PARAM)) || '',
+      returnUrl: normalizeReturnUrl(url.searchParams.get(AUTH_RETURN_PARAM) || url.searchParams.get(LEGACY_AUTH_RETURN_PARAM)) || '',
     });
   }
 
@@ -202,6 +206,9 @@
 
     try {
       const url = new URL(cleanString(base) || fallbackBase, window.location.origin);
+      if (url.pathname === CLASSIC_LOGIN_PATH || url.pathname === '/customer_authentication/redirect') {
+        url.pathname = STOREFRONT_LOGIN_PATH;
+      }
       const defaultReturnUrl = defaultAuthReturnForTarget(kind);
       const returnUrl = normalizeReturnUrl(
         settings.returnUrl == null
@@ -211,8 +218,10 @@
 
       if (returnUrl) {
         url.searchParams.set(AUTH_RETURN_PARAM, returnUrl);
+        url.searchParams.delete(LEGACY_AUTH_RETURN_PARAM);
       } else {
         url.searchParams.delete(AUTH_RETURN_PARAM);
+        url.searchParams.delete(LEGACY_AUTH_RETURN_PARAM);
       }
 
       if (portal === 'login' || portal === 'register' || portal === 'minimized') {
