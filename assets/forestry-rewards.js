@@ -910,6 +910,13 @@
     return cleanString(params.get('task'));
   }
 
+  function missingStorefrontIdentityAfterShopifyLogin(root) {
+    const params = new URLSearchParams(window.location.search || '');
+    return params.get('shop_sign_in') === 'true' &&
+      !cleanString(root && root.dataset && root.dataset.customerEmail) &&
+      !cleanString(root && root.dataset && root.dataset.shopifyCustomerId);
+  }
+
   function cacheKey(parts) {
     return parts.map(function (part) {
       return cleanString(part) || 'none';
@@ -5718,6 +5725,15 @@
 
     const surface = cleanString(root.dataset.surface || '');
     runtime.mounted.add(root);
+    if (missingStorefrontIdentityAfterShopifyLogin(root) && oncePerSession('forestryRewards:storefront_identity_missing:' + surface)) {
+      logRewardEvent(root, {
+        event_type: 'reward_widget_storefront_identity_missing',
+        request_key: 'forestryRewards:storefront_identity_missing:' + window.location.pathname + ':' + surface,
+        reward_kind: 'surface',
+        surface: surface || 'page',
+        state: 'shop_sign_in_guest',
+      });
+    }
     applyRewardsTheme(root, activeRewardsTheme(root));
     if (surface === 'page') {
       const requestedTask = requestedTaskHandleFromUrl();
