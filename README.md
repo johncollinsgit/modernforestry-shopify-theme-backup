@@ -205,6 +205,26 @@ Behavior summary for this change:
 - `snippets/forestry-wholesale-product-state.liquid` still redirects true wholesale products, but skips wholesale collection/description inheritance for those retail override products.
 - This protects products whose retail descriptions mention wholesale contact details, packets, or line sheets without turning the product itself into a wholesale-only item.
 
+## Latest live change (2026-09-22)
+- A focused Candle Cash storefront backport shipped to the live theme `rewards-cache-reset-20260407` (`#159737250051`).
+- Only `assets/forestry-rewards.css` and `assets/forestry-rewards.js` were promoted from the unpublished preview theme `candle-cash-spacing-20260922` (`#164555784451`).
+- The backport keeps the live reward API, balance matching, redemption rules, issued-code behavior, and checkout discount handoff unchanged.
+- Rewards-page cards now use consistent responsive padding and gaps, including clear separation before Saved Reward Codes.
+- Signed-in customers with less than the redeemable increment now receive an `Open Candle Cash Central` action in the cart reward card.
+- Shopify account sign-in actions carry `return_url=/pages/rewards` so new customer accounts return to Candle Cash Central instead of stopping on the account order page.
+- Desktop and mobile WebKit checks passed with no horizontal overflow. Existing pending-retry, floating-drawer, and Google-review smoke checks passed after the live push.
+- The repository's newer rewards runtime already contains the equivalent routing, cart action, spacing, liveness, retry, and celebration behavior. Do not replace the focused live runtime solely to make the asset files byte-identical; validate the larger runtime on an unpublished theme first.
+
+### Candle Cash release checklist
+1. Pull the live theme into an isolated working copy and keep a pre-release copy of every asset being changed.
+2. Run `shopify theme check`; record pre-existing theme debt separately from focused-change failures.
+3. Run `tests/rewards-pending-retry-smoke.sh`, `tests/floating-drawers-smoke.sh`, and `tests/google-review-readiness-smoke.sh`.
+4. Push only the intended files to an unpublished preview theme.
+5. Verify rewards page, cart page, and cart drawer at desktop and mobile widths. Test a zero-balance account and a non-production account with redeemable Candle Cash.
+6. Confirm a reward visually updates the cart total and survives the Shopify checkout handoff without placing an order.
+7. Promote the exact previewed assets to the live theme, pull them back, and compare hashes.
+8. Re-run the production smoke checks and retain the pre-release asset snapshot for a one-file rollback.
+
 ## Latest live change (2026-04-01)
 - Theme `review-cutover-staging-20260323` (`#159310446851`) updated and pushed.
 - Birthday reward card is desktop-only (hidden <1024px).
