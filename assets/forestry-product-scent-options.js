@@ -54,7 +54,6 @@
       const ruleset = payload && payload.ok ? payload.data : null;
       if (!response.ok || !payload || !payload.ok) throw new Error('Scent options unavailable');
       if (!ruleset) {
-        if (requiresOptions) throw new Error('Bundle scent options missing');
         if (form) form.dataset.everbranchScentState = 'ready';
         root.hidden = true;
         return;

@@ -28,3 +28,27 @@ The live product section and locale had pre-existing differences from repository
 - Mobile width 390px has all twelve controls with no horizontal overflow.
 - Simulated a failed options endpoint: cases display an error and cannot submit; a normal single-scent candle remains unaffected.
 - JavaScript syntax passes. Shopify's validator passes the new assets and locale. The product section adds no diagnostics over the live baseline; four pre-existing image-dimension errors and nine pre-existing warnings remain.
+
+## Follow-up: every bundle in the collection
+
+The first verification covered the three case sizes, not all bundles. The expanded review found that the new loading guard incorrectly treated a successful `ok: true, data: null` response as an error for preset products whose handles contain `bundle`. That response means no shopper-selected scents are configured. Removed that one check so preset assortments hide the scent controls and remain purchasable. Network or malformed-response errors still block custom selections; configured bundles retain all required-field checks.
+
+The full public product catalog contains the same 13 bundle/case products as the Candle Bundles collection. Follow-up verification uses a separate anonymous cart per product, submits no customer or payment information, and clears the final Safari cart after verification. Selection counts and cart/checkout results are recorded below.
+
+| Bundle | Shopper scent selections | Cart / checkout |
+| --- | ---: | --- |
+| 16oz Soy Candles (Case of 12) | 12 | Passed |
+| 3 (16oz) Soy Candle Bundle | 3 | Passed |
+| 3 (4oz) Soy Candle Bundle | 3 | Passed |
+| 3 (8oz) Soy Candle Bundle | 3 | Passed |
+| 3 Wax Melts Bundle | 3 | Passed |
+| 4oz Soy Candles (Case of 12) | 12 | Passed |
+| 5 Wax Melts Bundle | 5 | Passed |
+| 8oz Soy Candles (Case of 12) | 12 | Passed |
+| Apple Bundle (3 Candles) | 0 | Passed |
+| Bundle featuring Frosted Jubilee | 0 | Passed |
+| Forest Bundle (3 Candles) | 0 | Passed |
+| Modern Forestry Men Bundle (3 Candles) | 0 | Passed |
+| Wax Melt Mystery Bundle | 0 | Passed |
+
+Automated sessions encountered Shopify connection-verification/rate limits during the expanded sweep. The six remaining products were checked through a normal private Safari session, including one combined checkout showing all five selected wax-melt scents and the five preset assortments. No purchase, customer details or payment details were submitted.
