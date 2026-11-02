@@ -316,6 +316,16 @@
     }
   },
   "product": {
+    "scent_options": {
+      "heading": "Choose your scents",
+      "help": "Choose one scent for each item in this bundle.",
+      "label": "Scent",
+      "placeholder": "Choose a scent",
+      "load_error": "Scent options could not be loaded. Please refresh and try again.",
+      "missing_error": "Choose all [count] scents before adding this bundle.",
+      "distinct_error": "Choose a different scent for each item in this bundle.",
+      "loading": "Loading scent options…"
+    },
     "general": {
       "view_in_space": "View in your space",
       "include_taxes": "Tax included.",

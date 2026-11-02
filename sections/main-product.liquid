@@ -19,8 +19,11 @@
   - Prefer a tag like "bundle" on bundle products.
   - Fallback to handle containing "bundle" for safety.
 {%- endcomment -%}
+{{ 'forestry-product-scent-options.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'forestry-product-scent-options.js' | asset_url }}" defer></script>
+
 {%- assign is_bundle = false -%}
-{%- if product.tags contains 'bundle' or product.handle contains 'bundle' -%}
+{%- if product.tags contains 'bundle' or product.handle contains 'bundle' or product.handle contains 'bulk-discount' -%}
   {%- assign is_bundle = true -%}
 {%- endif -%}
 {%- assign is_subscription_product = false -%}
@@ -491,6 +494,19 @@
                   {%- else -%}
                     {%- assign use_primary_button = false -%}
                   {%- endif -%}
+
+                  <div class="everbranch-product-options" data-everbranch-product-options data-forestry-theme-scent-options
+                    data-proxy-endpoint="/apps/forestry/product-options"
+                    data-product-id="{{ product.id }}" data-product-handle="{{ product.handle | escape }}"
+                    data-heading="{{ 'product.scent_options.heading' | t | escape }}"
+                    data-help-text="{{ 'product.scent_options.help' | t | escape }}"
+                    data-scent-label="{{ 'product.scent_options.label' | t | escape }}"
+                    data-placeholder="{{ 'product.scent_options.placeholder' | t | escape }}"
+                    data-load-error="{{ 'product.scent_options.load_error' | t | escape }}"
+                    data-missing-error="{{ 'product.scent_options.missing_error' | t | escape }}"
+                    data-distinct-error="{{ 'product.scent_options.distinct_error' | t | escape }}" hidden>
+                    <p class="everbranch-product-options__loading" aria-live="polite">{{ 'product.scent_options.loading' | t }}</p>
+                  </div>
 
                   <div class="ProductForm__BuyButtons" {{ block.shopify_attributes }}>
                     {%- if forestry_is_wholesale_product == 'true' -%}
