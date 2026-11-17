@@ -23,7 +23,12 @@
     subtitle: 'Earn Candle Cash through reviews, referrals, birthdays, and a few easy wins.'
   %}
 {%- elsif request.page_type == 'page' and page.handle == 'rewards-program-faq' -%}
-  {% render 'candle-cash-faq-page' %}
+  <section class="Container" data-section-id="{{ section.id }}">
+    <div class="PageContent PageContent--narrow Rte">
+      <h1 class="Heading u-h1">{{ page.title | escape }}</h1>
+      {{ page.content }}
+    </div>
+  </section>
 {%- else -%}
   <div class="Container">
     <header class="PageHeader">
