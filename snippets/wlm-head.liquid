@@ -1,4 +1,4 @@
-<script type='text/javascript' src='https://theforestrystudio.com/apps/wlm/js/wlm-1.1.js'></script>
+<script defer type='text/javascript' src='https://theforestrystudio.com/apps/wlm/js/wlm-1.1.js'></script>
 {% assign wlmEnabled = true %}
 {% assign wlmLockON = false %}
 {% assign wlmRedirectURL = '' %} 
@@ -17,7 +17,7 @@
 {% unless canonical_url contains '/products/' or canonical_url contains '/collection/' or canonical_url contains '/collections/' or canonical_url contains '/search' %} {% assign wlmSuperPage = true %}
  {% endunless %}{% endif %}
 
-{% capture wlm_check %}{% include 'super_page_access' %}{% endcapture %}{% unless wlm_check contains 'Liquid error' %}{% include 'super_page_access' %}{% endunless %}
+
 {% if wlmEnabled %}
 <style type="text/css">.wlm-message-pnf{text-align:center;}#wlm-pwd-form {padding: 30px 0;text-align: center}#wlm-wrapper,.wlm-form-holder {display: inline-block}#wlm-pwd-error {display: none;color: #fb8077;text-align: left}#wlm-pwd-error.wlm-error {border: 1px solid #fb8077}#wlm-pwd-form-button {display: inline-block!important;height: auto!important;padding: 8px 15px!important;background: #777;border-radius: 3px!important;color: #fff!important;text-decoration: none!important;vertical-align: top}.wlm-instantclick-fix,.wlm-item-selector {position: absolute;z-index: -999;display: none;height: 0;width: 0;font-size: 0;line-height: 0}</style>
 
@@ -69,6 +69,8 @@
 
         {% if wlmLockON %}<meta name='robots' content='NOINDEX,NOFOLLOW,NOARCHIVE,NOSNIPPET,NOODP,NOYDIR' />{% endif %}
       <script type='text/javascript'>
+      document.addEventListener('DOMContentLoaded', function () {
+      if (window.wlm) {
       {% if wlmLockON %}
         wlm.navigate('{{ wlmRedirectURL}}');
       {% else %}
@@ -76,6 +78,8 @@
       {% endif %}
       wlm.jq(document).ready(function(){
         wlm.removeLinks();
+      });
+      }
       });
     </script>
     {% capture wlm_hide_price_check %}{% include "wlm-hide-price" %}{% endcapture %}

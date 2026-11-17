@@ -3745,24 +3745,31 @@
 
         var tempElement = document.createElement('div');
         tempElement.innerHTML = html;
-        var cartNodeParent = this.element.querySelector('.Cart').parentNode;
+        var nextSection = tempElement.querySelector('[data-section-type="cart"]');
+        if (!nextSection) {
+          return;
+        }
+        var cartResult = JSON.parse(nextSection.getAttribute('data-section-settings'));
+        var currentCart = this.element.querySelector('.Cart');
+        var nextCart = nextSection.querySelector('.Cart');
+        var drawerMain = this.element.querySelector('.Drawer__Main');
+        var currentScrollPosition = drawerMain ? drawerMain.scrollTop : 0;
 
-        if (this.options['drawer'] && window.theme.pageType !== 'cart') {
-          var currentScrollPosition = this.element.querySelector('.Drawer__Main').scrollTop;
-          cartNodeParent.replaceChild(tempElement.querySelector('.Cart'), this.element.querySelector('.Cart'));
-          this.element.querySelector('.Drawer__Main').scrollTop = currentScrollPosition;
-        } else {
-          // For dedicated page we replace the whole section if there is no more product
-          if (this.itemCount === 0) {
-            this.element.innerHTML = tempElement.querySelector('.shopify-section').firstElementChild.innerHTML;
-          } else {
-            cartNodeParent.replaceChild(tempElement.querySelector('.Cart'), this.element.querySelector('.Cart'));
-            this.element.querySelector('.PageHeader').innerHTML = tempElement.querySelector('.PageHeader').innerHTML;
+        if (currentCart && nextCart && cartResult['itemCount'] > 0) {
+          currentCart.parentNode.replaceChild(nextCart, currentCart);
+          var currentHeader = this.element.querySelector('.PageHeader');
+          var nextHeader = nextSection.querySelector('.PageHeader');
+          if (currentHeader && nextHeader) {
+            currentHeader.innerHTML = nextHeader.innerHTML;
           }
-        } // We can also update the dot and the quantity
+        } else {
+          this.element.innerHTML = nextSection.innerHTML;
+        }
+        drawerMain = this.element.querySelector('.Drawer__Main');
+        if (this.options['drawer'] && drawerMain) {
+          drawerMain.scrollTop = currentScrollPosition;
+        }
 
-
-        var cartResult = JSON.parse(tempElement.querySelector('[data-section-type="cart"]').getAttribute('data-section-settings'));
         var cartDot = Dom.nodeListToArray(document.querySelectorAll('.Header__CartDot')),
             cartQuantity = Dom.nodeListToArray(document.querySelectorAll('.Header__CartCount'));
         this.itemCount = cartResult['itemCount'];
