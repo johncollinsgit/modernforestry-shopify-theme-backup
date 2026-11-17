@@ -36,3 +36,14 @@ Run node syntax checks, the existing three smoke scripts, theme validation, test
 Reconciliation checks: 48 retail and 24 birthday WebKit scenarios passed. The new pending-code regression fails against the original repository runtime as expected. All three existing smoke scripts and syntax checks passed. Theme validation passed with existing route/CDN and deprecated-font warnings; the two missing birthday dependencies were added unchanged from the published theme.
 
 The published smaller runtime was tested live in Safari/WebKit, including the birthday redirects, guest login return and four five-wax-melt checkout cases. That evidence does not establish live acceptance of the repository's larger rewards runtime. After merge, verify GitHub synchronization and review the connected preview before considering a separate publication.
+
+
+## Connected theme release
+
+The user authorized publication after Safari testing. Theme 159295144195 is now MAIN; prior theme 165915361539 is UNPUBLISHED and retained for rollback. Code fixes were delivered through PR 3 (merge e9984fd0411bcf66a5bc5c9fb8bdb546981c6f00); FAQ preservation through PRs 4 and 5 (final code merge 256c7ab134237b58f08f4cce998f4e6c9095478c).
+
+The WLM runtime initializes after deferred loading and only when available; server-rendered access rules remain intact. The nonexistent super_page_access include was removed. Cart refresh uses incoming section settings and handles all empty/populated transitions without a missing form or replacement node. Both page sections now preserve the reviewed Shopify rewards FAQ body instead of overriding it with older copy.
+
+Release checks: 82 WebKit regression scenarios, three smoke scripts, JavaScript syntax and theme validation passed. Native Safari review covered the signed-in rewards Status wallet and redemption control, saved Birthday Club, cart and both FAQs. WebKit desktop/phone covered guest access, both shipping thresholds, legacy birthday redirects, wholesale handoff and layout. Single/mixed five-wax-melt carts reached checkout with a $35 subtotal on desktop and phone, without payment. Shopify rate-limited the extra API-based mixed-phone probe; the normal storefront product-form flow passed. No real reward redemption, birthday edits, payments or customer messages were performed.
+
+Fresh public sessions after publication confirmed theme identity, both FAQs, redirects and zero page errors on Birthday Club, rewards and the empty cart. Changed script and FAQ files matched Shopify checksums. No Chrome was used for this release.

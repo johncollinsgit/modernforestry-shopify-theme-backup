@@ -12,9 +12,9 @@ This repository is a **backup + version history** for the live Shopify theme.
 Use GitHub branches and pull requests for theme changes. Preserve the repository's existing rewards runtime; compare live Shopify changes and port the intended behavior rather than replacing newer source files with a live snapshot.
 
 - Store: `modernforestry.myshopify.com`; public site: `https://theforestrystudio.com`.
-- Published theme as of November 16, 2026: `Retail shipping terms 2026-11-16` (`165915361539`).
-- GitHub-connected theme: `modernforestry-shopify-theme-backup/main` (`159295144195`), currently unpublished.
-- The published theme and GitHub theme have different rewards runtimes. A successful GitHub merge does not establish that the connected theme is published or that the larger runtime has passed live acceptance.
+- Published theme as of November 16, 2026: `modernforestry-shopify-theme-backup/main` (`159295144195`).
+- GitHub-connected theme: `modernforestry-shopify-theme-backup/main` (`159295144195`), now live.
+- The connected theme passed Safari/WebKit release review and is live. `Retail shipping terms 2026-11-16` (`165915361539`) is retained as the prior rollback theme. Future merges update the live connected source; test changes before merging.
 - See [the reconciliation record](docs/retail-reconciliation-2026-11-16.md) for the changes, content snapshots and release boundary.
 
 ## Standard Theme Structure
