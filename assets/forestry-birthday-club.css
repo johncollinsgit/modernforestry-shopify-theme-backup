@@ -1,0 +1,38 @@
+.ForestryBirthday{background:#f3f1ea;color:#21382b;font-family:Arial,sans-serif;padding-bottom:72px}
+.ForestryBirthday__hero{background:#193d2e;color:#fffdf8;text-align:center;padding:48px 20px 100px}
+.ForestryBirthday__hero-inner{max-width:650px;margin:auto}
+.ForestryBirthday__logo{display:block;width:180px;height:auto;margin:0 auto 25px}
+.ForestryBirthday__eyebrow,.ForestryBirthday__kicker{font-size:12px;font-weight:700;letter-spacing:.19em;text-transform:uppercase}
+.ForestryBirthday__eyebrow{color:#d9e7d6;margin:0 0 12px}
+.ForestryBirthday__hero h1{font-family:Georgia,serif;font-size:clamp(38px,6vw,64px);line-height:1.1;font-weight:400;margin:0 0 18px}
+.ForestryBirthday__hero p:last-child{font-size:17px;line-height:1.65;max-width:580px;margin:0 auto}
+.ForestryBirthday__container{width:min(100% - 32px,690px);margin:-62px auto 0;position:relative}
+.ForestryBirthday__panel{background:#fffdf8;border:1px solid #dedfd3;box-shadow:0 16px 45px rgba(28,57,38,.1);min-height:310px;padding:45px 48px;text-align:center;position:relative;overflow:hidden}
+.ForestryBirthday__panel h2{color:#193d2e;font-family:Georgia,serif;font-size:clamp(30px,4.5vw,45px);line-height:1.16;font-weight:400;margin:0 0 20px}
+.ForestryBirthday__panel p{font-size:16px;line-height:1.7;margin:0 auto 22px;max-width:520px}
+.ForestryBirthday__panel .ForestryBirthday__kicker{color:#617b59;margin-bottom:11px}
+.ForestryBirthday__button{background:#193d2e;color:#fff!important;display:inline-block;font-size:15px;font-weight:700;letter-spacing:.02em;padding:16px 29px;text-decoration:none!important;transition:background .2s ease,transform .2s ease}
+.ForestryBirthday__button:hover,.ForestryBirthday__button:focus{background:#315e46;transform:translateY(-2px)}
+.ForestryBirthday__loading{padding-top:48px}
+.ForestryBirthday__loading-mark{border:3px solid #d9e6d8;border-top-color:#193d2e;border-radius:50%;display:block;height:34px;width:34px;margin:0 auto 20px;animation:ForestryBirthdaySpin .8s linear infinite}
+@keyframes ForestryBirthdaySpin{to{transform:rotate(360deg)}}
+.ForestryBirthday__coupon{background:#edf3e9;border:1px solid #d5e1d0;display:flex;flex-direction:column;gap:7px;margin:24px auto 26px;max-width:390px;padding:22px}
+.ForestryBirthday__coupon span{font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#617b59}
+.ForestryBirthday__coupon strong{color:#193d2e;font-family:Georgia,serif;font-size:31px;letter-spacing:.03em;overflow-wrap:anywhere}
+.ForestryBirthday__coupon small{font-size:13px;color:#526352}
+.ForestryBirthday__animation{height:170px;width:190px;margin:-15px auto 9px;overflow:visible}
+.ForestryBirthday__animation lottie-player{width:190px;height:190px;display:block}
+.ForestryBirthday__terms{font-size:13px!important;color:#687569;margin:22px auto 0!important}
+.ForestryBirthday__text-link{color:#193d2e;text-decoration:underline;font-weight:700}
+.ForestryBirthday__retry{display:block;margin:20px auto 0;border:1px solid #193d2e;background:transparent;color:#193d2e;padding:10px 18px;cursor:pointer}
+.ForestryBirthday__form{display:flex;flex-wrap:wrap;align-items:end;justify-content:center;gap:12px;margin:26px auto}
+.ForestryBirthday__form label{display:flex;flex-direction:column;gap:7px;text-align:left;font-size:13px;font-weight:700;color:#50624f}
+.ForestryBirthday__form input{width:90px;border:1px solid #b8c7b8;border-radius:0;background:#fff;padding:14px 12px;font:inherit;color:#21382b}
+.ForestryBirthday__form button{border:0;cursor:pointer}
+.ForestryBirthday__form-error{color:#9c392f!important;font-size:14px!important}
+.ForestryBirthday__signature{text-align:center;color:#50624f;font-family:Georgia,serif;font-size:17px;line-height:1.65;margin:28px auto 0}
+.ForestryBirthday [hidden]{display:none!important}
+@media(max-width:640px){.ForestryBirthday__hero{padding:34px 20px 92px}.ForestryBirthday__logo{width:142px;margin-bottom:18px}.ForestryBirthday__panel{padding:35px 22px;min-height:280px}.ForestryBirthday__container{width:min(100% - 24px,690px)}}
+@media(prefers-reduced-motion:reduce){.ForestryBirthday__loading-mark{animation:none}.ForestryBirthday__button{transition:none}.ForestryBirthday__button:hover,.ForestryBirthday__button:focus{transform:none}}
+
+.ForestryBirthday__history{background:#fffdf8;border:1px solid #dedfd3;margin-top:20px;padding:20px;text-align:left}.ForestryBirthday__history summary{cursor:pointer;font-weight:700}.ForestryBirthday__history article{border-top:1px solid #dedfd3;padding:18px 0;overflow-wrap:anywhere}.ForestryBirthday__history article:first-of-type{margin-top:16px}.ForestryBirthday__history p{margin:8px 0}.ForestryBirthday__history .ForestryBirthday__button{padding:12px 18px}.ForestryBirthday__history h3{margin:0}.ForestryBirthday__coupon button{padding:8px;border:1px solid #193d2e;background:transparent;color:#193d2e;cursor:pointer}

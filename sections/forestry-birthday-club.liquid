@@ -1,0 +1,101 @@
+{% assign birthday_page_path = '/pages/birthday-club' %}
+{% comment %}
+  Birthday coupon claim is resolved only through Shopify's signed app proxy.
+  Never put a customer email, profile id, or coupon in the page URL.
+{% endcomment %}
+{{ 'forestry-birthday-club.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'forestry-birthday-lottie-player.js' | asset_url }}" defer></script>
+<script src="{{ 'forestry-birthday-club.js' | asset_url }}" defer></script>
+
+<section class="ForestryBirthday" data-forestry-birthday-club
+  data-status-url="/apps/forestry/birthday/status"
+  data-claim-url="/apps/forestry/birthday/claim"
+  data-capture-url="/apps/forestry/birthday/capture"
+  data-signed-in="{% if customer %}true{% else %}false{% endif %}"
+  data-animation-url="{{ 'forestry-birthday-celebration.json' | asset_url }}"
+  data-login-url="/customer_authentication/login?return_to={{ birthday_page_path | url_encode }}">
+  <div class="ForestryBirthday__hero">
+    <div class="ForestryBirthday__hero-inner">
+      <img class="ForestryBirthday__logo" src="https://app.theeverbranch.com/brand/modern-forestry-logo-white.png" alt="Modern Forestry" width="180" height="120">
+      <p class="ForestryBirthday__eyebrow">A little something for you</p>
+      <h1>Birthday Club</h1>
+      <p data-birthday-intro>Save your birthday for a $10 coupon each year. Already received a gift? Sign in to find it here.</p>
+    </div>
+  </div>
+
+  <div class="ForestryBirthday__container">
+    <div class="ForestryBirthday__panel" data-birthday-state="loading" aria-live="polite">
+      <div class="ForestryBirthday__loading" data-birthday-loading>
+        <span class="ForestryBirthday__loading-mark" aria-hidden="true"></span>
+        <p>Finding your birthday gift…</p>
+      </div>
+
+      <div data-birthday-sign-in hidden>
+        <p class="ForestryBirthday__kicker">First, a quick sign in</p>
+        <h2>Your gift is waiting for you.</h2>
+        <p>Sign in to the account you use with Modern Forestry. We will bring you right back here to claim your $10 coupon.</p>
+        <a class="ForestryBirthday__button" data-birthday-login href="/customer_authentication/login?return_to={{ birthday_page_path | url_encode }}">Sign in to claim your gift</a>
+      </div>
+
+      <div data-birthday-claiming hidden>
+        <p class="ForestryBirthday__kicker">Here it comes</p>
+        <h2>Adding your $10 birthday coupon…</h2>
+        <p>We are making sure your coupon is ready to use at checkout.</p>
+      </div>
+
+      <div data-birthday-setup hidden>
+        <p class="ForestryBirthday__kicker">Let us celebrate you</p>
+        <h2>When is your birthday?</h2>
+        <p>Save the month and day so we can show when your $10 birthday coupon will arrive.</p>
+        <form class="ForestryBirthday__form" data-birthday-form>
+          <label>Month<input name="birth_month" type="number" min="1" max="12" placeholder="MM" required></label>
+          <label>Day<input name="birth_day" type="number" min="1" max="31" placeholder="DD" required></label>
+          <button class="ForestryBirthday__button" type="submit">Save my birthday</button>
+        </form>
+        <p class="ForestryBirthday__form-error" data-birthday-form-error hidden></p>
+      </div>
+
+      <div data-birthday-scheduled hidden>
+        <p class="ForestryBirthday__kicker">Your day is on our calendar</p>
+        <h2>Your next birthday gift</h2>
+        <p data-birthday-scheduled-message></p>
+      </div>
+
+      <div data-birthday-success hidden>
+        <div class="ForestryBirthday__animation" data-birthday-animation aria-hidden="true"></div>
+        <p class="ForestryBirthday__kicker">A birthday gift, from us to you</p>
+        <h2 data-birthday-ready-title>Your birthday gift is ready!</h2>
+        <p>Use your birthday coupon on your next order, or explore our candle bundles.</p>
+        <div class="ForestryBirthday__coupon">
+          <span>Your birthday code</span>
+          <strong data-birthday-code></strong>
+          <small data-birthday-expiry></small>
+        </div>
+        <a class="ForestryBirthday__button" data-birthday-shop href="/cart">Use my birthday coupon</a><p style="margin-top:18px"><a class="ForestryBirthday__text-link" href="/collections/candle-bundles">Shop candle bundles</a></p>
+        <p class="ForestryBirthday__terms">Works with eligible free shipping offers. Cannot be combined with Candle Cash or other discounts.</p>
+      </div>
+
+      <div data-birthday-unavailable hidden>
+        <p class="ForestryBirthday__kicker">We are here to help</p>
+        <h2 data-birthday-unavailable-title>We could not find your birthday coupon yet.</h2>
+        <p data-birthday-unavailable-message>Please sign in to the account you use with Modern Forestry, or contact us and we will help locate your gift.</p>
+        <a class="ForestryBirthday__text-link" href="mailto:info@theforestrystudio.com?subject=Birthday%20coupon%20help">Get help with my birthday gift</a>
+        <button class="ForestryBirthday__retry" data-birthday-retry type="button" hidden>Try again</button>
+      </div>
+    </div>
+
+    <p style="text-align:center;margin-top:20px"><button class="ForestryBirthday__retry" data-birthday-edit type="button" hidden>Update saved birthday</button><a class="ForestryBirthday__text-link" href="/pages/rewards">View your existing Candle Cash and rewards</a></p>
+    <details class="ForestryBirthday__history" data-birthday-history hidden><summary>Previously issued gifts</summary><div data-birthday-history-list></div></details>
+
+    <p class="ForestryBirthday__signature">Thank you for supporting our small business.<br>With gratitude, The Modern Forestry team</p>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Birthday Club",
+  "settings": [
+    {"type": "paragraph", "content": "Regular and belated gifts use the same verified customer account and original reward terms."}
+  ]
+}
+{% endschema %}
