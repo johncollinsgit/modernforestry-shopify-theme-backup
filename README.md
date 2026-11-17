@@ -7,12 +7,15 @@ This repository is a **backup + version history** for the live Shopify theme.
 - Make rollback/recovery easy after bad edits.
 - Stay lightweight: no build step, no framework migration, no heavy local workflow.
 
-## Source Of Truth
-Unless explicitly noted in a release note/PR, the source of truth is the **live Shopify theme** in the store admin.
+## Working source and published state
 
-- Store: `modernforestry.myshopify.com`
-- Primary live theme tracked here: `rewards-cache-reset-20260407` (`#159737250051`)
-- Historical pre-cutover theme still visible on the stale custom-domain path: `Prestige` (`#136487764227`)
+Use GitHub branches and pull requests for theme changes. Preserve the repository's existing rewards runtime; compare live Shopify changes and port the intended behavior rather than replacing newer source files with a live snapshot.
+
+- Store: `modernforestry.myshopify.com`; public site: `https://theforestrystudio.com`.
+- Published theme as of November 16, 2026: `Retail shipping terms 2026-11-16` (`165915361539`).
+- GitHub-connected theme: `modernforestry-shopify-theme-backup/main` (`159295144195`), currently unpublished.
+- The published theme and GitHub theme have different rewards runtimes. A successful GitHub merge does not establish that the connected theme is published or that the larger runtime has passed live acceptance.
+- See [the reconciliation record](docs/retail-reconciliation-2026-11-16.md) for the changes, content snapshots and release boundary.
 
 ## Standard Theme Structure
 This repo keeps Shopify's standard theme folders so it remains compatible with Shopify GitHub integration:
@@ -24,7 +27,7 @@ This repo keeps Shopify's standard theme folders so it remains compatible with S
 - `snippets/`
 - `templates/`
 
-## One-Time Setup
+## Historical initial backup setup
 ```bash
 cd /path/to/modernforestry-live-theme
 
@@ -60,7 +63,7 @@ git push -u origin main
 ```
 
 ## Pull A Fresh Backup From Shopify
-Use this whenever you want GitHub to reflect the latest live theme edits.
+These legacy snapshot commands are for a separate backup checkout. Do not use them to overwrite this development branch when the live theme and repository differ. Reconcile a focused change through a PR instead.
 
 ```bash
 shopify theme pull --store modernforestry.myshopify.com --theme 159737250051
@@ -81,9 +84,9 @@ SHOPIFY_STORE=modernforestry.myshopify.com SHOPIFY_THEME_ID=159737250051 ./backu
 ```
 
 ## Branch Strategy (Simple)
-- `main` = production backup history (published theme tracking)
-- Optional short-lived feature branches only for bigger edits
-- Merge back to `main` after review or validation
+- `main` = reviewed theme source and history, synchronized to the connected Shopify theme.
+- Short-lived branches and PRs carry focused changes.
+- Merge after relevant validation; verify the connected theme received the exact files. Publishing a different theme remains a separate, named release decision.
 
 ## Connect Shopify Theme To GitHub
 In Shopify Admin:
@@ -97,11 +100,12 @@ In Shopify Admin:
 
 After connection, merchant/admin theme edits can be tracked through the connected GitHub workflow.
 
-## Tiny Ongoing Workflow (2 Minutes)
-1. Pull latest live theme: `shopify theme pull --store modernforestry.myshopify.com --theme 159737250051`
-2. Commit snapshot: `git add . && git commit -m "Backup: live snapshot YYYY-MM-DD"`
-3. Push: `git push`
-4. If needed, restore from an older commit by re-pushing that version to Shopify.
+## Ongoing GitHub workflow
+1. Start a focused branch from current `origin/main`; inspect current live state read-only when needed.
+2. Port the intended changes while preserving unrelated source and merchant settings.
+3. Validate Liquid/JSON and run the affected browser and smoke checks.
+4. Open and merge a PR after checks pass, then verify Shopify's connected theme synchronized the changed files.
+5. Review the connected preview before any publication. Never infer publication from a successful GitHub push.
 
 ## Notes
 - Keep this repo focused on backup and safe rollback.

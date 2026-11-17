@@ -1473,11 +1473,11 @@
     }
 
     return {
-      reward_name: issuance.reward_name || 'Birthday Candle Cash',
+      reward_name: issuance.reward_name || 'Birthday reward',
       reward_value: issuance.reward_value || 0,
       reward_code: issuance.reward_code || '',
       redemption_code: issuance.reward_code || '',
-      discount_title: issuance.discount_title || issuance.reward_name || 'Birthday Candle Cash',
+      discount_title: issuance.discount_title || issuance.reward_name || 'Birthday reward',
       apply_path: issuance.apply_path || '',
       remove_path: issuance.remove_path || issuance.clear_path || '',
       expires_at: issuance.expires_at || '',
@@ -1558,12 +1558,16 @@
       };
     }
 
-    if (primaryCode && rewardApplyPath(primaryCode)) {
+    if (primaryCode && primaryCode.is_usable && rewardApplyPath(primaryCode)) {
       return {
         name: 'ready',
         reward: primaryCode,
         rewardKind: 'candle_cash',
       };
+    }
+
+    if (primaryCode && !primaryCode.is_usable) {
+      return { name: 'pending_code', reward: primaryCode, rewardKind: 'candle_cash' };
     }
 
     if (primaryCode && rewardCodeValue(primaryCode)) {
@@ -1678,7 +1682,7 @@
 
   function rewardCardDescription(model, viewState) {
     if (viewState === 'missing_birthday') {
-      return 'Add your birthday once and we will keep your yearly reward waiting inside your account.';
+      return 'Save your birthday for your annual $10 coupon.';
     }
     if (viewState === 'available') {
       return 'Your birthday reward is ready. Activate it once, then use it at checkout in one calm click.';
@@ -1698,7 +1702,7 @@
     if (viewState === 'sync_failed') {
       return 'We saved the reward, but Shopify still needs a moment to finish syncing the code.';
     }
-    return 'Your birthday reward will appear here as soon as it is available.';
+    return 'Your annual birthday coupon will appear here when it is available.';
   }
 
   function helperMessage(model, viewState) {
@@ -1714,7 +1718,7 @@
       return access.message;
     }
     if (state.name === 'applied') {
-      return 'Your Candle Cash is already attached to this order.';
+      return state.rewardKind === 'birthday' ? 'Your birthday coupon is already attached to this order.' : 'Your Candle Cash is already attached to this order.';
     }
     if (state.name === 'birthday_activation') {
       return 'Your birthday reward is waiting. Activate it to use it on this order.';
@@ -1724,6 +1728,9 @@
     }
     if (state.name === 'redeemable') {
       return 'Redeem ' + rewardAmount + ' at a time, with a limit of ' + redemptionRules(model).maxPerOrderLabel + ' per order.';
+    }
+    if (state.name === 'pending_code') {
+      return 'Your saved reward is still being confirmed. Check its status again in a moment.';
     }
     if (state.name === 'code_only') {
       return 'Your ' + rewardAmount + ' reward code is ready.';
@@ -1746,7 +1753,7 @@
 
   function summaryHeadline(model, viewState) {
     if (viewState === 'activated' || viewState === 'applied') {
-      return 'Birthday Candle Cash is ready';
+      return 'Birthday reward is ready';
     }
     if (viewState === 'available') {
       return 'Your birthday reward is waiting';
@@ -1764,7 +1771,7 @@
     const issuance = model.birthdayIssuance;
     const parts = [];
 
-    parts.push('<li><span>Reward type</span><strong>Birthday Candle Cash</strong></li>');
+    parts.push('<li><span>Reward type</span><strong>Birthday reward</strong></li>');
     parts.push('<li><span>Verification</span><strong>Birthday date capture</strong></li>');
     parts.push('<li><span>Cadence</span><strong>One reward each birthday cycle</strong></li>');
 
@@ -1798,7 +1805,7 @@
       return '<button class="Button Button--primary" type="button" data-action="apply-reward" data-reward-kind="birthday" data-code="' + escapeHtml(issuance.reward_code || '') + '" data-apply-path="' + escapeHtml(issuance.apply_path) + '"' + disabled + '>Use My Birthday Coupon!</button>';
     }
     if (viewState === 'applied') {
-      return '<span class="ForestryRewardsApplied">Birthday Candle Cash applied</span>';
+      return '<span class="ForestryRewardsApplied">Birthday reward applied</span>';
     }
     if (viewState === 'redeemed') {
       return '<span class="ForestryRewardsApplied">Used' + (issuance && issuance.order_number ? ' on ' + escapeHtml(issuance.order_number) : '') + '</span>';
@@ -2071,8 +2078,8 @@
     }
     if (task.handle === 'birthday-signup') {
       return model.birthdayState === 'add_birthday_unlock_reward'
-        ? 'Save your birthday once and we will add Candle Cash when it is complete.'
-        : 'Your birthday reward card handles this for you.';
+        ? 'Save your birthday for your annual $10 coupon. There is no separate signup bonus.'
+        : 'Your Birthday Club page shows your annual coupon.';
     }
     if (task.handle === 'email-signup') {
       return model.consentEmail
@@ -2420,14 +2427,14 @@
     const access = redemptionAccess(model);
     const loginUrl = guestLoginUrl(root);
     const rewardsUrl = cleanString(root.dataset.rewardsUrl) || '/pages/rewards';
-    const redeemLabel = 'Redeem ' + redeemAmountLabel(model) + ' Candle Cash';
+    const redeemLabel = state.rewardKind === 'birthday' ? 'Use my birthday coupon' : 'Redeem ' + redeemAmountLabel(model) + ' Candle Cash';
 
     if (state.name === 'guest') {
       return '<a class="Button Button--secondary Button--full" href="' + escapeHtml(loginUrl) + '">Sign in to view Candle Cash</a>';
     }
 
     if (state.name === 'birthday_activation') {
-      return '<button class="Button Button--primary Button--full" type="button" data-action="activate-birthday"' + disabled + '>Activate Candle Cash</button>';
+      return '<button class="Button Button--primary Button--full" type="button" data-action="activate-birthday"' + disabled + '>Activate birthday coupon</button>';
     }
     if (state.name === 'coming_soon') {
       const accessMode = cleanString(access.mode).toLowerCase();
@@ -2452,6 +2459,9 @@
         '</div>';
       }
       return '<div class="ForestryRewardsHelper__applied">Candle Cash Redeemed</div>';
+    }
+    if (state.name === 'pending_code') {
+      return '<button class="Button Button--secondary Button--full" type="button" data-action="refresh-status"' + disabled + '>Check saved reward status</button>';
     }
     if (state.name === 'code_only' && rewardCode) {
       return '<button class="Button Button--secondary Button--full" type="button" data-action="copy-code" data-code="' + escapeHtml(rewardCode) + '">Copy ' + escapeHtml(redeemAmountLabel(model)) + ' code</button>';
@@ -2505,9 +2515,9 @@
     const rules = redemptionRules(model);
     const cards = [
       {
-        label: 'Available now',
-        value: model.balanceAmount > 0 ? currencyLabel(model.balanceAmount) : renderMoneySummary(model.rewardCodes, model.birthdayIssuance) || '$0',
-        note: model.balanceAmount > 0 ? ('Redeem in ' + rules.redeemAmountLabel + ' steps.') : 'Ready-to-use rewards.',
+        label: 'Candle Cash balance',
+        value: currencyLabel(model.balanceAmount || 0) || '$0',
+        note: 'Redeem in ' + rules.redeemAmountLabel + ' steps. Birthday coupons are separate.',
       },
       {
         label: 'Saved codes',
@@ -2594,7 +2604,7 @@
     '</article>';
   }
 
-  function statusSnapshotCardMarkup(model, root) {
+  function statusSnapshotCardMarkup(model, root, uiState) {
     const wallet = walletLabel(model, root);
 
     return '<article class="ForestryRewardsCard ForestryRewardsCard--balance">' +
@@ -2607,6 +2617,8 @@
         '<div><span>Texts</span><strong>' + escapeHtml(model.consentSms ? 'On' : 'Off') + '</strong></div>' +
         '<div><span>Pending</span><strong>' + escapeHtml(String(model.summary.pending_rewards || 0)) + '</strong></div>' +
       '</div>' +
+      '<p class="ForestryRewardsCard__description">' + escapeHtml(helperMessage(model, birthdayViewState(model))) + '</p>' +
+      '<div class="ForestryRewardsCard__actions">' + helperActionMarkup(root, model, birthdayViewState(model), uiState) + '</div>' +
     '</article>';
   }
 
@@ -3119,7 +3131,7 @@
         '<div class="ForestryRewardsOpportunitySummary ForestryRewardsOpportunitySummary--single reward-summary">' +
           '<div class="ForestryRewardsOpportunitySummary__main">' +
             '<p class="ForestryRewardsCard__eyebrow">Birthday reward</p>' +
-            '<h3 class="Heading u-h4">' + escapeHtml((model.birthdayIssuance && model.birthdayIssuance.reward_name) || 'Birthday Candle Cash') + '</h3>' +
+            '<h3 class="Heading u-h4">' + escapeHtml((model.birthdayIssuance && model.birthdayIssuance.reward_name) || 'Birthday reward') + '</h3>' +
             '<p class="ForestryRewardsOpportunitySummary__amount">' + escapeHtml(model.birthdayIssuance && model.birthdayIssuance.reward_value ? currencyLabel(model.birthdayIssuance.reward_value) : '$10') + '</p>' +
           '</div>' +
         '</div>' +
@@ -3128,6 +3140,7 @@
           renderBirthdayMeta(model, viewState) +
           '<div class="ForestryRewardsCard__actions">' + birthdayActionMarkup(model, viewState, uiState) + '</div>' +
           birthdayFormMarkup(model, uiState) +
+          '<p><a class="Link Link--underline" href="/pages/birthday-club">View all birthday gifts</a></p>' +
         '</div>' +
       '</article>';
   }
@@ -3153,7 +3166,7 @@
 
   function statusPanelMarkup(root, model, uiState, ids) {
     const accountCards = model.profileId
-      ? (statusSnapshotCardMarkup(model, root) + statusRulesCardMarkup(root, model))
+      ? (statusSnapshotCardMarkup(model, root, uiState) + statusRulesCardMarkup(root, model))
       : (statusSignInCardMarkup(root) + statusRulesCardMarkup(root, model));
     const utilities = utilityMarkup([
       expirationNoticeMarkup(model, 'page'),
@@ -3330,7 +3343,7 @@
     if (state.name === 'birthday_activation') {
       return {
         primary: 'Activate once, then apply',
-        secondary: 'Your birthday Candle Cash needs one quick unlock before checkout.',
+        secondary: 'Your birthday reward needs one quick unlock before checkout.',
       };
     }
 
@@ -3339,6 +3352,10 @@
         primary: access.ctaLabel,
         secondary: access.message,
       };
+    }
+
+    if (state.name === 'pending_code') {
+      return { primary: 'Saved reward is being confirmed', secondary: 'Keep your saved code and check its status again.' };
     }
 
     if (state.name === 'code_only') {
@@ -3417,6 +3434,8 @@
           ? 'Redeem ' + rules.redeemAmountLabel + ' from your existing balance.'
         : state.name === 'birthday_activation'
           ? 'Activate this reward to use it on this order.'
+          : state.name === 'pending_code'
+            ? 'Your saved reward is still being confirmed.'
           : state.name === 'code_only'
             ? 'Your reward code is ready to copy.'
             : state.name === 'balance_only'
@@ -3806,8 +3825,9 @@
     const birthday = mergeObject(data.birthday || {}, fallback.birthday || {});
     const issuance = birthday.issuance || null;
     const rewardCodes = storefrontVisibleRows(mergeArray(data.reward_codes, fallback.reward_codes));
+    const birthdayRewardCode = cleanString(issuance && issuance.reward_code);
     const otherRewards = rewardCodes.filter(function (row) {
-      return cleanString(row.redemption_code) !== cleanString(issuance && issuance.reward_code);
+      return !birthdayRewardCode || cleanString(row.redemption_code) !== birthdayRewardCode;
     });
     const cartDiscounts = cartState && cartState.ok && Array.isArray(cartState.data.cart_level_discount_applications)
       ? cartState.data.cart_level_discount_applications
@@ -4112,7 +4132,7 @@
 
     if (codeMatches || birthdayMatches) {
       if (oncePerSession(marker.request_key + ':success-ui')) {
-        showToast(root, marker.kind === 'birthday' ? 'Birthday Candle Cash redeemed!' : 'Candle Cash redeemed! Reward applied - enjoy the glow.', 'success');
+        showToast(root, marker.kind === 'birthday' ? 'Birthday reward redeemed!' : 'Candle Cash redeemed! Reward applied - enjoy the glow.', 'success');
         celebrate(root, 'apply');
         logRewardEvent(root, {
           event_type: 'reward_apply_success',
@@ -4615,7 +4635,7 @@
 
     setRootState(root, {
       busy: true,
-      toast: rewardKind === 'birthday' ? 'Applying your birthday Candle Cash...' : 'Applying your Candle Cash...',
+      toast: rewardKind === 'birthday' ? 'Applying your birthday reward...' : 'Applying your Candle Cash...',
       toastTone: 'neutral',
     });
     rerender(root);
@@ -4648,7 +4668,7 @@
         syncCartTotals(appliedCart.data);
         setRootState(root, {
           busy: false,
-          toast: rewardKind === 'birthday' ? 'Birthday Candle Cash applied. Updating totals…' : 'Candle Cash applied. Updating totals…',
+          toast: rewardKind === 'birthday' ? 'Birthday reward applied. Updating totals…' : 'Candle Cash applied. Updating totals…',
           toastTone: 'success',
         });
         rerender(root);
