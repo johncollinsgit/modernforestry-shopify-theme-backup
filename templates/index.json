@@ -15,27 +15,14 @@
         "slide-0": {
           "type": "image",
           "settings": {
-            "image": "shopify://shop_images/bright-fuschia-spring-blossoms_638cad68-df20-4a7b-b482-68abb3beb3bf.jpg",
+            "image": "shopify://shop_images/fall-vegetable-box.jpg",
+            "mobile_image": "shopify://shop_images/fall-vegetable-box.jpg",
             "apply_overlay": true,
             "content_position": "middleCenter",
             "subheading": "",
-            "title": "Shop our Spring Collection",
+            "title": "Shop our Fall Collection",
             "button_1_text": "Click to Shop",
-            "button_1_link": "shopify://collections/spring-collection",
-            "button_2_text": "",
-            "button_2_link": ""
-          }
-        },
-        "slide-1": {
-          "type": "image",
-          "settings": {
-            "image": "shopify://shop_images/easter-mini-eggs.jpg",
-            "apply_overlay": true,
-            "content_position": "middleCenter",
-            "subheading": "",
-            "title": "Earn $5 in Candle Cash",
-            "button_1_text": "Join for $5",
-            "button_1_link": "/pages/rewards?task=email-signup",
+            "button_1_link": "shopify://collections/autumn-collection",
             "button_2_text": "",
             "button_2_link": ""
           }
@@ -43,7 +30,8 @@
         "candle-cash-central": {
           "type": "image",
           "settings": {
-            "image": "shopify://shop_images/magnolia-bloom-opening.jpg",
+            "image": "shopify://shop_images/fall-leaves-changing.jpg",
+            "mobile_image": "shopify://shop_images/fall-leaves-changing.jpg",
             "apply_overlay": true,
             "content_position": "middleCenter",
             "subheading": "",
@@ -57,13 +45,14 @@
         "2cdfa0be-19fe-4c67-8eec-192f9be38d8c": {
           "type": "image",
           "settings": {
-            "image": "shopify://shop_images/magnolia-bloom-opening.jpg",
+            "image": "shopify://shop_images/rustic-autumn-wreath_86f19a99-d2e5-4153-89be-e68bdb792307.jpg",
+            "mobile_image": "shopify://shop_images/rustic-autumn-wreath_86f19a99-d2e5-4153-89be-e68bdb792307.jpg",
             "apply_overlay": true,
             "content_position": "middleCenter",
             "subheading": "",
             "title": "Candle Club",
             "button_1_text": "Join to get exclusive scents!",
-            "button_1_link": "/products/modern-forestry-candle-club-16oz-subscription-with-gifts?selling_plan=11300438275",
+            "button_1_link": "shopify://products/modern-forestry-candle-club-16oz-subscription-with-gifts",
             "button_2_text": "",
             "button_2_link": ""
           }
@@ -71,7 +60,8 @@
         "0376ddec-6474-48b4-ac08-2f11d7cf8a05": {
           "type": "image",
           "settings": {
-            "image": "shopify://shop_images/monarch-butterfly-perched.jpg",
+            "image": "shopify://shop_images/fall-flowers-on-table.jpg",
+            "mobile_image": "shopify://shop_images/fall-flowers-on-table.jpg",
             "apply_overlay": true,
             "content_position": "middleCenter",
             "subheading": "Become a wholesale partner",
@@ -85,7 +75,6 @@
       },
       "block_order": [
         "slide-0",
-        "slide-1",
         "candle-cash-central",
         "2cdfa0be-19fe-4c67-8eec-192f9be38d8c",
         "0376ddec-6474-48b4-ac08-2f11d7cf8a05"
@@ -103,45 +92,6 @@
     "collection-list": {
       "type": "collection-list",
       "blocks": {
-        "5a4be0bc-7d7f-4816-b330-0cc428dabc0c": {
-          "type": "collection",
-          "settings": {
-            "collection": "spring-collection",
-            "image_alignment": "center center",
-            "content_position": "bottomLeft",
-            "subheading": "",
-            "title": "Spring Collection",
-            "button_text": "View products",
-            "button_link": "",
-            "apply_overlay": true
-          }
-        },
-        "collection-0": {
-          "type": "collection",
-          "settings": {
-            "collection": "summer-collection",
-            "image_alignment": "center center",
-            "content_position": "bottomLeft",
-            "subheading": "",
-            "title": "Summer Collection",
-            "button_text": "View products",
-            "button_link": "",
-            "apply_overlay": true
-          }
-        },
-        "collection-1": {
-          "type": "collection",
-          "settings": {
-            "collection": "candle-bundles",
-            "image_alignment": "center center",
-            "content_position": "bottomLeft",
-            "subheading": "",
-            "title": "Buy bundles and save",
-            "button_text": "View products",
-            "button_link": "",
-            "apply_overlay": true
-          }
-        },
         "collection-2": {
           "type": "collection",
           "settings": {
@@ -180,15 +130,55 @@
             "button_link": "",
             "apply_overlay": true
           }
+        },
+        "5a4be0bc-7d7f-4816-b330-0cc428dabc0c": {
+          "type": "collection",
+          "settings": {
+            "collection": "spring-collection",
+            "image": "shopify://shop_images/bright-fuschia-spring-blossoms_638cad68-df20-4a7b-b482-68abb3beb3bf.jpg",
+            "image_alignment": "center center",
+            "content_position": "bottomLeft",
+            "subheading": "",
+            "title": "Spring Collection",
+            "button_text": "View products",
+            "button_link": "",
+            "apply_overlay": true
+          }
+        },
+        "collection-0": {
+          "type": "collection",
+          "settings": {
+            "collection": "summer-collection",
+            "image_alignment": "center center",
+            "content_position": "bottomLeft",
+            "subheading": "",
+            "title": "Summer Collection",
+            "button_text": "View products",
+            "button_link": "",
+            "apply_overlay": true
+          }
+        },
+        "collection-1": {
+          "type": "collection",
+          "settings": {
+            "collection": "candle-bundles",
+            "image_alignment": "center center",
+            "content_position": "bottomLeft",
+            "subheading": "",
+            "title": "Buy bundles and save",
+            "button_text": "View products",
+            "button_link": "",
+            "apply_overlay": true
+          }
         }
       },
       "block_order": [
-        "5a4be0bc-7d7f-4816-b330-0cc428dabc0c",
-        "collection-0",
-        "collection-1",
         "collection-2",
         "9207e4e5-b69a-4eab-933a-c227144095da",
-        "8738e856-4507-48c9-a472-f7433ef14efe"
+        "8738e856-4507-48c9-a472-f7433ef14efe",
+        "5a4be0bc-7d7f-4816-b330-0cc428dabc0c",
+        "collection-0",
+        "collection-1"
       ],
       "settings": {
         "image_size": "normal",
@@ -301,7 +291,7 @@
         "subheading": "",
         "title": "Featured product",
         "show_headings_on_mobile": true,
-        "product": "magnolia-blossom"
+        "product": "new-autumn-no-9"
       }
     },
     "featured-collections": {
