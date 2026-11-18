@@ -23,4 +23,6 @@ The requested hourly Codex monitor compares the published theme, homepage settin
 
 ## Validation
 
-The homepage template passed Shopify theme validation. Before release, review the unpublished candidate in Safari and desktop/mobile WebKit, verify all four autumn slides and links, collection order and featured product, and rerun the existing rewards, Birthday Club and legacy-script regressions. Verify the merged template checksum and fresh public storefront after GitHub synchronization.
+The homepage template passed Shopify theme validation. The exact candidate in unpublished theme `166782632195` passed native Safari review and desktop/phone WebKit checks for all four autumn images, links, collection order, featured product, shipping announcement and layout. Ten desktop/phone checks across rewards, Birthday Club, both FAQs and cart passed with zero page errors. Existing regressions also passed: 48 rewards scenarios, 24 Birthday Club scenarios, eight cart transitions, WLM availability and three smoke checks. The merged template checksum and fresh public storefront are verified after GitHub synchronization.
+
+The unused Showcase trial (`134440517891`) was removed with explicit user authorization to free a preview slot. Shopify does not allow source export of that unpurchased DEMO theme; its metadata and that limitation were recorded. The current and recent rollback themes remain available.
