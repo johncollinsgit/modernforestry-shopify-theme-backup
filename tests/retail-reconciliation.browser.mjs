@@ -4,7 +4,7 @@ import http from 'node:http';
 import { once } from 'node:events';
 const { webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const source = fs.readFileSync(process.env.REWARDS_ASSET || 'assets/forestry-rewards.js', 'utf8');
-const scenarios = (process.env.SCENARIOS || 'wallet,empty,disabled,saved,pending,pending-no-code,birthday-only,retry').split(',');
+const scenarios = (process.env.SCENARIOS || 'wallet,empty,disabled,saved,pending,pending-no-code,birthday-only,retry,daily,daily-birthday').split(',');
 const browser = await webkit.launch({ headless: true });
 let passed = 0;
 try {
@@ -16,6 +16,7 @@ try {
   page.on('pageerror', error => errors.push(error.message));
   let redeemed = 0, attempts = 0, applied = false;
   const pending = scenario.startsWith('pending');
+  const daily = scenario.startsWith('daily');
   const code = { redemption_code: scenario === 'pending-no-code' ? '' : 'FICTIONAL-REWARD-ONLY', discount_title: 'FICTIONAL-REWARD-ONLY', is_usable: !pending, apply_path: '/discount/FICTIONAL-REWARD-ONLY?redirect=%2Fcart', reward: { name: 'Candle Cash', reward_value: 10 } };
   const root = `<div data-forestry-rewards-root data-surface="${surface}" data-shopify-customer-id="771" data-endpoint-candle-cash-status="/apps/forestry/candle-cash/status" data-endpoint-rewards-redeem="/apps/forestry/rewards/redeem" data-endpoint-rewards-event="/apps/forestry/rewards/event"></div>`;
   const server = http.createServer(async (req, res) => {
@@ -25,10 +26,10 @@ try {
    if (path === '/pages/rewards' || path === '/cart') return reply(200, 'text/html', `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>${path === '/cart' && surface === 'page' ? root.replace('data-surface="page"', 'data-surface="cart"') : root}<div class="Cart__TotalPrice">$50.00</div><script>${source}</script></body></html>`);
    if (path.endsWith('/candle-cash/status')) return json({ ok: true, data: {
     profile_id: 1, state: 'linked_customer', balance: { amount: scenario === 'birthday-only' ? 0 : scenario === 'empty' ? 5 : redeemed ? 70.5 : 80.5 },
-    redemption_access: { redeem_enabled: scenario !== 'disabled' }, redemption_rules: { redeem_increment_dollars: 10 },
+    redemption_access: { redeem_enabled: scenario !== 'disabled' && !daily, mode: daily ? 'daily_limit_reached' : 'live', cta_label: daily ? 'Available tomorrow' : 'Redeem Candle Cash', message: daily ? 'Candle Cash can only be redeemed once per customer per day (Eastern Time). Please try again after midnight Eastern Time.' : '' }, redemption_rules: { redeem_increment_dollars: 10 },
     available_rewards: [{ id: 1, candle_cash_cost: 10, reward_value: 10 }],
     reward_codes: redeemed || ['saved', 'pending', 'pending-no-code'].includes(scenario) ? [code] : [],
-    birthday: scenario === 'birthday-only' ? { state: 'birthday_reward_ready', issuance: { reward_name: 'Birthday coupon', reward_value: 10, reward_code: 'FICTIONAL-BIRTHDAY-ONLY', is_usable: true, apply_path: '/discount/FICTIONAL-BIRTHDAY-ONLY?redirect=%2Fcart' } } : {},
+    birthday: ['birthday-only', 'daily-birthday'].includes(scenario) ? { state: 'birthday_reward_ready', issuance: { reward_name: 'Birthday coupon', reward_value: 10, reward_code: 'FICTIONAL-BIRTHDAY-ONLY', is_usable: true, apply_path: '/discount/FICTIONAL-BIRTHDAY-ONLY?redirect=%2Fcart' } } : {},
    } });
    if (path === '/cart.js') return json({ total_price: applied ? 4000 : 5000, original_total_price: 5000, total_discount: applied ? 1000 : 0, item_count: 1, items: [], cart_level_discount_applications: applied ? [{ title: code.discount_title, total_allocated_amount: 1000 }] : [] });
    if (path.endsWith('/rewards/redeem')) {
@@ -51,6 +52,12 @@ try {
    if (surface === 'page') await page.locator('[data-action="set-tab"][data-tab-target="status"]').click();
    const rootEl = page.locator('[data-forestry-rewards-root]');
    const redeem = rootEl.locator('[data-action="redeem-reward"]');
+   assert.match(await rootEl.textContent(), /once per (customer per )?day|once per day/);
+   if (scenario === 'daily') {
+    assert.match(await rootEl.textContent(), /after midnight Eastern Time/);
+    assert.equal(await rootEl.getByRole('button', { name: 'Available tomorrow' }).isDisabled(), true);
+   }
+   if (scenario === 'daily-birthday') assert.ok(await rootEl.locator('[data-action="apply-reward"][data-reward-kind="birthday"]').count() > 0);
    if (surface === 'page') {
     assert.equal(await rootEl.locator('.ForestryRewardsStatLabel').first().textContent(), 'Candle Cash balance');
     assert.equal(await rootEl.locator('.ForestryRewardsStatValue').first().textContent(), scenario === 'birthday-only' ? '$0' : scenario === 'empty' ? '$5' : '$80.50');

@@ -404,6 +404,7 @@
     return {
       redeemAmount: redeemAmount,
       redeemAmountLabel: cleanString(rules.redeem_increment_formatted || rules.redeemIncrementFormatted) || (currencyLabel(redeemAmount) || '$10.00'),
+      dailyLimitMessage: cleanString(rules.daily_limit_message) || 'Candle Cash can only be redeemed once per customer per day (Eastern Time).',
       maxPerOrder: maxPerOrder,
       maxPerOrderLabel: cleanString(rules.max_redeemable_per_order_formatted || rules.maxRedeemablePerOrderFormatted) || (currencyLabel(maxPerOrder) || '$10.00'),
     };
@@ -1526,7 +1527,7 @@
       };
     }
 
-    if (!redemptionAccess(model).enabled) {
+    if (!redemptionAccess(model).enabled && redemptionAccess(model).mode !== 'daily_limit_reached') {
       return {
         name: 'coming_soon',
         reward: redeemableReward || primaryCode || birthdayReward || appliedReward || null,
@@ -1576,6 +1577,10 @@
         reward: primaryCode,
         rewardKind: 'candle_cash',
       };
+    }
+
+    if (redemptionAccess(model).mode === 'daily_limit_reached') {
+      return { name: 'daily_limit_reached', reward: null, rewardKind: 'candle_cash' };
     }
 
     if (redeemableReward) {
@@ -1714,7 +1719,7 @@
     if (state.name === 'guest') {
       return 'Sign in to view and redeem your Candle Cash.';
     }
-    if (state.name === 'coming_soon') {
+    if (state.name === 'coming_soon' || state.name === 'daily_limit_reached') {
       return access.message;
     }
     if (state.name === 'applied') {
@@ -1727,7 +1732,7 @@
       return rewardAmount + ' is ready to apply to this order.';
     }
     if (state.name === 'redeemable') {
-      return 'Redeem ' + rewardAmount + ' at a time, with a limit of ' + redemptionRules(model).maxPerOrderLabel + ' per order.';
+      return 'Redeem ' + rewardAmount + ' at a time, with a limit of ' + redemptionRules(model).maxPerOrderLabel + ' per order. ' + redemptionRules(model).dailyLimitMessage;
     }
     if (state.name === 'pending_code') {
       return 'Your saved reward is still being confirmed. Check its status again in a moment.';
@@ -2436,7 +2441,7 @@
     if (state.name === 'birthday_activation') {
       return '<button class="Button Button--primary Button--full" type="button" data-action="activate-birthday"' + disabled + '>Activate birthday coupon</button>';
     }
-    if (state.name === 'coming_soon') {
+    if (state.name === 'coming_soon' || state.name === 'daily_limit_reached') {
       const accessMode = cleanString(access.mode).toLowerCase();
       const isPendingStatus = accessMode === 'pending_status' || cleanString(access.ctaLabel).toLowerCase() === 'check reward status';
       if (isPendingStatus) {
@@ -2517,7 +2522,7 @@
       {
         label: 'Candle Cash balance',
         value: currencyLabel(model.balanceAmount || 0) || '$0',
-        note: 'Redeem in ' + rules.redeemAmountLabel + ' steps. Birthday coupons are separate.',
+        note: 'Redeem in ' + rules.redeemAmountLabel + ' steps, once per day. Birthday coupons are separate.',
       },
       {
         label: 'Saved codes',
@@ -2734,6 +2739,10 @@
     const rules = redemptionRules(model);
     const items = [
       {
+        q: 'How often can I redeem Candle Cash?',
+        a: rules.dailyLimitMessage + ' The daily limit resets at midnight Eastern Time. Your saved unused code can be reopened without spending your balance again.',
+      },
+      {
         q: 'How long do approvals take?',
         a: cleanString(model.copy.faq_approval_copy) || 'Manual approvals usually land within 1 to 3 business days.',
       },
@@ -2848,6 +2857,7 @@
     const detail = expirationDetails(model);
     const parts = [
       label + ' can be redeemed in ' + rules.redeemAmountLabel + ' increments, with a limit of ' + rules.maxPerOrderLabel + ' per order.',
+      rules.dailyLimitMessage,
     ];
 
     if (detail && detail.days) {
@@ -3224,6 +3234,7 @@
           '</div>' +
           themeToggleMarkup(root, uiState) +
         '</div>' +
+        '<p class="ForestryRewardsNotice" data-candle-cash-daily-limit>' + escapeHtml(redemptionRules(model).dailyLimitMessage) + '</p>' +
         pageTabsMarkup(root, activeTab) +
         '<div class="ForestryRewardsTabPanels">' +
           tasksPanelMarkup(root, model, uiState, ids) +
@@ -3336,7 +3347,7 @@
     if (state.name === 'redeemable') {
       return {
         primary: rules.redeemAmountLabel + ' ready to redeem',
-        secondary: 'Limit ' + rules.maxPerOrderLabel + ' Candle Cash per order.',
+        secondary: 'Limit ' + rules.maxPerOrderLabel + ' Candle Cash per order. ' + rules.dailyLimitMessage,
       };
     }
 
@@ -3347,7 +3358,7 @@
       };
     }
 
-    if (state.name === 'coming_soon') {
+    if (state.name === 'coming_soon' || state.name === 'daily_limit_reached') {
       return {
         primary: access.ctaLabel,
         secondary: access.message,
@@ -3426,7 +3437,7 @@
       : (state.name === 'applied' ? 'Applied now' : (state.name === 'redeemable' ? 'Ready to redeem' : 'Available now'));
     const balanceNote = state.name === 'applied'
       ? 'Candle Cash is already attached to this order.'
-      : state.name === 'coming_soon'
+      : (state.name === 'coming_soon' || state.name === 'daily_limit_reached')
         ? access.message
       : state.name === 'ready'
         ? rules.redeemAmountLabel + ' off is ready to use in one click.'
@@ -3445,7 +3456,9 @@
               : state.name === 'guest'
                 ? 'Sign in to view and redeem your Candle Cash.'
                 : 'Your next reward will appear here when it is ready.';
-    const utilityParts = [];
+    const utilityParts = [
+      '<p class="ForestryRewardsNotice" data-candle-cash-daily-limit>' + escapeHtml(rules.dailyLimitMessage) + '</p>',
+    ];
 
     if (state.name !== 'guest' && state.name !== 'applied') {
       if (progress && !progress.done && amountNumber(model.balanceAmount) < rules.redeemAmount) {
@@ -4591,6 +4604,9 @@
     }
     if (normalized === 'reward_unavailable') {
       return 'That reward is not available right now.';
+    }
+    if (normalized === 'daily_limit_reached') {
+      return 'Candle Cash can only be redeemed once per customer per day (Eastern Time). Please try again after midnight Eastern Time.';
     }
     if (normalized === 'redemption_blocked') {
       return 'You already have active Candle Cash codes waiting. Use one first, then redeem another.';
