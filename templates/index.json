@@ -89,11 +89,11 @@
         }
       },
       "block_order": [
+        "sale-items",
         "slide-0",
         "candle-cash-central",
         "2cdfa0be-19fe-4c67-8eec-192f9be38d8c",
-        "0376ddec-6474-48b4-ac08-2f11d7cf8a05",
-        "sale-items"
+        "0376ddec-6474-48b4-ac08-2f11d7cf8a05"
       ],
       "settings": {
         "show_fullscreen": false,
