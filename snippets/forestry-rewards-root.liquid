@@ -52,6 +52,9 @@
     "redeem_increment_candle_cash_formatted": "$10.00 Candle Cash",
     "max_redeemable_per_order_dollars": 10,
     "max_redeemable_per_order_formatted": "$10",
+    "max_redemptions_per_customer_per_day": 1,
+    "redemption_timezone": "America/New_York",
+    "daily_limit_message": "Candle Cash can only be redeemed once per customer per day (Eastern Time).",
     "max_redemptions_per_order": 1
   },
   "redemption_access": {
@@ -200,7 +203,7 @@
     {
       "id": 1,
       "name": "Redeem $10 Candle Cash",
-      "description": "Apply $10 off this order. Candle Cash is redeemed in $10 increments, with a limit of $10 per order.",
+      "description": "Apply $10 off this order. Candle Cash is redeemed in $10 increments, with a limit of $10 per order and one redemption per customer per day (Eastern Time).",
       "reward_type": "coupon",
       "reward_value": "10USD",
       "candle_cash_cost": 10,
@@ -232,7 +235,7 @@
 <div
   class="ForestryRewardsRoot ForestryRewardsRoot--{{ rewards_surface }}"
   data-forestry-rewards-root
-  data-rewards-build-version="2026-04-09-instagram-comment-2"
+  data-rewards-build-version="2026-11-19-daily-redemption-limit"
   data-theme="cognac-reserve"
   data-surface="{{ rewards_surface }}"
   data-title="{{ rewards_title | escape }}"
