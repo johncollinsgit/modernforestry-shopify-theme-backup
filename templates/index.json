@@ -71,13 +71,29 @@
             "button_2_text": "",
             "button_2_link": ""
           }
+        },
+        "sale-items": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/modern-forestry-sale-desktop.jpg",
+            "mobile_image": "shopify://shop_images/modern-forestry-sale-mobile.jpg",
+            "apply_overlay": false,
+            "content_position": "middleLeft",
+            "subheading": "Candles, bundles & more",
+            "title": "Shop the Sale",
+            "button_1_text": "Shop Sale",
+            "button_1_link": "shopify://collections/sale-items",
+            "button_2_text": "",
+            "button_2_link": ""
+          }
         }
       },
       "block_order": [
         "slide-0",
         "candle-cash-central",
         "2cdfa0be-19fe-4c67-8eec-192f9be38d8c",
-        "0376ddec-6474-48b4-ac08-2f11d7cf8a05"
+        "0376ddec-6474-48b4-ac08-2f11d7cf8a05",
+        "sale-items"
       ],
       "settings": {
         "show_fullscreen": false,
