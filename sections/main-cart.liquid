@@ -62,7 +62,7 @@
     {%- assign forestry_cart_has_gift_card_items = true -%}
   {%- else -%}
     {%- assign forestry_cart_has_one_time_items = true -%}
-    {%- assign forestry_cart_rewards_eligible_subtotal_cents = forestry_cart_rewards_eligible_subtotal_cents | plus: line_item.final_line_price -%}
+    {%- assign forestry_cart_rewards_eligible_subtotal_cents = forestry_cart_rewards_eligible_subtotal_cents | plus: line_item.original_line_price -%}
   {%- endif -%}
 {%- endfor -%}
 {%- assign forestry_cart_has_candle_cash_discount = false -%}
@@ -105,6 +105,11 @@
     <div class="EmptyState">
       <div class="Container">
         <h1 class="EmptyState__Title Heading u-h5">{{ 'cart.general.empty' | t }}</h1>
+        {%- if customer -%}
+          <div class="ForestryRewardsCartMount">
+            {% render 'forestry-rewards-root', surface: 'cart', title: 'Candle Cash', empty_cart: true, cart_rewards_eligible_subtotal: 0 %}
+          </div>
+        {%- endif -%}
 
         {%- if settings.cart_show_free_shipping_threshold -%}
           {%- assign threshold_in_cents = settings.cart_free_shipping_threshold | times: 100 -%}

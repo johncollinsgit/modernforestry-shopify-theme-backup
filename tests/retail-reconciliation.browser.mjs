@@ -14,7 +14,7 @@ try {
   page.setDefaultTimeout(7000);
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
-  let redeemed = 0, attempts = 0, applied = false;
+  let redeemed = 0, attempts = 0, applied = false, qualifyingCents = 5000;
   const pending = scenario.startsWith('pending');
   const daily = scenario.startsWith('daily');
   const code = { redemption_code: scenario === 'pending-no-code' ? '' : 'FICTIONAL-REWARD-ONLY', discount_title: 'FICTIONAL-REWARD-ONLY', is_usable: !pending, apply_path: '/discount/FICTIONAL-REWARD-ONLY?redirect=%2Fcart', reward: { name: 'Candle Cash', reward_value: 10 } };
@@ -26,12 +26,13 @@ try {
    if (path === '/pages/rewards' || path === '/cart') return reply(200, 'text/html', `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>${path === '/cart' && surface === 'page' ? root.replace('data-surface="page"', 'data-surface="cart"') : root}<div class="Cart__TotalPrice">$50.00</div><script>${source}</script></body></html>`);
    if (path.endsWith('/candle-cash/status')) return json({ ok: true, data: {
     profile_id: 1, state: 'linked_customer', balance: { amount: scenario === 'birthday-only' ? 0 : scenario === 'empty' ? 5 : redeemed ? 70.5 : 80.5 },
-    redemption_access: { redeem_enabled: scenario !== 'disabled' && !daily, mode: daily ? 'daily_limit_reached' : 'live', cta_label: daily ? 'Available tomorrow' : 'Redeem Candle Cash', message: daily ? 'Candle Cash can only be redeemed once per customer per day (Eastern Time). Please try again after midnight Eastern Time.' : '' }, redemption_rules: { redeem_increment_dollars: 10 },
+    redemption_access: { redeem_enabled: scenario !== 'disabled' && !daily, mode: daily ? 'daily_limit_reached' : 'live', cta_label: daily ? 'Available tomorrow' : 'Redeem Candle Cash', message: daily ? 'Candle Cash can only be redeemed once per customer per day (Eastern Time). Please try again after midnight Eastern Time.' : '' }, redemption_rules: { redeem_increment_dollars: 10, online_minimum_subtotal_cents: 4000 },
+    cart_reward_available: ['wallet', 'retry', 'saved'].includes(scenario),
     available_rewards: [{ id: 1, candle_cash_cost: 10, reward_value: 10 }],
     reward_codes: redeemed || ['saved', 'pending', 'pending-no-code'].includes(scenario) ? [code] : [],
     birthday: ['birthday-only', 'daily-birthday'].includes(scenario) ? { state: 'birthday_reward_ready', issuance: { reward_name: 'Birthday coupon', reward_value: 10, reward_code: 'FICTIONAL-BIRTHDAY-ONLY', is_usable: true, apply_path: '/discount/FICTIONAL-BIRTHDAY-ONLY?redirect=%2Fcart' } } : {},
    } });
-   if (path === '/cart.js') return json({ total_price: applied ? 4000 : 5000, original_total_price: 5000, total_discount: applied ? 1000 : 0, item_count: 1, items: [], cart_level_discount_applications: applied ? [{ title: code.discount_title, total_allocated_amount: 1000 }] : [] });
+   if (path === '/cart.js') return json({ total_price: qualifyingCents - (applied ? 1000 : 0), original_total_price: qualifyingCents, total_discount: applied ? 1000 : 0, item_count: qualifyingCents ? 1 : 0, currency: 'USD', items: qualifyingCents ? [{ original_line_price: qualifyingCents }] : [], cart_level_discount_applications: applied ? [{ title: code.discount_title, total_allocated_amount: 1000 }] : [] });
    if (path.endsWith('/rewards/redeem')) {
     attempts++;
     let body = ''; for await (const chunk of req) body += chunk;
@@ -74,6 +75,23 @@ try {
     if (pending) { assert.equal(await rootEl.locator('[data-action="apply-reward"]').count(), 0); assert.match(await rootEl.textContent(), /still being confirmed/); }
     if (scenario === 'saved') assert.ok(await rootEl.locator('[data-action="apply-reward"]').count() > 0);
     assert.equal(redeemed, 0);
+   }
+   if (surface !== 'page') {
+    const progress = rootEl.locator('[data-candle-cash-redemption-progress]');
+    if (scenario === 'saved') {
+     for (const subtotal of [0, 1500, 2995, 3250, 3500, 3999, 4000, 4001, 7500, 3500]) {
+      qualifyingCents = subtotal;
+      await page.evaluate(() => document.documentElement.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true })));
+      const message = subtotal < 4000
+       ? 'Add $' + ((4000 - subtotal) / 100).toFixed(2) + ' to unlock your $10 Candle Cash!'
+       : 'Your $10 Candle Cash is unlocked! Apply it at checkout.';
+      await progress.getByRole('status').filter({ hasText: message }).waitFor();
+      assert.equal(await progress.getByRole('progressbar').getAttribute('aria-valuenow'), String(Math.min(subtotal, 4000)));
+      assert.equal(await rootEl.locator('[data-action="apply-reward"][data-reward-kind="candle_cash"]').count(), subtotal >= 4000 ? 1 : 0);
+     }
+    } else if (!['wallet', 'retry'].includes(scenario)) {
+     assert.equal(await progress.count(), 0);
+    }
    }
    assert.deepEqual(errors, []);
    passed++;

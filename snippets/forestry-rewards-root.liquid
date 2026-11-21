@@ -203,7 +203,7 @@
     {
       "id": 1,
       "name": "Redeem $10 Candle Cash",
-      "description": "Apply $10 off this order. Candle Cash is redeemed in $10 increments, with a limit of $10 per order and one redemption per customer per day (Eastern Time).",
+      "description": "$10 Candle Cash can be redeemed on qualifying merchandise purchases of $40 or more, before taxes and shipping. Limit one redemption per customer per day (Eastern Time).",
       "reward_type": "coupon",
       "reward_value": "10USD",
       "candle_cash_cost": 10,
@@ -255,6 +255,8 @@
   data-order-number="{{ order.name | escape }}"
   data-order-total-amount="{{ order.total_price | divided_by: 100.0 }}"
   data-order-created-at="{{ order.created_at | date: '%s' }}"
+  data-empty-cart="{{ empty_cart }}"
+  data-shopping-url="{{ routes.all_products_collection_url }}"
   data-cart-has-subscription-items="{{ cart_has_subscription_items }}"
   data-cart-has-eligible-items="{{ cart_has_one_time_items }}"
   data-cart-has-gift-card-items="{{ cart_has_gift_card_items }}"
