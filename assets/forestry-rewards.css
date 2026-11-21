@@ -1840,6 +1840,34 @@
   transition: width 0.35s ease;
 }
 
+[data-candle-cash-redemption-progress] .ForestryRewardsProgress__message {
+  font-weight: 600;
+}
+
+[data-candle-cash-redemption-progress] .ForestryRewardsProgress__bar span {
+  background: #3f6952;
+  transform-origin: left;
+  animation: forestryRedemptionFill 0.35s ease-out;
+}
+
+.ForestryRewardsProgress__amount {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.875em;
+}
+
+@keyframes forestryRedemptionFill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-candle-cash-redemption-progress] .ForestryRewardsProgress__bar span {
+    animation: none;
+    transition: none;
+  }
+}
+
 .ForestryRewardsCelebration {
   padding: 1rem 1.1rem;
   background:

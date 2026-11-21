@@ -57,7 +57,7 @@
     {%- assign forestry_cart_has_gift_card_items = true -%}
   {%- else -%}
     {%- assign forestry_cart_has_one_time_items = true -%}
-    {%- assign forestry_cart_rewards_eligible_subtotal_cents = forestry_cart_rewards_eligible_subtotal_cents | plus: line_item.final_line_price -%}
+    {%- assign forestry_cart_rewards_eligible_subtotal_cents = forestry_cart_rewards_eligible_subtotal_cents | plus: line_item.original_line_price -%}
   {%- endif -%}
 {%- endfor -%}
 {%- assign forestry_cart_has_candle_cash_discount = false -%}
@@ -123,6 +123,11 @@
 
       {%- if cart.item_count == 0 -%}
         <p class="Cart__Empty Heading u-h5">{{ 'cart.general.empty' | t }}</p>
+        {%- if customer -%}
+          <div class="ForestryRewardsCartMount">
+            {% render 'forestry-rewards-root', surface: 'drawer', title: 'Candle Cash', empty_cart: true, cart_rewards_eligible_subtotal: 0 %}
+          </div>
+        {%- endif -%}
       {%- else -%}
         <div class="Drawer__Container">
           <input type="hidden" name="attributes[collection_mobile_items_per_row]" value="">

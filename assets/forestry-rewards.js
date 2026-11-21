@@ -402,6 +402,8 @@
     const maxPerOrder = amountNumber(rules.max_redeemable_per_order_dollars || rules.maxRedeemablePerOrderDollars || redeemAmount) || redeemAmount;
 
     return {
+      minimumCents: positiveInt(rules.online_minimum_subtotal_cents) || 0,
+      minimumMessage: cleanString(rules.online_minimum_message),
       redeemAmount: redeemAmount,
       redeemAmountLabel: cleanString(rules.redeem_increment_formatted || rules.redeemIncrementFormatted) || (currencyLabel(redeemAmount) || '$10.00'),
       dailyLimitMessage: cleanString(rules.daily_limit_message) || 'Candle Cash can only be redeemed once per customer per day (Eastern Time).',
@@ -1535,7 +1537,9 @@
       };
     }
 
-    if (appliedReward) {
+    const belowMinimum = model.cartRedemptionSurface && model.cartRewardAvailable && model.cartQualifyingCents < redemptionRules(model).minimumCents;
+    const canUseCandleCash = !model.cartRedemptionSurface || model.cartRewardAvailable;
+    if (appliedReward && (model.cartAppliedBirthday || !belowMinimum)) {
       return {
         name: 'applied',
         reward: appliedReward,
@@ -1559,7 +1563,11 @@
       };
     }
 
-    if (primaryCode && primaryCode.is_usable && rewardApplyPath(primaryCode)) {
+    if (belowMinimum) {
+      return { name: 'minimum_locked', rewardKind: 'candle_cash' };
+    }
+
+    if (canUseCandleCash && primaryCode && primaryCode.is_usable && rewardApplyPath(primaryCode)) {
       return {
         name: 'ready',
         reward: primaryCode,
@@ -1583,7 +1591,7 @@
       return { name: 'daily_limit_reached', reward: null, rewardKind: 'candle_cash' };
     }
 
-    if (redeemableReward) {
+    if (canUseCandleCash && redeemableReward) {
       return {
         name: 'redeemable',
         reward: redeemableReward,
@@ -2450,6 +2458,9 @@
 
       return '<button class="Button Button--secondary Button--full" type="button" disabled aria-disabled="true" tabindex="-1">' + escapeHtml(access.ctaLabel) + '</button>';
     }
+    if (state.name === 'minimum_locked') {
+      return '<a class="Button Button--secondary Button--full" href="' + escapeHtml(root.dataset.shoppingUrl || '/collections/all') + '">Continue shopping</a>';
+    }
     if (state.name === 'ready') {
       return '<button class="Button Button--primary Button--full" type="button" data-action="apply-reward" data-reward-kind="' + escapeHtml(state.rewardKind || 'candle_cash') + '" data-code="' + escapeHtml(rewardReference) + '" data-apply-path="' + escapeHtml(rewardApplyPath(reward)) + '"' + disabled + '>' + escapeHtml(redeemLabel) + '</button>';
     }
@@ -2645,6 +2656,7 @@
         '<li><span>Approvals</span><strong>' + escapeHtml(approval) + '</strong></li>' +
         '<li><span>Expiration</span><strong>' + escapeHtml(expirationLabel) + '</strong></li>' +
       '</ul>' +
+      (rules.minimumMessage ? '<p class="ForestryRewardsCard__description">' + escapeHtml(rules.minimumMessage) + '</p>' : '') +
     '</article>';
   }
 
@@ -2857,8 +2869,9 @@
     const detail = expirationDetails(model);
     const parts = [
       label + ' can be redeemed in ' + rules.redeemAmountLabel + ' increments, with a limit of ' + rules.maxPerOrderLabel + ' per order.',
+      rules.minimumMessage,
       rules.dailyLimitMessage,
-    ];
+    ].filter(Boolean);
 
     if (detail && detail.days) {
       parts.push(label + ' expires ' + detail.days + ' day' + (detail.days === 1 ? '' : 's') + ' after you earn it.');
@@ -2963,22 +2976,6 @@
       });
   }
 
-  function thresholdRewardLabel(threshold) {
-    if (!threshold) {
-      return '';
-    }
-
-    if (cleanString(threshold.rewardType) === 'gift') {
-      return cleanString(threshold.rewardLabel) || 'free wax melt';
-    }
-
-    if (threshold.rewardAmount > 0) {
-      return (currencyLabel(threshold.rewardAmount) || '$0') + ' Candle Cash';
-    }
-
-    return cleanString(threshold.rewardLabel);
-  }
-
   function nextThresholdProgress(model) {
     const thresholds = normalizedThresholds(model);
     const total = amountNumber(model.cartTotalAmount);
@@ -3013,37 +3010,6 @@
       remaining: Math.max(next.spendAmount - total, 0),
       progress: progress,
     };
-  }
-
-  function progressMarkup(model) {
-    const progress = nextThresholdProgress(model);
-    if (!progress) {
-      return '<div class="ForestryRewardsProgress ForestryRewardsProgress--fallback"><p class="ForestryRewardsProgress__message">No active Candle Cash thresholds right now.</p></div>';
-    }
-
-    if (progress.done) {
-      return '<div class="ForestryRewardsProgress ForestryRewardsProgress--complete">' +
-        '<p class="ForestryRewardsProgress__message">You unlocked every active Candle Cash reward in this cart.</p>' +
-        '<div class="ForestryRewardsProgress__bar" aria-hidden="true"><span style="width:100%"></span></div>' +
-      '</div>';
-    }
-
-    const rewardLabel = thresholdRewardLabel(progress.next);
-    const remainingLabel = currencyLabel(progress.remaining) || '$0';
-    let message = 'You’re ' + remainingLabel + ' away from earning ' + rewardLabel + '.';
-
-    if (cleanString(progress.next.rewardType) === 'gift') {
-      if (amountNumber(model.balanceAmount) > 0) {
-        message = 'You have ' + (currencyLabel(model.balanceAmount) || '$0') + ' Candle Cash. Add ' + remainingLabel + ' more to unlock ' + rewardLabel + '.';
-      } else {
-        message = 'Add ' + remainingLabel + ' more to unlock ' + rewardLabel + '.';
-      }
-    }
-
-    return '<div class="ForestryRewardsProgress">' +
-      '<p class="ForestryRewardsProgress__message">' + escapeHtml(message) + '</p>' +
-      '<div class="ForestryRewardsProgress__bar" aria-hidden="true"><span style="width:' + progress.progress.toFixed(2) + '%"></span></div>' +
-    '</div>';
   }
 
   function orderCelebration(model) {
@@ -3398,10 +3364,32 @@
     };
   }
 
+  function redemptionProgressMarkup(model) {
+    const rules = redemptionRules(model);
+    if (!model.profileId || !model.cartRewardAvailable || !rules.minimumCents) {
+      return '';
+    }
+
+    const subtotal = Math.min(model.cartQualifyingCents, rules.minimumCents);
+    const remaining = rules.minimumCents - subtotal;
+    const money = function (cents) { return '$' + (cents / 100).toFixed(2); };
+    const message = remaining
+      ? 'Add ' + money(remaining) + ' to unlock your ' + rules.redeemAmountLabel + ' Candle Cash!'
+      : 'Your ' + rules.redeemAmountLabel + ' Candle Cash is unlocked! Apply it at checkout.';
+
+    return '<div class="ForestryRewardsProgress" data-candle-cash-redemption-progress>' +
+      '<p class="ForestryRewardsProgress__message" role="status">' + escapeHtml(message) + '</p>' +
+      '<div class="ForestryRewardsProgress__bar" role="progressbar" aria-label="Candle Cash qualifying spend" aria-valuemin="0" aria-valuemax="' +
+        rules.minimumCents + '" aria-valuenow="' + subtotal + '" aria-valuetext="' + money(subtotal) + ' of ' + money(rules.minimumCents) + '">' +
+        '<span style="width:' + (100 * subtotal / rules.minimumCents).toFixed(3) + '%"></span></div>' +
+      '<span class="ForestryRewardsProgress__amount">' + money(subtotal) + ' / ' + money(rules.minimumCents) + '</span>' +
+    '</div>';
+  }
+
   function renderCompactSurface(root, model, uiState) {
     const viewState = birthdayViewState(model);
     const surface = cleanString(root.dataset.surface || 'cart');
-    if (model && model.cartSubscriptionOnly) {
+    if ((root.dataset.emptyCart === 'true' && !model.cartRewardAvailable) || model.cartSubscriptionOnly) {
       root.innerHTML = '';
       return;
     }
@@ -3456,16 +3444,24 @@
               : state.name === 'guest'
                 ? 'Sign in to view and redeem your Candle Cash.'
                 : 'Your next reward will appear here when it is ready.';
+    const progressMarkup = redemptionProgressMarkup(model);
     const utilityParts = [
       '<p class="ForestryRewardsNotice" data-candle-cash-daily-limit>' + escapeHtml(rules.dailyLimitMessage) + '</p>',
     ];
 
     if (state.name !== 'guest' && state.name !== 'applied') {
-      if (progress && !progress.done && amountNumber(model.balanceAmount) < rules.redeemAmount) {
-        utilityParts.push(progressMarkup(model));
-      }
-
+      utilityParts.push(progressMarkup);
       utilityParts.push(expirationNoticeMarkup(model, 'compact'));
+    }
+
+    if (progressMarkup && state.rewardKind === 'candle_cash' && ['minimum_locked', 'ready', 'redeemable'].includes(state.name)) {
+      root.innerHTML = '<section class="ForestryRewardsHelper ForestryRewardsHelper--' + escapeHtml(surface) + '">' +
+        progressMarkup +
+        '<div class="ForestryRewardsHelper__actions">' + helperActionMarkup(root, model, viewState, uiState) + '</div>' +
+        (state.name === 'minimum_locked' ? '' : '<p class="ForestryRewardsProgress__amount">' + escapeHtml(rules.dailyLimitMessage) + '</p>') +
+        (uiState.toast ? '<div class="ForestryRewardsToast ForestryRewardsToast--' + escapeHtml(uiState.toastTone || 'neutral') + '">' + escapeHtml(uiState.toast) + '</div>' : '') +
+        '</section>';
+      return;
     }
 
     const utility = utilityMarkup(utilityParts);
@@ -3923,6 +3919,16 @@
       cartHasGiftCardItems: hasGiftCardItems,
       cartSubscriptionOnly: (surface === 'cart' || surface === 'drawer') && cartHasSubscriptionItems && !cartHasEligibleItems,
       cartRewardsEligibleSubtotalAmount: cartEligibleSubtotal,
+      cartQualifyingCents: cartState && cartState.ok && Array.isArray(cartState.data.items) && typeof cartState.data.currency === 'string'
+        ? cartState.data.items.reduce(function (sum, item) {
+          const properties = item.properties || {};
+          return cartLineIsGiftCard(item) || item.selling_plan_allocation || properties.shipping_interval_frequency || properties.subscription_id
+            ? sum : sum + (Number(item.original_line_price) || 0);
+        }, 0)
+        : Math.round((hasEligibleAttr ? cartEligibleSubtotal : amountNumber(cartState && cartState.data && cartState.data.original_total_price) / 100) * 100),
+      cartRedemptionSurface: surface === 'cart' || surface === 'drawer',
+      cartRewardAvailable: Boolean(statusResult && statusResult.data && statusResult.data.cart_reward_available === true
+        && cartState && cartState.ok && cartState.data.currency === 'USD'),
       orderContext: {
         number: cleanString(root.dataset.orderNumber),
         totalAmount: amountNumber(root.dataset.orderTotalAmount),
@@ -3965,7 +3971,9 @@
       query.set('ref', referralCode);
     }
 
-    const status = snapshotResponseValue(statusResponseCacheKey(root, query), { allowSession: true });
+    const statusEntry = readResponseCache(statusResponseCacheKey(root, query), { allowSession: true });
+    const isCart = surface === 'cart' || surface === 'drawer';
+    const status = statusEntry && (!isCart || cacheEntryFresh(statusEntry, RESPONSE_CACHE_TTLS.status)) ? statusEntry.value : null;
     const cartState = snapshotResponseValue(cartResponseCacheKey(), { allowSession: false }) || { ok: false, data: {} };
     const availableRewards = shouldLoadAvailableRewardsForRoot(root)
       ? snapshotResponseValue(availableRewardsResponseCacheKey(root, query), { allowSession: false })
