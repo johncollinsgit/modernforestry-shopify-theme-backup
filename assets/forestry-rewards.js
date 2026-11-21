@@ -1537,7 +1537,8 @@
       };
     }
 
-    const belowMinimum = model.cartRewardAvailable && model.cartQualifyingCents < redemptionRules(model).minimumCents;
+    const belowMinimum = model.cartRedemptionSurface && model.cartRewardAvailable && model.cartQualifyingCents < redemptionRules(model).minimumCents;
+    const canUseCandleCash = !model.cartRedemptionSurface || model.cartRewardAvailable;
     if (appliedReward && (model.cartAppliedBirthday || !belowMinimum)) {
       return {
         name: 'applied',
@@ -1566,7 +1567,7 @@
       return { name: 'minimum_locked', rewardKind: 'candle_cash' };
     }
 
-    if (model.cartRewardAvailable && primaryCode && primaryCode.is_usable && rewardApplyPath(primaryCode)) {
+    if (canUseCandleCash && primaryCode && primaryCode.is_usable && rewardApplyPath(primaryCode)) {
       return {
         name: 'ready',
         reward: primaryCode,
@@ -1590,7 +1591,7 @@
       return { name: 'daily_limit_reached', reward: null, rewardKind: 'candle_cash' };
     }
 
-    if (model.cartRewardAvailable && redeemableReward) {
+    if (canUseCandleCash && redeemableReward) {
       return {
         name: 'redeemable',
         reward: redeemableReward,
@@ -2655,6 +2656,7 @@
         '<li><span>Approvals</span><strong>' + escapeHtml(approval) + '</strong></li>' +
         '<li><span>Expiration</span><strong>' + escapeHtml(expirationLabel) + '</strong></li>' +
       '</ul>' +
+      (rules.minimumMessage ? '<p class="ForestryRewardsCard__description">' + escapeHtml(rules.minimumMessage) + '</p>' : '') +
     '</article>';
   }
 
@@ -3442,19 +3444,22 @@
               : state.name === 'guest'
                 ? 'Sign in to view and redeem your Candle Cash.'
                 : 'Your next reward will appear here when it is ready.';
+    const progressMarkup = redemptionProgressMarkup(model);
     const utilityParts = [
       '<p class="ForestryRewardsNotice" data-candle-cash-daily-limit>' + escapeHtml(rules.dailyLimitMessage) + '</p>',
     ];
 
     if (state.name !== 'guest' && state.name !== 'applied') {
-      utilityParts.push(redemptionProgressMarkup(model));
+      utilityParts.push(progressMarkup);
       utilityParts.push(expirationNoticeMarkup(model, 'compact'));
     }
 
-    if (state.name === 'minimum_locked') {
+    if (progressMarkup && state.rewardKind === 'candle_cash' && ['minimum_locked', 'ready', 'redeemable'].includes(state.name)) {
       root.innerHTML = '<section class="ForestryRewardsHelper ForestryRewardsHelper--' + escapeHtml(surface) + '">' +
-        redemptionProgressMarkup(model) +
+        progressMarkup +
         '<div class="ForestryRewardsHelper__actions">' + helperActionMarkup(root, model, viewState, uiState) + '</div>' +
+        (state.name === 'minimum_locked' ? '' : '<p class="ForestryRewardsProgress__amount">' + escapeHtml(rules.dailyLimitMessage) + '</p>') +
+        (uiState.toast ? '<div class="ForestryRewardsToast ForestryRewardsToast--' + escapeHtml(uiState.toastTone || 'neutral') + '">' + escapeHtml(uiState.toast) + '</div>' : '') +
         '</section>';
       return;
     }
@@ -3921,8 +3926,9 @@
             ? sum : sum + (Number(item.original_line_price) || 0);
         }, 0)
         : Math.round((hasEligibleAttr ? cartEligibleSubtotal : amountNumber(cartState && cartState.data && cartState.data.original_total_price) / 100) * 100),
-      cartRewardAvailable: Boolean(statusResult && statusResult.data && statusResult.data.cart_reward_available === true)
-        && (!cartState || !cartState.ok || !cartState.data.currency || cartState.data.currency === 'USD'),
+      cartRedemptionSurface: surface === 'cart' || surface === 'drawer',
+      cartRewardAvailable: Boolean(statusResult && statusResult.data && statusResult.data.cart_reward_available === true
+        && cartState && cartState.ok && cartState.data.currency === 'USD'),
       orderContext: {
         number: cleanString(root.dataset.orderNumber),
         totalAmount: amountNumber(root.dataset.orderTotalAmount),
@@ -3965,7 +3971,9 @@
       query.set('ref', referralCode);
     }
 
-    const status = snapshotResponseValue(statusResponseCacheKey(root, query), { allowSession: true });
+    const statusEntry = readResponseCache(statusResponseCacheKey(root, query), { allowSession: true });
+    const isCart = surface === 'cart' || surface === 'drawer';
+    const status = statusEntry && (!isCart || cacheEntryFresh(statusEntry, RESPONSE_CACHE_TTLS.status)) ? statusEntry.value : null;
     const cartState = snapshotResponseValue(cartResponseCacheKey(), { allowSession: false }) || { ok: false, data: {} };
     const availableRewards = shouldLoadAvailableRewardsForRoot(root)
       ? snapshotResponseValue(availableRewardsResponseCacheKey(root, query), { allowSession: false })

@@ -1712,30 +1712,6 @@
 .ForestryRewardsNotice,
 .ForestryRewardsProgress,
 .ForestryRewardsClub,
-[data-candle-cash-redemption-progress] .ForestryRewardsProgress__bar span {
-  background: #3f6952;
-  transform-origin: left;
-  animation: forestryRedemptionFill 0.35s ease-out;
-}
-
-.ForestryRewardsProgress__amount {
-  display: block;
-  margin-top: 0.4rem;
-  font-size: 0.875em;
-}
-
-@keyframes forestryRedemptionFill {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-candle-cash-redemption-progress] .ForestryRewardsProgress__bar span {
-    animation: none;
-    transition: none;
-  }
-}
-
 .ForestryRewardsCelebration {
   border-radius: 22px;
   border: 1px solid rgba(var(--text-color-rgb), 0.08);
@@ -1862,6 +1838,34 @@
   border-radius: inherit;
   background: linear-gradient(90deg, rgba(var(--button-background-rgb), 0.48), rgba(var(--button-background-rgb), 0.84));
   transition: width 0.35s ease;
+}
+
+[data-candle-cash-redemption-progress] .ForestryRewardsProgress__message {
+  font-weight: 600;
+}
+
+[data-candle-cash-redemption-progress] .ForestryRewardsProgress__bar span {
+  background: #3f6952;
+  transform-origin: left;
+  animation: forestryRedemptionFill 0.35s ease-out;
+}
+
+.ForestryRewardsProgress__amount {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.875em;
+}
+
+@keyframes forestryRedemptionFill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-candle-cash-redemption-progress] .ForestryRewardsProgress__bar span {
+    animation: none;
+    transition: none;
+  }
 }
 
 .ForestryRewardsCelebration {
