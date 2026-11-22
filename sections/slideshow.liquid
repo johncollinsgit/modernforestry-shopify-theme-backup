@@ -2,7 +2,7 @@
 {
   "prevNextButtons": false,
   "setGallerySize": {% if section.settings.show_fullscreen %}false{% else %}true{% endif %},
-  "adaptiveHeight": {% if section.settings.show_fullscreen %}false{% else %}true{% endif %},
+  "adaptiveHeight": false,
   "wrapAround": true,
   "dragThreshold": 15,
   "pauseAutoPlayOnHover": false,
@@ -10,6 +10,10 @@
   "pageDots": {% if section.blocks.size > 1 %}true{% else %}false{% endif %}
 }
 {%- endcapture -%}
+{%- assign slideshow_image = section.blocks.first.settings.image -%}
+{%- assign slideshow_mobile_image = section.blocks.first.settings.mobile_image | default: slideshow_image -%}
+{%- assign slideshow_aspect_ratio = slideshow_image.aspect_ratio | default: 1.5 -%}
+{%- assign slideshow_mobile_aspect_ratio = slideshow_mobile_image.aspect_ratio | default: slideshow_aspect_ratio -%}
 {%- assign candle_club_allowed_email = 'info@theforestrystudio.com' -%}
 {%- assign candle_club_customer_email = customer.email | default: '' | downcase -%}
 {%- assign candle_club_actionable = false -%}
@@ -45,24 +49,26 @@
 
           {%- if mobile_image -%}
             <div class="Slideshow__ImageContainer {% if block.settings.apply_overlay %}Image--contrast{% endif %} {% unless section.settings.show_fullscreen %}AspectRatio{% endunless %} hidden-tablet-and-up"
-                 style="{% unless section.settings.show_fullscreen %}--aspect-ratio: {{ mobile_image.aspect_ratio }};{% endunless %} background-image: url({{ mobile_image | img_url: '1x1', format: 'jpg' }})">
+                 style="{% unless section.settings.show_fullscreen %}--aspect-ratio: {{ slideshow_mobile_aspect_ratio }};{% endunless %} background-image: url({{ mobile_image | img_url: '1x1', format: 'jpg' }})">
                 <img class="Slideshow__Image Image--lazyLoad"
+                     width="{{ mobile_image.width }}" height="{{ mobile_image.height }}"
                      src="{{ mobile_image | img_url: '1x1' }}"
                      data-src="{{ mobile_image | img_url: 'x800' }}"
                      alt="{{ mobile_image.alt | escape }}">
 
                 <noscript>
-                  <img class="Slideshow__Image" src="{{ mobile_image | img_url: 'x800' }}" alt="{{ mobile_image.alt | escape }}">
+                  <img class="Slideshow__Image" src="{{ mobile_image | img_url: 'x800' }}" width="{{ mobile_image.width }}" height="{{ mobile_image.height }}" alt="{{ mobile_image.alt | escape }}">
                 </noscript>
             </div>
           {%- endif -%}
 
           {%- if block.settings.image -%}
             <div class="Slideshow__ImageContainer {% if block.settings.apply_overlay %}Image--contrast{% endif %} {% unless section.settings.show_fullscreen %}AspectRatio AspectRatio--withFallback{% endunless %} hidden-phone"
-                 style="{% unless section.settings.show_fullscreen %}padding-bottom: {{ 100.0 | divided_by: block.settings.image.aspect_ratio }}%; --aspect-ratio: {{ block.settings.image.aspect_ratio }};{% endunless %} background-image: url({{ block.settings.image | img_url: '1x1', format: 'jpg' }})">
+                 style="{% unless section.settings.show_fullscreen %}padding-bottom: {{ 100.0 | divided_by: slideshow_aspect_ratio }}%; --aspect-ratio: {{ slideshow_aspect_ratio }};{% endunless %} background-image: url({{ block.settings.image | img_url: '1x1', format: 'jpg' }})">
               {% assign image_url = block.settings.image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' %}
 
               <img class="Slideshow__Image Image--lazyLoad hide-no-js"
+                   width="{{ block.settings.image.width }}" height="{{ block.settings.image.height }}"
                    data-src="{{ image_url }}"
                    data-optimumx="1.2"
                    data-widths="[400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200]"
@@ -70,7 +76,7 @@
                    alt="{{ block.settings.image.alt | escape }}">
 
               <noscript>
-                <img class="Slideshow__Image" src="{{ block.settings.image | img_url: '1000x' }}" alt="{{ block.settings.image.alt | escape }}">
+                <img class="Slideshow__Image" src="{{ block.settings.image | img_url: '1000x' }}" width="{{ block.settings.image.width }}" height="{{ block.settings.image.height }}" alt="{{ block.settings.image.alt | escape }}">
               </noscript>
             </div>
           {%- else -%}
@@ -165,6 +171,10 @@
   #section-{{ section.id }} .Heading,
    #section-{{ section.id }} .flickity-page-dots {
     color: {{ section.settings.text_color }};
+  }
+
+  #section-{{ section.id }} .Slideshow:not(.Slideshow--fullscreen) .Slideshow__Image {
+    object-fit: cover;
   }
 </style>
 
