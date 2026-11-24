@@ -25,9 +25,11 @@
   <div
     class="ForestryWishlistRoot{% if forestry_wishlist_compact %} ForestryWishlistRoot--compact{% endif %}"
     data-forestry-wishlist-root
+    data-choose-scents-label="{{ 'product.scent_options.choose_options' | t | escape }}"
     data-product-id="{{ product.id }}"
     data-product-variant-id="{{ product.selected_or_first_available_variant.id }}"
     data-product-handle="{{ product.handle | escape }}"
+    data-product-requires-scent-selection="{% if product.tags contains 'bundle' or product.handle contains 'bundle' or product.handle contains 'bulk-discount' %}true{% else %}false{% endif %}"
 	    data-product-title="{{ product.title | escape }}"
 	    data-product-url="/products/{{ product.handle | escape }}"
 	    data-product-requires-selling-plan="{{ product.requires_selling_plan }}"

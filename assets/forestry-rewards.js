@@ -32,6 +32,7 @@
     domObserver: null,
     responseCache: new Map(),
     responseInflight: new Map(),
+    cartRevision: 0,
     nextDomId: 1,
     reviewPrefetchObserver: null,
     reviewPrefetchTargets: new WeakMap(),
@@ -41,6 +42,7 @@
   };
 
   window[RUNTIME_KEY] = runtime;
+  runtime.cartRevision = Number.isFinite(runtime.cartRevision) ? runtime.cartRevision : 0;
 
   function cleanString(value) {
     return value == null ? '' : String(value).trim();
@@ -431,11 +433,12 @@
   }
 
   function fallbackModel(root) {
-    const fallback = readJsonScript(root, '[data-forestry-rewards-fallback]');
+    const fallback = root.__forestryFallbackPayload || readJsonScript(root, '[data-forestry-rewards-fallback]');
 
     if (!fallback || typeof fallback !== 'object') {
       return {};
     }
+    root.__forestryFallbackPayload = fallback;
 
     return Object.assign({}, fallback, {
       redemption_access: normalizeFallbackRedemptionAccess(fallback.redemption_access),
@@ -1029,7 +1032,7 @@
     const promise = Promise.resolve()
       .then(loader)
       .then(function (value) {
-        if (value && value.ok) {
+        if (value && value.ok && (!options || !options.canCache || options.canCache())) {
           writeResponseCache(key, value, { allowSession: allowSession });
         }
 
@@ -1088,6 +1091,7 @@
   }
 
   function invalidateCartCache() {
+    runtime.cartRevision += 1;
     clearResponseCache(cartResponseCacheKey(), { allowSession: false });
   }
 
@@ -1188,10 +1192,12 @@
   }
 
   function fetchCartState(options) {
+    const revision = runtime.cartRevision;
     return fetchCachedResponse(cartResponseCacheKey(), fetchCartStateNetwork, {
       ttl: RESPONSE_CACHE_TTLS.cart,
       force: !!(options && options.force),
       allowSession: false,
+      canCache: function () { return revision === runtime.cartRevision; },
     });
   }
 
@@ -3393,18 +3399,25 @@
     '</div>';
   }
 
+  function setCompactMarkup(root, markup) {
+    if (root.__forestryCompactMarkup === markup && root.firstChild && root.__forestryCompactNode === root.firstChild) return;
+    root.__forestryCompactMarkup = markup;
+    root.innerHTML = markup;
+    root.__forestryCompactNode = root.firstChild;
+  }
+
   function renderCompactSurface(root, model, uiState) {
     const viewState = birthdayViewState(model);
     const surface = cleanString(root.dataset.surface || 'cart');
     if ((root.dataset.emptyCart === 'true' && !model.cartRewardAvailable) || model.cartSubscriptionOnly) {
-      root.innerHTML = '';
+      setCompactMarkup(root, '');
       return;
     }
     if (model && model.cartHasGiftCardItems) {
-      root.innerHTML = '' +
+      setCompactMarkup(root, '' +
         '<div class="Cart__CandleCashGiftCardNotice" data-candle-cash-gift-card-notice tabindex="-1">' +
           '<p>Candle Cash cannot be used on gift cards. Remove gift cards to redeem Candle Cash on eligible products.</p>' +
-        '</div>';
+        '</div>');
       return;
     }
     const state = compactHelperState(model);
@@ -3466,20 +3479,20 @@
     }
 
     if (progressMarkup && state.rewardKind === 'candle_cash' && ['minimum_locked', 'ready', 'redeemable'].includes(state.name)) {
-      root.innerHTML = '<section class="ForestryRewardsHelper ForestryRewardsHelper--' + escapeHtml(surface) + '">' +
+      setCompactMarkup(root, '<section class="ForestryRewardsHelper ForestryRewardsHelper--' + escapeHtml(surface) + '">' +
         progressMarkup +
         eligibilityMarkup +
         '<div class="ForestryRewardsHelper__actions">' + helperActionMarkup(root, model, viewState, uiState) + '</div>' +
         (state.name === 'minimum_locked' ? '' : '<p class="ForestryRewardsProgress__amount">' + escapeHtml(rules.dailyLimitMessage) + '</p>') +
         (uiState.toast ? '<div class="ForestryRewardsToast ForestryRewardsToast--' + escapeHtml(uiState.toastTone || 'neutral') + '">' + escapeHtml(uiState.toast) + '</div>' : '') +
-        '</section>';
+        '</section>');
       return;
     }
 
     const utility = utilityMarkup(utilityParts);
     const status = compactSuccessBanner(state, model);
 
-    root.innerHTML = '' +
+    setCompactMarkup(root, '' +
       '<section class="ForestryRewardsHelper ForestryRewardsHelper--' + escapeHtml(surface) + ' ForestryRewardsHelper--state-' + escapeHtml(state.name) + '">' +
         comingSoonNoticeMarkup(surface) +
         '<div class="ForestryRewardsHelper__head">' +
@@ -3502,7 +3515,7 @@
           '<span>' + escapeHtml(footer.secondary) + '</span>' +
         '</div>' +
         (uiState.toast ? '<div class="ForestryRewardsToast ForestryRewardsToast--' + escapeHtml(uiState.toastTone || 'neutral') + '">' + escapeHtml(uiState.toast) + '</div>' : '') +
-      '</section>';
+      '</section>');
   }
 
   function renderHeaderSurface(root, model) {
@@ -4410,14 +4423,7 @@
 
     const settings = Object.assign({ force: false }, options || {});
 
-    if (root.__forestryLoadPromise) {
-      root.__forestryNeedsReload = true;
-      return root.__forestryLoadPromise;
-    }
-
     const cachedSnapshot = !settings.force ? cachedModelSnapshot(root) : null;
-    const requestId = (root.__forestryRequestId || 0) + 1;
-    root.__forestryRequestId = requestId;
 
     if (cachedSnapshot && cachedSnapshot.ok) {
       setRootState(root, { loadState: 'loaded' });
@@ -4429,7 +4435,18 @@
     } else {
       setRootState(root, { loadState: 'loading' });
       root.setAttribute('data-forestry-rewards-state', 'loading');
+      if (['cart', 'drawer'].includes(root.dataset.surface)) {
+        root.__forestryCompactMarkup = null;
+        root.querySelectorAll('[data-action="redeem-reward"], [data-action="apply-reward"]').forEach(function (button) { button.disabled = true; });
+      }
     }
+
+    if (root.__forestryLoadPromise) {
+      root.__forestryNeedsReload = true;
+      return root.__forestryLoadPromise;
+    }
+    const requestId = (root.__forestryRequestId || 0) + 1;
+    root.__forestryRequestId = requestId;
 
     root.__forestryLoadPromise = (async function () {
       const result = await loadModel(root, settings);
@@ -5884,6 +5901,20 @@
   document.addEventListener('DOMContentLoaded', observeDom);
   document.addEventListener('forestry:rewards:refresh', function () {
     refreshMounted({ force: true });
+  });
+  document.addEventListener('forestry:cart:updated', function (event) {
+    const cart = event.detail && event.detail.cart;
+    Array.from(runtime.mounted).forEach(function (root) {
+      if (root.__forestryLoadPromise) root.__forestryRequestId = (root.__forestryRequestId || 0) + 1;
+    });
+    if (cart && Array.isArray(cart.items) && typeof cart.currency === 'string') {
+      runtime.cartRevision += 1;
+      writeResponseCache(cartResponseCacheKey(), { ok: true, data: cart }, { allowSession: false });
+      refreshMounted();
+    } else {
+      invalidateCartCache();
+      refreshMounted({ force: true });
+    }
   });
   document.documentElement.addEventListener('cart:refresh', function () {
     invalidateCartCache();

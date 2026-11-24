@@ -924,6 +924,18 @@
       '</div>';
   }
 
+  function requiresScentSelection(product) {
+    const value = product || {};
+    const required = value.product_requires_scent_selection || value.productRequiresScentSelection;
+    const identity = [value.product_handle, value.productHandle, value.product_title, value.productTitle, value.product_url, value.productUrl]
+      .map(clean).join(' ').toLowerCase();
+    return required === true || clean(required).toLowerCase() === 'true' || identity.includes('bundle') || identity.includes('bulk-discount') || identity.includes('case of 12');
+  }
+
+  function chooseScentsLabel() {
+    return clean(runtime.primaryNode && runtime.primaryNode.dataset && runtime.primaryNode.dataset.chooseScentsLabel) || 'Choose scents';
+  }
+
   function drawerItemMarkup(item) {
     const productId = clean(item.product_id);
     const productVariantId = clean(item.product_variant_id);
@@ -933,6 +945,7 @@
     const lastAddedAt = shortDate(clean(item.last_added_at || item.added_at));
     const listName = clean(item.wishlist_list_name);
     const hasVariant = !!productVariantId;
+    const needsScents = requiresScentSelection(item);
 
     return '' +
       '<li class="ForestryWishlistDrawer__item">' +
@@ -946,7 +959,7 @@
           '</div>' +
         '</div>' +
         '<div class="ForestryWishlistDrawer__itemActions">' +
-          (hasVariant
+          (hasVariant && !needsScents
             ? '<button' +
                 ' type="button"' +
                 ' class="Button Button--secondary ForestryWishlistDrawer__cartButton"' +
@@ -957,7 +970,7 @@
                 ' data-product-title="' + escapeHtml(productTitle) + '"' +
                 ' data-product-url="' + escapeHtml(productUrl) + '"' +
               '>Add to cart</button>'
-            : '<a class="Button Button--secondary ForestryWishlistDrawer__cartButton" href="' + escapeHtml(productUrl) + '">View product</a>') +
+            : '<a class="Button Button--secondary ForestryWishlistDrawer__cartButton" href="' + escapeHtml(productUrl) + '">' + escapeHtml(needsScents ? chooseScentsLabel() : 'View product') + '</a>') +
           '<button' +
             ' type="button"' +
             ' class="ForestryWishlistDrawer__remove Link Link--primary Text--subdued"' +
@@ -1581,7 +1594,7 @@
 
   async function addToCart(button) {
     const variantId = clean(button.dataset && button.dataset.productVariantId);
-    if (!variantId) {
+    if (!variantId || requiresScentSelection(button.dataset)) {
       const url = clean(button.dataset && button.dataset.productUrl);
       if (url) {
         window.location.href = url;
@@ -1730,11 +1743,11 @@
     const actions = document.createElement('div');
     actions.className = 'ProductItem__Actions';
 
-    if (clean(root.dataset && root.dataset.productRequiresSellingPlan).toLowerCase() === 'true') {
+    if (requiresScentSelection(root.dataset) || clean(root.dataset && root.dataset.productRequiresSellingPlan).toLowerCase() === 'true') {
       const link = document.createElement('a');
       link.className = 'ProductItem__AddToCart Button Button--primary Button--full';
       link.href = sellingPlanProductUrl(root);
-      link.textContent = 'View product';
+      link.textContent = requiresScentSelection(root.dataset) ? chooseScentsLabel() : 'View product';
       actions.appendChild(link);
       info.insertBefore(actions, root);
       return;

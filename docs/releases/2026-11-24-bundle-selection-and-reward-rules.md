@@ -58,3 +58,22 @@ every page. Its failed script reference was removed. The existing Liquid
 wholesale restrictions, retail case exceptions and guarded optional WLM hooks
 remain intact. The legacy WebKit cart-transition and WLM-present/absent checks
 cover those retained hooks.
+
+The same bundle bypass was found in wishlist quick add and the optional injected
+product-card controls. These entry points now open scent selection for bundles
+and retail cases, while ordinary-item quick add and required selling-plan links
+remain available.
+
+The owner also reported the Candle Cash panel flickering while changing cart
+quantities. Native Safari confirmed the page cart used full-page quantity links,
+rebuilding the rewards panel from its generic loading state. Page quantity
+changes now use Shopify's cart API and section rendering, retain the current
+customer's reward panel across cart replacement, and seed the reward view with
+the confirmed updated cart. Older in-flight cart reads cannot overwrite a newer
+cart mutation. Identical compact reward markup is retained and unsaved gift-note
+text survives ordinary cart replacements. Fresh status checks and the existing
+Shopify checkout rules remain authoritative.
+
+Additional validation: 26 WebKit cart-continuity, delayed-response and wishlist
+checks passed at desktop/phone sizes; 60 existing rewards scenarios passed; the
+eight legacy cart transitions preserve notes and retain the WLM regressions.
