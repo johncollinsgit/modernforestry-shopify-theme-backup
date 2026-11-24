@@ -16,6 +16,7 @@ Use GitHub branches and pull requests for theme changes. Preserve the repository
 - GitHub-connected theme: `modernforestry-shopify-theme-backup/main` (`159295144195`), now live.
 - The connected theme passed Safari/WebKit release review and is live. `Retail shipping terms 2026-11-16` (`165915361539`) is retained as the prior rollback theme. Future merges update the live connected source; test changes before merging.
 - See [the reconciliation record](docs/retail-reconciliation-2026-11-16.md) for the changes, content snapshots and release boundary.
+- November 24: [bundle scent-selection and $10 Candle Cash correction](docs/releases/2026-11-24-bundle-selection-and-reward-rules.md), including the public collection-link cleanup and current merchandise/subscription eligibility.
 
 ## Standard Theme Structure
 This repo keeps Shopify's standard theme folders so it remains compatible with Shopify GitHub integration:

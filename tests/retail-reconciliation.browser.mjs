@@ -4,6 +4,7 @@ import http from 'node:http';
 import { once } from 'node:events';
 const { webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const source = fs.readFileSync(process.env.REWARDS_ASSET || 'assets/forestry-rewards.js', 'utf8');
+const eligibility = 'Candles, wax melts, and other retail merchandise qualify, including mixed carts. Subscriptions (including Candle Club), renewal charges, and gift cards are excluded.';
 const scenarios = (process.env.SCENARIOS || 'wallet,empty,disabled,saved,pending,pending-no-code,birthday-only,retry,daily,daily-birthday').split(',');
 const browser = await webkit.launch({ headless: true });
 let passed = 0;
@@ -26,7 +27,7 @@ try {
    if (path === '/pages/rewards' || path === '/cart') return reply(200, 'text/html', `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>${path === '/cart' && surface === 'page' ? root.replace('data-surface="page"', 'data-surface="cart"') : root}<div class="Cart__TotalPrice">$50.00</div><script>${source}</script></body></html>`);
    if (path.endsWith('/candle-cash/status')) return json({ ok: true, data: {
     profile_id: 1, state: 'linked_customer', balance: { amount: scenario === 'birthday-only' ? 0 : scenario === 'empty' ? 5 : redeemed ? 70.5 : 80.5 },
-    redemption_access: { redeem_enabled: scenario !== 'disabled' && !daily, mode: daily ? 'daily_limit_reached' : 'live', cta_label: daily ? 'Available tomorrow' : 'Redeem Candle Cash', message: daily ? 'Candle Cash can only be redeemed once per customer per day (Eastern Time). Please try again after midnight Eastern Time.' : '' }, redemption_rules: { redeem_increment_dollars: 10, online_minimum_subtotal_cents: 4000 },
+    redemption_access: { redeem_enabled: scenario !== 'disabled' && !daily, mode: daily ? 'daily_limit_reached' : 'live', cta_label: daily ? 'Available tomorrow' : 'Redeem Candle Cash', message: daily ? 'Candle Cash can only be redeemed once per customer per day (Eastern Time). Please try again after midnight Eastern Time.' : '' }, redemption_rules: { redeem_increment_dollars: 10, online_minimum_subtotal_cents: 4000, online_eligibility_message: eligibility },
     cart_reward_available: ['wallet', 'retry', 'saved'].includes(scenario),
     available_rewards: [{ id: 1, candle_cash_cost: 10, reward_value: 10 }],
     reward_codes: redeemed || ['saved', 'pending', 'pending-no-code'].includes(scenario) ? [code] : [],
@@ -52,6 +53,7 @@ try {
    await page.waitForFunction(() => document.querySelector('[data-forestry-rewards-root]')?.dataset.forestryRewardsState === 'loaded');
    if (surface === 'page') await page.locator('[data-action="set-tab"][data-tab-target="status"]').click();
    const rootEl = page.locator('[data-forestry-rewards-root]');
+   assert.ok((await rootEl.textContent()).includes(eligibility), `${surface}/${scenario}: public eligibility wording`);
    const redeem = rootEl.locator('[data-action="redeem-reward"]');
    assert.match(await rootEl.textContent(), /once per (customer per )?day|once per day/);
    if (scenario === 'daily') {
