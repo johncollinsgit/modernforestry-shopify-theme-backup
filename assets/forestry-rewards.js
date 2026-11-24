@@ -404,6 +404,7 @@
     return {
       minimumCents: positiveInt(rules.online_minimum_subtotal_cents) || 0,
       minimumMessage: cleanString(rules.online_minimum_message),
+      eligibilityMessage: cleanString(rules.online_eligibility_message),
       redeemAmount: redeemAmount,
       redeemAmountLabel: cleanString(rules.redeem_increment_formatted || rules.redeemIncrementFormatted) || (currencyLabel(redeemAmount) || '$10.00'),
       dailyLimitMessage: cleanString(rules.daily_limit_message) || 'Candle Cash can only be redeemed once per customer per day (Eastern Time).',
@@ -2657,6 +2658,7 @@
         '<li><span>Expiration</span><strong>' + escapeHtml(expirationLabel) + '</strong></li>' +
       '</ul>' +
       (rules.minimumMessage ? '<p class="ForestryRewardsCard__description">' + escapeHtml(rules.minimumMessage) + '</p>' : '') +
+      (rules.eligibilityMessage ? '<p class="ForestryRewardsCard__description">' + escapeHtml(rules.eligibilityMessage) + '</p>' : '') +
     '</article>';
   }
 
@@ -2768,6 +2770,10 @@
       },
     ];
 
+    if (rules.eligibilityMessage) {
+      items.push({ q: 'Which items qualify?', a: rules.eligibilityMessage });
+    }
+
     return '<div class="ForestryRewardsFaq">' + items.map(function (item) {
       return '<article class="ForestryRewardsFaq__item"><h3 class="Heading u-h5">' + escapeHtml(item.q) + '</h3><p class="ForestryRewardsCard__description">' + escapeHtml(item.a) + '</p></article>';
     }).join('') + '</div>';
@@ -2870,6 +2876,7 @@
     const parts = [
       label + ' can be redeemed in ' + rules.redeemAmountLabel + ' increments, with a limit of ' + rules.maxPerOrderLabel + ' per order.',
       rules.minimumMessage,
+      rules.eligibilityMessage,
       rules.dailyLimitMessage,
     ].filter(Boolean);
 
@@ -3445,8 +3452,12 @@
                 ? 'Sign in to view and redeem your Candle Cash.'
                 : 'Your next reward will appear here when it is ready.';
     const progressMarkup = redemptionProgressMarkup(model);
+    const eligibilityMarkup = rules.eligibilityMessage
+      ? '<p class="ForestryRewardsNotice" data-candle-cash-eligibility>' + escapeHtml(rules.eligibilityMessage) + '</p>'
+      : '';
     const utilityParts = [
       '<p class="ForestryRewardsNotice" data-candle-cash-daily-limit>' + escapeHtml(rules.dailyLimitMessage) + '</p>',
+      eligibilityMarkup,
     ];
 
     if (state.name !== 'guest' && state.name !== 'applied') {
@@ -3457,6 +3468,7 @@
     if (progressMarkup && state.rewardKind === 'candle_cash' && ['minimum_locked', 'ready', 'redeemable'].includes(state.name)) {
       root.innerHTML = '<section class="ForestryRewardsHelper ForestryRewardsHelper--' + escapeHtml(surface) + '">' +
         progressMarkup +
+        eligibilityMarkup +
         '<div class="ForestryRewardsHelper__actions">' + helperActionMarkup(root, model, viewState, uiState) + '</div>' +
         (state.name === 'minimum_locked' ? '' : '<p class="ForestryRewardsProgress__amount">' + escapeHtml(rules.dailyLimitMessage) + '</p>') +
         (uiState.toast ? '<div class="ForestryRewardsToast ForestryRewardsToast--' + escapeHtml(uiState.toastTone || 'neutral') + '">' + escapeHtml(uiState.toast) + '</div>' : '') +

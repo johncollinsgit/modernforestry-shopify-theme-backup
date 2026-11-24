@@ -1,4 +1,8 @@
 {%- assign product = all_products[section.settings.product] -%}
+{%- assign forestry_product_requires_scent_selection = false -%}
+{%- if product.tags contains 'bundle' or product.handle contains 'bundle' or product.handle contains 'bulk-discount' -%}
+  {%- assign forestry_product_requires_scent_selection = true -%}
+{%- endif -%}
 
 {%- assign meta_block = section.blocks | where: 'type', 'product_meta' | first -%}
 {%- assign inventory_block = section.blocks | where: 'type', 'inventory' | first -%}
@@ -205,6 +209,8 @@
                       </div>
                     {%- elsif candle_club_locked -%}
                       {% render 'candle-club-coming-soon' %}
+                    {%- elsif product.available and forestry_product_requires_scent_selection -%}
+                      <a href="{{ product.url }}" class="Button Button--primary Button--full">{{ 'product.scent_options.choose_options' | t }}</a>
                     {%- else -%}
                       {%- if block.settings.show_payment_button and product.selected_or_first_available_variant.available == false -%}
                         <style>

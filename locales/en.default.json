@@ -8,6 +8,9 @@
  * ------------------------------------------------------------
  */
 {
+  "candle_cash": {
+    "online_eligibility": "Candles, wax melts, and other retail merchandise qualify, including mixed carts. Subscriptions (including Candle Club), renewal charges, and gift cards are excluded."
+  },
   "general": {
     "meta": {
       "tags": "Tagged \"{{ tags }}\"",
@@ -318,6 +321,7 @@
   },
   "product": {
     "scent_options": {
+      "choose_options": "Choose scents",
       "heading": "Choose your scents",
       "help": "Choose one scent for each item in this bundle.",
       "label": "Scent",
