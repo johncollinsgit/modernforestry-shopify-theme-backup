@@ -419,6 +419,22 @@
     return redemptionRules(model).redeemAmountLabel;
   }
 
+  function redemptionSummary(model) {
+    return (cleanString(model.copy.redemption_summary) || 'Save [amount] in Candle Cash, then redeem [amount] per order.')
+      .replace(/\[amount\]/g, redeemAmountLabel(model));
+  }
+
+  function balanceWaitMessage(model) {
+    return (cleanString(model.copy.balance_wait_message) || 'Keep earning until you have [amount] in Candle Cash.')
+      .replace(/\[amount\]/g, redeemAmountLabel(model));
+  }
+
+  function balanceOnlyMessage(model) {
+    return amountNumber(model.balanceAmount) < redemptionRules(model).redeemAmount
+      ? balanceWaitMessage(model)
+      : cleanString(model.copy.saved_reward_help) || 'Open Candle Cash to check your saved codes.';
+  }
+
   function readJsonScript(root, selector) {
     const el = root.querySelector(selector);
     if (!el) {
@@ -1747,7 +1763,7 @@
       return rewardAmount + ' is ready to apply to this order.';
     }
     if (state.name === 'redeemable') {
-      return 'Redeem ' + rewardAmount + ' at a time, with a limit of ' + redemptionRules(model).maxPerOrderLabel + ' per order. ' + redemptionRules(model).dailyLimitMessage;
+      return redemptionSummary(model);
     }
     if (state.name === 'pending_code') {
       return 'Your saved reward is still being confirmed. Check its status again in a moment.';
@@ -1759,11 +1775,7 @@
       if (amountNumber(model.balanceAmount) >= redemptionRules(model).redeemAmount) {
         return 'You have enough Candle Cash to redeem ' + rewardAmount + '.';
       }
-      if (progress && progress.done) {
-        return 'You are not missing spend on this order.';
-      }
-
-      return 'You have ' + (currencyLabel(model.balanceAmount || 0) || '$0.00') + ' available. Candle Cash is redeemed in ' + rewardAmount + ' increments.';
+      return 'You have ' + (currencyLabel(model.balanceAmount || 0) || '$0.00') + ' available. ' + balanceWaitMessage(model);
     }
     if (model.otherRewards.length > 0) {
       return 'You have saved Candle Cash ready to review.';
@@ -2540,7 +2552,7 @@
       {
         label: 'Candle Cash balance',
         value: currencyLabel(model.balanceAmount || 0) || '$0',
-        note: 'Redeem in ' + rules.redeemAmountLabel + ' steps, once per day. Birthday coupons are separate.',
+        note: (cleanString(model.copy.balance_note) || 'Redeem [amount] once per day. Birthday coupons are separate.').replace(/\[amount\]/g, rules.redeemAmountLabel),
       },
       {
         label: 'Saved codes',
@@ -2591,8 +2603,8 @@
       '</div>' +
       '<p class="ForestryRewardsCard__description">' + escapeHtml(referral.copy || 'Share your link and earn Candle Cash when a friend places a qualifying first order.') + '</p>' +
       '<div class="ForestryRewardsReferralSplit">' +
-        '<div><span>You earn</span><strong>$5</strong></div>' +
-        '<div><span>Friend earns</span><strong>$10</strong></div>' +
+        '<div><span>You earn</span><strong>' + escapeHtml(currencyLabel(referral.referrer_reward_amount || 10) || '$10') + '</strong></div>' +
+        '<div><span>Friend earns</span><strong>' + escapeHtml(currencyLabel(referral.referred_reward_amount || 5) || '$5') + '</strong></div>' +
       '</div>' +
       '<div class="ForestryRewardsReferralCode">' +
         '<code>' + escapeHtml(referralLink || referral.code || '') + '</code>' +
@@ -2651,15 +2663,15 @@
     const approval = cleanString(model.copy.faq_approval_copy).replace(/\.$/, '') || '1 to 3 business days';
     const expirationLabel = expiration && expiration.days
       ? (expiration.days + ' day' + (expiration.days === 1 ? '' : 's') + ' after earned')
-      : (expiration && expiration.date ? shortDate(expiration.date) : 'Store rules apply');
+      : (expiration && expiration.date ? shortDate(expiration.date) : cleanString(model.copy.expiration_copy) || 'See your reward for its expiry date.');
 
     return '<article class="ForestryRewardsCard ForestryRewardsCard--history">' +
       '<div class="ForestryRewardsCard__header">' +
         '<div><p class="ForestryRewardsCard__eyebrow">Program rules</p><h3 class="Heading u-h4">How it works</h3></div>' +
       '</div>' +
       '<ul class="ForestryRewardsMeta">' +
-        '<li><span>Redeem at a time</span><strong>' + escapeHtml(rules.redeemAmountLabel) + '</strong></li>' +
-        '<li><span>Per order limit</span><strong>' + escapeHtml(rules.maxPerOrderLabel) + '</strong></li>' +
+        '<li><span>' + escapeHtml(model.copy.required_balance_label || 'Required balance') + '</span><strong>' + escapeHtml(rules.redeemAmountLabel) + '</strong></li>' +
+        '<li><span>' + escapeHtml(model.copy.discount_per_order_label || 'Discount per order') + '</span><strong>' + escapeHtml(rules.maxPerOrderLabel) + '</strong></li>' +
         '<li><span>Approvals</span><strong>' + escapeHtml(approval) + '</strong></li>' +
         '<li><span>Expiration</span><strong>' + escapeHtml(expirationLabel) + '</strong></li>' +
       '</ul>' +
@@ -2681,8 +2693,8 @@
 
   function statusReferralCardMarkup(model) {
     const referral = model.referral || {};
-    const referrerReward = currencyLabel(referral.referrer_reward_amount || 5) || '$5';
-    const referredReward = currencyLabel(referral.referred_reward_amount || 10) || '$10';
+    const referrerReward = currencyLabel(referral.referrer_reward_amount || 10) || '$10';
+    const referredReward = currencyLabel(referral.referred_reward_amount || 5) || '$5';
     const tracked = positiveInt(referral.count) || 0;
     const description = model.profileId
       ? 'Use the refer-a-friend task in Tasks to copy or share your link.'
@@ -2768,7 +2780,7 @@
       },
       {
         q: 'How does redemption work?',
-        a: cleanString(model.copy.faq_stack_copy) || ('Candle Cash is redeemed in ' + rules.redeemAmountLabel + ' increments, with a limit of ' + rules.maxPerOrderLabel + ' per order.'),
+        a: [redemptionSummary(model), rules.minimumMessage, cleanString(model.copy.faq_stack_copy)].filter(Boolean).join(' '),
       },
       {
         q: 'Where do pending tasks show up?',
@@ -2880,7 +2892,7 @@
     const label = rewardsLabel(model, root);
     const detail = expirationDetails(model);
     const parts = [
-      label + ' can be redeemed in ' + rules.redeemAmountLabel + ' increments, with a limit of ' + rules.maxPerOrderLabel + ' per order.',
+      redemptionSummary(model),
       rules.minimumMessage,
       rules.eligibilityMessage,
       rules.dailyLimitMessage,
@@ -2891,7 +2903,7 @@
     } else if (detail && detail.date) {
       parts.push('Some available ' + label.toLowerCase() + ' expires on ' + shortDate(detail.date) + '.');
     } else {
-      parts.push(label + ' expiration follows your store settings from the day it is earned.');
+      if (cleanString(model.copy.expiration_copy)) parts.push(cleanString(model.copy.expiration_copy));
     }
 
     return parts.join(' ');
@@ -3262,8 +3274,8 @@
             '<p class="ForestryRewardsCard__amount">' + escapeHtml(balanceLabel) + '</p>' +
             '<p class="ForestryRewardsCard__description">' + escapeHtml(walletRulesCopy(model, root)) + '</p>' +
             '<ul class="ForestryRewardsMeta">' +
-              '<li><span>Redeem at a time</span><strong>' + escapeHtml(redeemAmountLabel(model)) + '</strong></li>' +
-              '<li><span>Per order limit</span><strong>' + escapeHtml(redemptionRules(model).maxPerOrderLabel) + '</strong></li>' +
+              '<li><span>' + escapeHtml(model.copy.required_balance_label || 'Required balance') + '</span><strong>' + escapeHtml(redeemAmountLabel(model)) + '</strong></li>' +
+              '<li><span>' + escapeHtml(model.copy.discount_per_order_label || 'Discount per order') + '</span><strong>' + escapeHtml(redemptionRules(model).maxPerOrderLabel) + '</strong></li>' +
               '<li><span>Pending rewards</span><strong>' + escapeHtml(String(model.summary.pending_rewards || 0)) + '</strong></li>' +
             '</ul>' +
           '</article>' +
@@ -3358,9 +3370,7 @@
     if (state.name === 'balance_only') {
       return {
         primary: (currencyLabel(model.balanceAmount || 0) || '$0') + ' available now',
-        secondary: progress && progress.done
-          ? 'This order already qualifies. Redemption appears once a cart-ready code is returned.'
-          : 'Redeem ' + rules.redeemAmountLabel + ' at a time when your balance is ready.',
+        secondary: balanceOnlyMessage(model),
       };
     }
 
@@ -3458,9 +3468,7 @@
           : state.name === 'code_only'
             ? 'Your reward code is ready to copy.'
             : state.name === 'balance_only'
-              ? (progress && progress.done
-                ? 'You are not missing spend. Redemption appears once this cart has a ready ' + rules.redeemAmountLabel + ' Candle Cash code.'
-                : 'Candle Cash is redeemed in ' + rules.redeemAmountLabel + ' increments.')
+              ? balanceOnlyMessage(model)
               : state.name === 'guest'
                 ? 'Sign in to view and redeem your Candle Cash.'
                 : 'Your next reward will appear here when it is ready.';

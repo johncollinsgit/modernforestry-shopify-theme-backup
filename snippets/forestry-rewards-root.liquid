@@ -36,6 +36,14 @@
 {
   "state": {{ rewards_state | json }},
   "profile_id": {{ customer.id | json }},
+  "copy": {
+    "redemption_summary": {{ 'candle_cash.redemption_summary' | t | json }},
+    "required_balance_label": {{ 'candle_cash.required_balance' | t | json }},
+    "discount_per_order_label": {{ 'candle_cash.discount_per_order' | t | json }},
+    "balance_wait_message": {{ 'candle_cash.balance_wait' | t | json }},
+    "saved_reward_help": {{ 'candle_cash.saved_reward_help' | t | json }},
+    "balance_note": {{ 'candle_cash.balance_note' | t | json }}
+  },
   "balance": {
     "raw_points": {{ candle_cash_points | json }},
     "points": {{ candle_cash_points | json }},
@@ -192,8 +200,8 @@
     "enabled": true,
     "headline": "Share Candle Cash with a friend",
     "copy": "Share your link and earn Candle Cash when a friend places a qualifying first order.",
-    "referrer_reward_amount": 5,
-    "referred_reward_amount": 10,
+    "referrer_reward_amount": 10,
+    "referred_reward_amount": 5,
     "count": 0
   },
   "history": {
