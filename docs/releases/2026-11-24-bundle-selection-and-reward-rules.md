@@ -51,3 +51,10 @@ subscription items, renewals and gift cards as exclusions.
 
 An old cart entry without scents must be removed and added again with every scent
 selected. The new cards prevent creating that entry through collection quick add.
+
+An expanded scan checked 983 theme/image/script/style resources. The only broken
+resource was the legacy `/apps/wlm/js/wlm-1.1.js` script (HTTP 404), included on
+every page. Its failed script reference was removed. The existing Liquid
+wholesale restrictions, retail case exceptions and guarded optional WLM hooks
+remain intact. The legacy WebKit cart-transition and WLM-present/absent checks
+cover those retained hooks.
