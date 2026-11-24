@@ -2,7 +2,7 @@ const {webkit}=await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
 const source=await fs.readFile(new URL('../assets/theme.js',import.meta.url),'utf8');
-const start=source.indexOf('function _replaceContent(html)');
+const start=source.indexOf('function _replaceContent(');
 const end=source.indexOf('\n      }\n    }]);',start);
 const fn=source.slice(start,end+8);
 const browser=await webkit.launch();
@@ -10,14 +10,15 @@ try{
  const page=await browser.newPage();
  for(const drawer of [false,true])for(const before of [0,1])for(const after of [0,1]){
   const result=await page.evaluate(({fn,drawer,before,after})=>{
-   const markup=n=>`<section data-section-type="cart" data-section-settings='{"itemCount":${n}}'><header class="PageHeader">${n}</header><div class="Drawer__Main">${n?'<form class="Cart">Product</form>':'<p>Empty cart</p>'}</div></section>`;
+   const markup=n=>`<section data-section-type="cart" data-section-settings='{"itemCount":${n}}'><header class="PageHeader">${n}</header><div class="Drawer__Main">${n?'<form class="Cart">Product<textarea data-cart-note-input>Saved note</textarea></form>':'<p>Empty cart</p>'}</div></section>`;
    document.body.innerHTML='<span class="Header__CartCount"></span><span class="Header__CartDot"></span>'+markup(before);
    window.theme={pageType:drawer?'index':'cart'};window.Dom={nodeListToArray:n=>Array.from(n)};
    const root=document.querySelector('section'),state={element:root,options:{drawer},itemCount:before};
+   if(before)root.querySelector('[data-cart-note-input]').value='Draft gift note';
    (0,eval)('('+fn+')').call(state,markup(after));
-   return {count:state.itemCount,cart:!!root.querySelector('.Cart'),label:document.querySelector('.Header__CartCount').textContent};
+   return {count:state.itemCount,cart:!!root.querySelector('.Cart'),label:document.querySelector('.Header__CartCount').textContent,note:root.querySelector('[data-cart-note-input]')?.value||null};
   },{fn,drawer,before,after});
-  assert.deepEqual(result,{count:after,cart:!!after,label:String(after)});
+  assert.deepEqual(result,{count:after,cart:!!after,label:String(after),note:after?(before?'Draft gift note':'Saved note'):null});
  }
  const liquid=await fs.readFile(new URL('../snippets/wlm-head.liquid',import.meta.url),'utf8');
  const script=liquid.slice(liquid.lastIndexOf("<script type='text/javascript'>")+31,liquid.lastIndexOf('</script>')).replace(/\{% if wlmLockON %\}([\s\S]*?)\{% else %\}([\s\S]*?)\{% endif %\}/, '$2');

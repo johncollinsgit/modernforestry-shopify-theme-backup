@@ -3572,12 +3572,8 @@
         this._onProductAddedListener = this._onProductAdded.bind(this);
         this.delegateElement.on('change', '#cart-note', this._updateCartNote.bind(this));
 
-        if (this.options['type'] !== 'page') {
-          this.delegateElement.on('click', '[data-action="update-item-quantity"], [data-action="remove-item"]', this._updateItemQuantity.bind(this));
-          this.delegateElement.on('change', '.QuantitySelector__CurrentQuantity', this._updateItemQuantity.bind(this));
-        } else {
-          this.delegateElement.on('change', '.QuantitySelector__CurrentQuantity', this._reloadPageWithQuantity.bind(this));
-        } // We have some listeners that are specific to the fact it's a drawer or the dedicated cart page
+        this.delegateElement.on('click', '[data-action="update-item-quantity"], [data-action="remove-item"]', this._updateItemQuantity.bind(this));
+        this.delegateElement.on('change', '.QuantitySelector__CurrentQuantity', this._updateItemQuantity.bind(this));
 
 
         if (this.options['drawer']) {
@@ -3631,6 +3627,10 @@
       value: function _updateItemQuantity(event, target) {
         var _this2 = this;
 
+        event.preventDefault();
+        if (this.isUpdatingQuantity) return;
+        this.isUpdatingQuantity = true;
+
         document.dispatchEvent(new CustomEvent('theme:loading:start'));
         var quantity = null,
             elementToAnimate = null;
@@ -3659,15 +3659,17 @@
 
           }
         }).then(function (cart) {
-          cart.json().then(function (content) {
+          if (!cart.ok) throw new Error('Cart update failed');
+          return cart.json().then(function (content) {
             _this2.itemCount = content['item_count'];
-
-            _this2._rerenderCart(elementToAnimate);
-
-            document.dispatchEvent(new CustomEvent('theme:loading:end'));
+            return _this2._rerenderCart(elementToAnimate, content);
           });
+        }).catch(function () {
+          window.location.href = target.href || "".concat(window.routes.cartChangeUrl, "?quantity=").concat(quantity, "&line=").concat(target.getAttribute('data-line'));
+        }).finally(function () {
+          _this2.isUpdatingQuantity = false;
+          document.dispatchEvent(new CustomEvent('theme:loading:end'));
         });
-        event.preventDefault();
       }
     }, {
       key: "_reloadPageWithQuantity",
@@ -3682,7 +3684,7 @@
         this.itemCount += event.detail.quantity;
 
         this._rerenderCart().then(function () {
-          _this3.sidebarDrawer.open();
+          if (_this3.sidebarDrawer) _this3.sidebarDrawer.open();
         });
       }
     }, {
@@ -3701,7 +3703,7 @@
 
     }, {
       key: "_rerenderCart",
-      value: function _rerenderCart(elementToAnimate) {
+      value: function _rerenderCart(elementToAnimate, cartData) {
         var _this4 = this;
 
         // Note: appending a timestamp is necessary as the polyfill on IE11 and lower does not support the "cache" property
@@ -3714,7 +3716,7 @@
             var timelineLite = new TimelineLite({
               onComplete: function onComplete() {
                 content.text().then(function (html) {
-                  _this4._replaceContent(html);
+                  _this4._replaceContent(html, cartData);
                 });
               }
             });
@@ -3732,15 +3734,15 @@
               }, 0);
             }
           } else {
-            content.text().then(function (html) {
-              _this4._replaceContent(html);
+            return content.text().then(function (html) {
+              _this4._replaceContent(html, cartData);
             });
           }
         });
       }
     }, {
       key: "_replaceContent",
-      value: function _replaceContent(html) {
+      value: function _replaceContent(html, cartData) {
         var _this5 = this;
 
         var tempElement = document.createElement('div');
@@ -3754,6 +3756,22 @@
         var nextCart = nextSection.querySelector('.Cart');
         var drawerMain = this.element.querySelector('.Drawer__Main');
         var currentScrollPosition = drawerMain ? drawerMain.scrollTop : 0;
+        var currentNote = this.element.querySelector('[data-cart-note-input]');
+        var nextNote = nextSection.querySelector('[data-cart-note-input]');
+        if (currentNote && nextNote) nextNote.value = currentNote.value;
+
+        Array.prototype.forEach.call(this.element.querySelectorAll('[data-forestry-rewards-root]'), function (currentRoot) {
+          var nextRoot = nextSection.querySelector('[data-forestry-rewards-root][data-surface="' + currentRoot.getAttribute('data-surface') + '"]');
+          if (!nextRoot || currentRoot.getAttribute('data-shopify-customer-id') !== nextRoot.getAttribute('data-shopify-customer-id') || currentRoot.getAttribute('data-marketing-profile-id') !== nextRoot.getAttribute('data-marketing-profile-id')) return;
+          Array.prototype.forEach.call(nextRoot.attributes, function (attribute) {
+            if (attribute.name.indexOf('data-cart-') === 0 || attribute.name === 'data-empty-cart') currentRoot.setAttribute(attribute.name, attribute.value);
+          });
+          var fallback = nextRoot.querySelector('[data-forestry-rewards-fallback]');
+          if (fallback) {
+            try { currentRoot.__forestryFallbackPayload = JSON.parse(fallback.textContent); } catch (error) {}
+          }
+          nextRoot.parentNode.replaceChild(currentRoot, nextRoot);
+        });
 
         if (currentCart && nextCart && cartResult['itemCount'] > 0) {
           currentCart.parentNode.replaceChild(nextCart, currentCart);
@@ -3763,7 +3781,8 @@
             currentHeader.innerHTML = nextHeader.innerHTML;
           }
         } else {
-          this.element.innerHTML = nextSection.innerHTML;
+          this.element.innerHTML = '';
+          while (nextSection.firstChild) this.element.appendChild(nextSection.firstChild);
         }
         drawerMain = this.element.querySelector('.Drawer__Main');
         if (this.options['drawer'] && drawerMain) {
@@ -3783,6 +3802,7 @@
         cartQuantity.forEach(function (item) {
           item.textContent = _this5.itemCount;
         });
+        document.dispatchEvent(new CustomEvent('forestry:cart:updated', { detail: { cart: cartData && Array.isArray(cartData.items) ? cartData : null } }));
       }
     }]);
 
