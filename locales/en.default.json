@@ -9,6 +9,12 @@
  */
 {
   "candle_cash": {
+    "redemption_summary": "Save [amount] in Candle Cash, then redeem [amount] per order.",
+    "required_balance": "Required balance",
+    "discount_per_order": "Discount per order",
+    "balance_wait": "Keep earning until you have [amount] in Candle Cash.",
+    "saved_reward_help": "Open Candle Cash to check your saved codes.",
+    "balance_note": "Redeem [amount] once per day. Birthday coupons are separate.",
     "online_eligibility": "Candles, wax melts, and other retail merchandise qualify, including mixed carts. Subscriptions (including Candle Club), renewal charges, and gift cards are excluded."
   },
   "general": {
@@ -323,7 +329,7 @@
     "scent_options": {
       "choose_options": "Choose scents",
       "heading": "Choose your scents",
-      "help": "Choose one scent for each item in this bundle.",
+      "help": "Choose every scent, then add this bundle to your cart.",
       "label": "Scent",
       "placeholder": "Choose a scent",
       "load_error": "Scent options could not be loaded. Please refresh and try again.",
